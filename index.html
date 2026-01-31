@@ -47,7 +47,7 @@
 </head>
 <body>
 
-    <audio id="game-music" loop preload="auto"><source src="music.mp3" type="audio/mpeg"></audio>
+    <audio id="game-music" loop preload="auto"><source src="musica.mp3" type="audio/mpeg"></audio>
     <div id="music-toggle" onclick="toggleMusic()" class="hidden"><i id="music-icon" class="fa-solid fa-volume-xmark"></i></div>
 
     <div id="video-bg-container">
@@ -71,9 +71,9 @@
             <!-- LOGIN -->
             <div id="view-login" class="h-full flex flex-col items-center justify-center p-6">
                 <h1 class="font-royal text-6xl md:text-8xl mb-2 text-yellow-500 text-center drop-shadow-2xl">DANIEL</h1>
-                <p class="text-[10px] tracking-[0.6em] mb-12 text-zinc-400 uppercase">El Desafío Profético</p>
+                <p class="text-[10px] tracking-[0.6em] mb-12 text-zinc-400 uppercase font-bold">El Desafío Profético</p>
                 <div class="card-glass p-8 rounded-[2.5rem] w-full max-w-sm">
-                    <input type="text" id="login-name" placeholder="Tu Nombre" class="w-full bg-black/50 border border-zinc-800 p-4 rounded-xl mb-4 text-center text-lg text-white outline-none">
+                    <input type="text" id="login-name" placeholder="Tu Nombre" class="w-full bg-black/50 border border-zinc-800 p-4 rounded-xl mb-4 text-center text-lg text-white outline-none focus:border-gold transition-colors">
                     <div id="admin-pass-container" class="hidden">
                         <input type="password" id="login-pass" placeholder="Clave de Mando" class="w-full bg-black/50 border border-zinc-800 p-4 rounded-xl mb-4 text-center text-white outline-none">
                     </div>
@@ -85,7 +85,7 @@
             <!-- MAPA -->
             <div id="view-levels" class="hidden min-h-screen p-4 overflow-y-auto">
                 <header class="flex justify-between items-center mb-8 max-w-7xl mx-auto">
-                    <h2 class="font-royal text-2xl text-white uppercase tracking-tighter">Misiones de Daniel</h2>
+                    <h2 class="font-royal text-2xl text-white uppercase tracking-tighter">Misiones Reales</h2>
                     <button onclick="location.reload()" class="bg-red-900/20 text-red-500 px-4 py-2 rounded-lg text-xs font-bold border border-red-900/50">SALIR</button>
                 </header>
                 <div id="level-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto pb-10"></div>
@@ -98,21 +98,20 @@
                         <h2 id="lobby-title" class="font-royal text-xl text-yellow-500 uppercase">SALA DE ESPERA</h2>
                         <button onclick="showView('levels')" class="text-xs text-yellow-600 underline uppercase font-bold hover:text-white">Volver al Mapa</button>
                     </div>
-                    <!-- ESTO ES LO QUE NO APARECÍA: -->
                     <div id="access-code-prompt" class="hidden flex gap-2 w-full">
                         <input type="text" id="join-code-input" placeholder="CÓDIGO" class="flex-1 bg-black border border-yellow-600/50 p-3 rounded-xl text-center text-yellow-500 font-bold outline-none">
-                        <button onclick="validateAccessCode()" class="btn-gold px-6 rounded-xl text-xs">Entrar al Foso</button>
+                        <button onclick="validateAccessCode()" class="btn-gold px-6 rounded-xl text-xs">Iniciar Quiz</button>
                     </div>
                     <button id="admin-back-btn" onclick="showView('admin')" class="hidden w-full bg-zinc-800 py-2 rounded-lg text-xs uppercase font-bold text-zinc-300">Volver al Mando</button>
                 </div>
                 <div class="flex-1 card-glass rounded-2xl p-4 mb-4 overflow-y-auto" id="chat-messages"></div>
                 <div class="flex gap-2 pb-6">
-                    <input type="text" id="chat-input" placeholder="Escribe al Reino..." class="flex-1 bg-black border border-zinc-800 p-4 rounded-2xl text-white outline-none">
+                    <input type="text" id="chat-input" placeholder="Escribe un mensaje..." class="flex-1 bg-black border border-zinc-800 p-4 rounded-2xl text-white outline-none">
                     <button onclick="sendChatMessage()" class="btn-gold px-6 rounded-2xl font-bold">Enviar</button>
                 </div>
             </div>
 
-            <!-- RESULTADOS GLOBALES -->
+            <!-- RESULTADOS FINALES -->
             <div id="global-results" class="results-overlay hidden">
                 <h2 class="font-royal text-3xl md:text-6xl text-yellow-500 mb-10 mt-6 tracking-widest drop-shadow-2xl">HALL DE LA GLORIA</h2>
                 <div id="results-list" class="w-full max-w-3xl space-y-4 px-2 pb-20"></div>
@@ -141,18 +140,18 @@
             <div id="view-admin" class="hidden min-h-screen p-4 overflow-y-auto">
                 <div class="max-w-7xl mx-auto pb-20">
                     <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-10">
-                        <button onclick="showView('lobby')" class="bg-blue-900/40 text-blue-400 px-8 py-3 rounded-xl border border-blue-900 font-bold text-[10px] uppercase tracking-widest">Entrar al Chat</button>
-                        <h2 class="font-royal text-4xl text-red-600 text-center drop-shadow-lg tracking-widest">SALA DE GUERRA</h2>
-                        <button onclick="resetGlobalSystem()" class="bg-red-900/40 text-red-400 px-8 py-3 rounded-xl border border-red-900 font-bold text-[10px] uppercase tracking-widest">Borrar Memoria</button>
+                        <button onclick="showView('lobby')" class="bg-blue-900/40 text-blue-400 px-8 py-3 rounded-xl border border-blue-900 font-bold text-[10px] uppercase tracking-widest">Sala de Chat</button>
+                        <h2 class="font-royal text-4xl text-red-600 text-center tracking-widest uppercase">Mando Supremo</h2>
+                        <button onclick="resetGlobalSystem()" class="bg-red-900/40 text-red-400 px-8 py-3 rounded-xl border border-red-900 font-bold text-[10px] uppercase tracking-widest">Reiniciar Todo</button>
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div class="card-glass p-6 rounded-3xl h-fit">
-                            <h3 class="text-yellow-500 font-royal mb-6 border-b border-zinc-800 pb-2 uppercase text-sm tracking-widest">Gestión de Capítulos</h3>
+                            <h3 class="text-yellow-500 font-royal mb-6 border-b border-zinc-800 pb-2 uppercase text-sm tracking-widest">Control Capítulos</h3>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="adm-levels-controls"></div>
                             <div class="mt-10 grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <button onclick="toggleResults(true)" class="bg-yellow-600 text-black py-4 rounded-xl font-bold uppercase text-xs">Publicar Ranking Global</button>
-                                <button onclick="toggleResults(false)" class="bg-zinc-800 text-white py-4 rounded-xl font-bold uppercase text-xs">Cerrar Ranking</button>
+                                <button onclick="toggleResults(true)" class="bg-yellow-600 text-black py-4 rounded-xl font-bold uppercase text-xs">Publicar Resultados</button>
+                                <button onclick="toggleResults(false)" class="bg-zinc-800 text-white py-4 rounded-xl font-bold uppercase text-xs">Ocultar Resultados</button>
                             </div>
                         </div>
 
@@ -212,7 +211,6 @@
             else { gameMusic.pause(); document.getElementById('music-icon').className = "fa-solid fa-volume-xmark"; }
         };
 
-        // Función para cambiar de vista de forma segura
         window.showView = (id) => {
             ['view-login', 'view-levels', 'view-lobby', 'view-game', 'view-admin'].forEach(v => document.getElementById(v).classList.add('hidden'));
             document.getElementById('view-' + id).classList.remove('hidden');
@@ -224,7 +222,7 @@
             return `${m.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
         }
 
-        // --- AUTH ---
+        // --- AUTH & SYNC ---
         window.handleAuth = async () => {
             const name = document.getElementById('login-name').value.trim();
             const pass = document.getElementById('login-pass').value.trim();
@@ -248,8 +246,6 @@
                 renderAdminStatus();
                 document.getElementById('global-results').classList.toggle('hidden', !data.showResults);
                 if(data.showResults) updateGlobalResultsList();
-
-                // Actualizar visibilidad del código en tiempo real
                 updateCodeVisibility();
             });
 
@@ -265,6 +261,7 @@
             onSnapshot(doc(db, "config", "images"), (snap) => {
                 levelImages = snap.data() || {};
                 renderLevelGrid();
+                renderAdminStatus();
             });
         }
 
@@ -292,24 +289,23 @@
 
         window.enterLobby = (lvl) => { 
             activeLevelLobby = lvl;
-            document.getElementById('lobby-title').innerText = "MISIÓN DEL CAPÍTULO " + lvl;
+            document.getElementById('lobby-title').innerText = "CAPÍTULO " + lvl;
             window.showView('lobby'); 
-            updateCodeVisibility(); // Asegura que el input se muestre/oculte al entrar
+            updateCodeVisibility();
         };
 
-        window.alertLocked = () => Swal.fire({ title: "Sello Sagrado", text: "Este portal está cerrado bajo orden real.", icon: "info", background: "#080808", color: "#d4af37", confirmButtonColor: "#d4af37" });
+        window.alertLocked = () => Swal.fire({ title: "Portal Cerrado", text: "Este nivel no ha sido habilitado todavía.", icon: "info", confirmButtonColor: "#d4af37" });
 
         window.validateAccessCode = () => {
             const input = document.getElementById('join-code-input').value.trim();
-            const correctCode = gameConfig.levels?.[activeLevelLobby]?.code;
-            if(input === correctCode) startQuiz();
-            else Swal.fire("Código Incorrecto", "El permiso ha sido denegado.", "error");
+            if(input === gameConfig.levels?.[activeLevelLobby]?.code) startQuiz();
+            else Swal.fire("Denegado", "El código es incorrecto.", "error");
         };
 
         // --- QUIZ ---
         async function startQuiz() {
             const snap = await getDoc(doc(db, "levels", "lvl_" + activeLevelLobby));
-            if(!snap.exists()) return Swal.fire("Sin Datos", "Esta misión no tiene instrucciones cargadas.", "warning");
+            if(!snap.exists()) return Swal.fire("Vacio", "No hay preguntas en este nivel.", "warning");
             const qs = snap.data().questions.sort(() => Math.random() - 0.5).slice(0, 20);
             userState.lives = 3; userState.qIndex = 0; userState.score = 0; userState.startTime = Date.now();
             window.showView('game'); runQuiz(qs);
@@ -382,14 +378,14 @@
                 container.innerHTML += `
                     <div class="admin-level-item flex flex-col gap-3">
                         <div class="flex justify-between items-center border-b border-white/5 pb-2">
-                            <span class="font-royal text-[10px] uppercase">Capítulo ${i} ${s.exists()?'✅':'❌'}</span>
+                            <span class="font-royal text-[10px] uppercase font-bold">Capítulo ${i} ${s.exists()?'✅':'❌'}</span>
                             <span class="text-xs font-bold text-yellow-500">${gameConfig.levels?.[i]?.code || '----'}</span>
                         </div>
-                        <div class="flex gap-2">
-                            <button onclick="adminPick(${i},'img')" class="flex-1 bg-zinc-800 py-2 rounded text-[8px] font-bold border border-white/5">FOTO</button>
-                            <button onclick="adminPick(${i},'excel')" class="flex-1 bg-zinc-800 py-2 rounded text-[8px] font-bold border border-white/5">XLSX</button>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="adminPick(${i},'img')" class="bg-zinc-800 py-2 rounded text-[8px] font-bold border border-white/5 uppercase">Img</button>
+                            <button onclick="adminPick(${i},'excel')" class="bg-zinc-800 py-2 rounded text-[8px] font-bold border border-white/5 uppercase">Doc</button>
                         </div>
-                        <button onclick="toggleLvlState(${i})" class="w-full py-3 rounded-xl font-bold text-[10px] ${active?'bg-red-900 text-red-100 shadow-[0_0_10px_rgba(127,29,29,0.5)]':'bg-green-900 text-green-100 shadow-[0_0_10px_rgba(20,83,45,0.5)]'} uppercase tracking-widest">
+                        <button onclick="toggleLvlState(${i})" class="w-full py-3 rounded-xl font-bold text-[10px] ${active?'bg-red-900 text-red-100':'bg-green-900 text-green-100'} uppercase">
                             ${active?'Desactivar':'Activar'}
                         </button>
                     </div>`;
@@ -407,7 +403,7 @@
             r.onload = async (e) => {
                 const up = {}; up[adminLvlTarget] = e.target.result;
                 await setDoc(doc(db, "config", "images"), up, { merge: true });
-                Swal.fire("Imagen Guardada", "Misión actualizada con éxito.", "success");
+                Swal.fire("Imagen Guardada", "Éxito.", "success");
             };
             r.readAsDataURL(input.files[0]);
         };
@@ -419,14 +415,14 @@
                 const json = XLSX.utils.sheet_to_json(book.Sheets[book.SheetNames[0]]);
                 await setDoc(doc(db, "levels", "lvl_" + adminLvlTarget), { questions: json });
                 refreshAdminStatus();
-                Swal.fire("Listo", "Preguntas reemplazadas correctamente.", "success");
+                Swal.fire("Doc Cargado", "Éxito.", "success");
             };
             r.readAsArrayBuffer(input.files[0]);
         };
 
         window.toggleLvlState = async (lvl) => {
             const s = await getDoc(doc(db, "levels", "lvl_" + lvl));
-            if(!s.exists()) return Swal.fire("Error", "Sube el Excel antes de activar.", "error");
+            if(!s.exists()) return Swal.fire("Error", "Sube el Excel primero.", "error");
             const up = { levels: { ...gameConfig.levels } };
             const current = up.levels[lvl] || {};
             current.active = !current.active;
@@ -448,14 +444,14 @@
                 <div class="flex justify-between items-center p-6 card-glass rounded-[2rem] border-l-8 ${i<3?'border-yellow-500 shadow-[0_0_20px_rgba(212,175,55,0.2)]':'border-zinc-700'}">
                     <div class="flex gap-6 items-center">
                         <span class="font-royal text-3xl md:text-5xl ${isGold?'text-yellow-500':'text-zinc-600'}">#${i+1}</span>
-                        <div class="flex flex-col">
-                            <span class="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em]">Guerrero del Reino</span>
+                        <div class="flex flex-col text-left">
+                            <span class="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em]">Guerrero</span>
                             <span class="font-royal text-xl md:text-3xl text-white uppercase">${p.name}</span>
                         </div>
                     </div>
                     <div class="text-right">
                         <span class="text-yellow-500 font-bold text-3xl md:text-5xl drop-shadow-lg">${p.score} <small class="text-xs">PTS</small></span>
-                        <div class="text-zinc-500 font-mono text-sm md:text-lg mt-1 uppercase tracking-widest">${formatTime(p.time)} <small class="text-[8px]">Tiempo</small></div>
+                        <div class="text-zinc-500 font-mono text-sm md:text-lg mt-1 uppercase tracking-widest">${formatTime(p.time)} <small class="text-[8px]">Time</small></div>
                     </div>
                 </div>`;
             });
@@ -470,7 +466,7 @@
         };
 
         window.resetGlobalSystem = async () => {
-            const res = await Swal.fire({ title: '¿REINICIAR TODO?', text: "Se perderán todas las posiciones y el chat.", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' });
+            const res = await Swal.fire({ title: '¿REINICIAR TODO?', icon: 'warning', showCancelButton: true });
             if(!res.isConfirmed) return;
             const p = await getDocs(collection(db, "players")); p.forEach(async d => await deleteDoc(doc(db, "players", d.id)));
             const c = await getDocs(collection(db, "chat")); c.forEach(async d => await deleteDoc(doc(db, "chat", d.id)));
