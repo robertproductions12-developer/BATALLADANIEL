@@ -36,41 +36,25 @@
         #view-game { min-height: 100vh; display: flex; flex-direction: column; padding-bottom: 120px; }
         .hidden { display: none !important; }
 
-        /* Footer */
-        .footer-anclado { 
-            position: relative; width: 100%; text-align: center; padding: 20px; 
-            background: linear-gradient(to top, #000, transparent);
-            color: var(--gold); font-size: 10px; letter-spacing: 2px; font-weight: bold;
-        }
+        .footer-anclado { position: relative; width: 100%; text-align: center; padding: 20px; background: linear-gradient(to top, #000, transparent); color: var(--gold); font-size: 10px; letter-spacing: 2px; font-weight: bold; }
 
-        /* Música */
-        #music-toggle {
-            position: fixed; top: 20px; left: 20px; z-index: 1100;
-            background: rgba(0,0,0,0.6); border: 1px solid var(--gold);
-            color: var(--gold); width: 45px; height: 45px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; cursor: pointer;
-        }
+        #music-toggle { position: fixed; top: 20px; left: 20px; z-index: 1100; background: rgba(0,0,0,0.6); border: 1px solid var(--gold); color: var(--gold); width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
-        .results-overlay { position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.95); display: flex; flex-direction: column; align-items: center; padding: 2rem; overflow-y: auto; }
+        .results-overlay { position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.98); display: flex; flex-direction: column; align-items: center; padding: 1rem; overflow-y: auto; }
+        
+        /* Ajuste para el monitor admin */
+        .admin-level-item { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px; border: 1px solid rgba(212,175,55,0.1); }
     </style>
 </head>
 <body>
 
-    <!-- AUDIO -->
-    <audio id="game-music" loop preload="auto">
-        <source src="musica.mp3" type="audio/mpeg">
-    </audio>
+    <audio id="game-music" loop preload="auto"><source src="musica.mp3" type="audio/mpeg"></audio>
+    <div id="music-toggle" onclick="toggleMusic()" class="hidden"><i id="music-icon" class="fa-solid fa-volume-xmark"></i></div>
 
-    <div id="music-toggle" onclick="toggleMusic()" class="hidden">
-        <i id="music-icon" class="fa-solid fa-volume-xmark"></i>
-    </div>
-
-    <!-- VIDEO FONDO -->
     <div id="video-bg-container">
         <video id="bg-video-loop" loop playsinline muted><source src="intro.mp4" type="video/mp4"></video>
     </div>
 
-    <!-- VIDEOS RESULTADO -->
     <div id="video-outcome" class="fullscreen-video hidden">
         <video id="outcome-player" playsinline class="w-full h-full object-cover"></video>
         <div class="absolute bottom-10 w-full text-center">
@@ -78,27 +62,25 @@
         </div>
     </div>
 
-    <!-- INTRO OVERLAY -->
     <div id="intro-overlay">
         <video id="intro-video" playsinline autoplay muted loop class="w-full h-full object-cover"><source src="intro.mp4" type="video/mp4"></video>
         <button onclick="endIntro()" class="absolute bottom-20 btn-gold px-12 py-5 rounded-full text-lg z-[1001]">Entrar a la Batalla</button>
     </div>
 
-    <!-- MAIN CONTENT -->
     <div id="main-content" class="relative z-10 opacity-0 transition-opacity duration-1000 h-screen flex flex-col">
         
         <div class="flex-grow">
             <!-- LOGIN -->
             <div id="view-login" class="h-full flex flex-col items-center justify-center p-6">
-                <h1 class="font-royal text-5xl md:text-8xl mb-2 text-yellow-500 text-center drop-shadow-2xl">DANIEL</h1>
+                <h1 class="font-royal text-5xl md:text-8xl mb-2 text-yellow-500 text-center drop-shadow-2xl uppercase">Daniel</h1>
                 <p class="text-[10px] tracking-[0.6em] mb-12 text-zinc-400 uppercase">El Desafío Profético</p>
                 <div class="card-glass p-8 rounded-[2.5rem] w-full max-w-sm">
-                    <input type="text" id="login-name" placeholder="Tu Nombre" class="w-full bg-black/50 border border-zinc-800 p-4 rounded-xl mb-4 text-center text-lg text-white outline-none focus:border-gold transition-all">
+                    <input type="text" id="login-name" placeholder="Tu Nombre" class="w-full bg-black/50 border border-zinc-800 p-4 rounded-xl mb-4 text-center text-lg text-white outline-none">
                     <div id="admin-pass-container" class="hidden">
                         <input type="password" id="login-pass" placeholder="Clave de Mando" class="w-full bg-black/50 border border-zinc-800 p-4 rounded-xl mb-4 text-center text-white outline-none">
                     </div>
                     <button onclick="handleAuth()" class="btn-gold w-full py-4 rounded-xl text-lg font-bold">Comenzar</button>
-                    <button onclick="toggleAdminField()" class="text-[10px] mt-6 text-zinc-600 underline uppercase block mx-auto tracking-widest">Acceso Administrador</button>
+                    <button onclick="toggleAdminField()" class="text-[10px] mt-6 text-zinc-600 underline uppercase block mx-auto tracking-widest">Administrador</button>
                 </div>
             </div>
 
@@ -113,8 +95,11 @@
 
             <!-- LOBBY -->
             <div id="view-lobby" class="hidden h-screen flex flex-col p-4 max-w-4xl mx-auto overflow-hidden">
-                <div class="card-glass p-4 rounded-2xl mb-4 flex flex-col gap-3 justify-between items-center">
-                    <h2 id="lobby-title" class="font-royal text-xl text-yellow-500 uppercase">SALA DE ESPERA</h2>
+                <div class="card-glass p-4 rounded-2xl mb-4 flex flex-col gap-3">
+                    <div class="flex justify-between items-center">
+                        <h2 id="lobby-title" class="font-royal text-xl text-yellow-500 uppercase">SALA DE ESPERA</h2>
+                        <button onclick="showView('levels')" class="text-xs text-zinc-500 underline uppercase">Volver al Mapa</button>
+                    </div>
                     <div id="access-code-prompt" class="hidden flex gap-2 w-full">
                         <input type="text" id="join-code-input" placeholder="CÓDIGO" class="flex-1 bg-black border border-yellow-600/50 p-3 rounded-xl text-center text-yellow-500 font-bold outline-none">
                         <button onclick="validateAccessCode()" class="btn-gold px-6 rounded-xl">Entrar</button>
@@ -123,25 +108,25 @@
                 </div>
                 <div class="flex-1 card-glass rounded-2xl p-4 mb-4 overflow-y-auto" id="chat-messages"></div>
                 <div class="flex gap-2 pb-6">
-                    <input type="text" id="chat-input" placeholder="Escribe un mensaje..." class="flex-1 bg-black border border-zinc-800 p-4 rounded-2xl text-white outline-none">
+                    <input type="text" id="chat-input" placeholder="Escribe..." class="flex-1 bg-black border border-zinc-800 p-4 rounded-2xl text-white outline-none">
                     <button onclick="sendChatMessage()" class="btn-gold px-6 rounded-2xl">Enviar</button>
                 </div>
             </div>
 
-            <!-- RESULTADOS -->
+            <!-- RESULTADOS GLOBAL -->
             <div id="global-results" class="results-overlay hidden">
-                <h2 class="font-royal text-4xl text-yellow-500 mb-8 mt-10">RESULTADOS</h2>
-                <div id="results-list" class="w-full max-w-2xl space-y-4"></div>
+                <h2 class="font-royal text-3xl md:text-5xl text-yellow-500 mb-8 mt-6">RANKING SUPREMO</h2>
+                <div id="results-list" class="w-full max-w-2xl space-y-4 px-2"></div>
             </div>
 
             <!-- QUIZ -->
             <div id="view-game" class="hidden">
-                <div class="p-6">
+                <div class="p-4 md:p-6">
                     <div class="flex justify-between items-center mb-6">
                         <div id="game-lives" class="flex"></div>
                         <div class="text-right"><span id="game-score" class="text-3xl font-bold text-yellow-500 font-royal">0</span></div>
                     </div>
-                    <div class="card-glass p-6 md:p-10 rounded-[2.5rem] flex flex-col min-h-[480px]">
+                    <div class="card-glass p-6 md:p-10 rounded-[2.5rem] flex flex-col min-h-[500px] w-full max-w-2xl mx-auto">
                         <p id="q-index" class="text-center text-[11px] text-yellow-600 font-bold mb-6 tracking-widest uppercase"></p>
                         <h3 id="q-text" class="text-xl md:text-3xl text-center font-semibold mb-8 leading-tight"></h3>
                         <div id="options-grid" class="grid grid-cols-1 gap-4"></div>
@@ -154,46 +139,39 @@
             <div id="view-admin" class="hidden min-h-screen p-4 overflow-y-auto">
                 <div class="max-w-7xl mx-auto pb-20">
                     <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-10">
-                        <button onclick="showView('lobby')" class="w-full md:w-auto bg-blue-900/40 text-blue-400 px-8 py-3 rounded-xl border border-blue-900 font-bold text-[10px] uppercase">Sala de Espera</button>
+                        <button onclick="showView('lobby')" class="bg-blue-900/40 text-blue-400 px-8 py-3 rounded-xl border border-blue-900 font-bold text-[10px] uppercase">SALA ESPERA</button>
                         <h2 class="font-royal text-4xl text-red-600">SALA DE MANDO</h2>
-                        <button onclick="resetGlobalSystem()" class="w-full md:w-auto bg-red-900/40 text-red-400 px-8 py-3 rounded-xl border border-red-900 font-bold text-[10px] uppercase">Limpiar Todo</button>
+                        <button onclick="resetGlobalSystem()" class="bg-red-900/40 text-red-400 px-8 py-3 rounded-xl border border-red-900 font-bold text-[10px] uppercase">REINICIAR TODO</button>
                     </div>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        <!-- Control -->
-                        <div class="card-glass p-6 rounded-3xl">
-                            <h3 class="text-yellow-500 font-royal mb-6 border-b border-zinc-800 pb-2 uppercase text-sm">Configuración</h3>
-                            <select id="adm-level-sel" class="w-full bg-black border border-zinc-800 p-4 rounded-xl mb-4 text-white outline-none">
-                                <script>for(let i=1;i<=12;i++) document.write(`<option value="${i}">Capítulo ${i}</option>`)</script>
-                            </select>
-                            <input type="file" id="adm-img-input" accept="image/*" class="hidden" onchange="handleImageUpload(this)">
-                            <button onclick="document.getElementById('adm-img-input').click()" class="w-full bg-zinc-800 text-white p-3 rounded-xl text-[10px] mb-6 uppercase font-bold border border-zinc-700">Imagen Local</button>
-                            
-                            <div class="space-y-4">
-                                <button onclick="toggleResults(true)" class="w-full bg-yellow-600 text-black py-4 rounded-xl font-bold uppercase text-xs">Mostrar Resultados</button>
-                                <button onclick="toggleResults(false)" class="w-full bg-zinc-800 text-white py-3 rounded-xl font-bold uppercase text-xs">Quitar Resultados</button>
-                                <button onclick="activateLevel()" class="btn-gold w-full py-5 rounded-xl text-xl mt-4">Activar Nivel</button>
-                                <div id="adm-active-code" class="text-center text-5xl font-bold text-yellow-500 tracking-widest mt-6"></div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Control de Misiones Individual -->
+                        <div class="card-glass p-6 rounded-3xl h-fit">
+                            <h3 class="text-yellow-500 font-royal mb-6 border-b border-zinc-800 pb-2 uppercase text-sm">Gestionar Capítulos</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="adm-levels-controls">
+                                <!-- Generado por JS -->
+                            </div>
+                            <div class="mt-8 pt-6 border-t border-zinc-800">
+                                <button onclick="toggleResults(true)" class="w-full bg-yellow-600 text-black py-4 rounded-xl font-bold uppercase text-xs mb-4">PUBLICAR RESULTADOS EN PANTALLA</button>
+                                <button onclick="toggleResults(false)" class="w-full bg-zinc-800 text-white py-3 rounded-xl font-bold uppercase text-xs">OCULTAR RESULTADOS</button>
                             </div>
                         </div>
-                        <!-- Excel -->
-                        <div class="card-glass p-6 rounded-3xl">
-                            <h3 class="text-yellow-500 font-royal mb-6 border-b border-zinc-800 pb-2 uppercase text-sm">Base de Datos</h3>
-                            <input type="file" id="adm-excel" accept=".xlsx" class="hidden" onchange="processExcel(this)">
-                            <button onclick="document.getElementById('adm-excel').click()" class="w-full py-12 border-2 border-dashed border-zinc-800 rounded-2xl text-zinc-500 font-bold text-center text-xs uppercase hover:border-gold transition-colors">Subir Preguntas .xlsx</button>
-                            <div id="adm-levels-status" class="grid grid-cols-3 gap-2 mt-8 text-[9px]"></div>
-                        </div>
-                        <!-- Monitor -->
-                        <div class="card-glass p-6 rounded-3xl">
-                            <h3 class="text-yellow-500 font-royal mb-6 border-b border-zinc-800 pb-2 uppercase text-sm">Monitor Ranking</h3>
-                            <div id="adm-monitor" class="space-y-3"></div>
+
+                        <!-- Monitor y Subida -->
+                        <div class="space-y-8">
+                            <div class="card-glass p-6 rounded-3xl">
+                                <h3 class="text-yellow-500 font-royal mb-6 border-b border-zinc-800 pb-2 uppercase text-sm">Monitor Ranking (Tiempo Real)</h3>
+                                <div id="adm-monitor" class="space-y-3"></div>
+                            </div>
+                            <!--Inputs ocultos para carga de archivos-->
+                            <input type="file" id="adm-img-input" accept="image/*" class="hidden" onchange="handleImageUpload(this)">
+                            <input type="file" id="adm-excel-input" accept=".xlsx" class="hidden" onchange="processExcel(this)">
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- FOOTER -->
         <footer class="footer-anclado">
             DESARROLLADO POR - ROBERT PARACO 2026 
             <a href="https://instagram.com/robertparaco" target="_blank" class="ml-2 hover:scale-110 inline-block transition">
@@ -218,10 +196,10 @@
         const db = getFirestore(app);
 
         let userState = { name: '', isAdmin: false, lives: 3, score: 0, qIndex: 0, dead: false, startTime: 0, totalTime: 0 };
-        let gameConfig = { activeLevel: 0, activeCode: '', status: 'waiting', showResults: false };
+        let activeLevelLobby = 0; // Para saber en qué lobby está el usuario
+        let gameConfig = { levels: {}, showResults: false };
         let levelImages = {};
-
-        // VIDEOS
+        
         const VID_VICTORY = "https://assets.mixkit.co/videos/preview/mixkit-golden-confetti-falling-on-a-black-background-4148-large.mp4";
         const VID_DEFEAT = "https://assets.mixkit.co/videos/preview/mixkit-fire-and-smoke-4122-large.mp4";
 
@@ -230,47 +208,35 @@
         const gameMusic = document.getElementById('game-music');
 
         window.endIntro = () => {
-            const overlay = document.getElementById('intro-overlay');
-            const main = document.getElementById('main-content');
-            overlay.classList.add('fade-out');
-            main.classList.replace('opacity-0', 'opacity-100');
+            document.getElementById('intro-overlay').classList.add('fade-out');
+            document.getElementById('main-content').classList.replace('opacity-0', 'opacity-100');
             document.getElementById('music-toggle').classList.remove('hidden');
             bgLoop.play().catch(()=>{});
             startMusic();
         };
 
-        // MUSICA
-        let isMusicPlaying = false;
         window.toggleMusic = () => {
-            const icon = document.getElementById('music-icon');
-            if(isMusicPlaying) {
-                gameMusic.pause();
-                icon.className = "fa-solid fa-volume-xmark";
-            } else {
-                gameMusic.play();
-                icon.className = "fa-solid fa-volume-high";
-            }
-            isMusicPlaying = !isMusicPlaying;
+            if(gameMusic.paused) { gameMusic.play(); document.getElementById('music-icon').className = "fa-solid fa-volume-high"; }
+            else { gameMusic.pause(); document.getElementById('music-icon').className = "fa-solid fa-volume-xmark"; }
         };
-        function startMusic() {
-            gameMusic.play().then(() => {
-                isMusicPlaying = true;
-                document.getElementById('music-icon').className = "fa-solid fa-volume-high";
-            }).catch(() => {});
+        function startMusic() { gameMusic.play().catch(() => {}); }
+
+        function formatTime(s) {
+            const m = Math.floor(s / 60);
+            const sec = s % 60;
+            return `${m.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
         }
 
-        // AUTH
+        // --- AUTH ---
         window.handleAuth = async () => {
             const name = document.getElementById('login-name').value.trim();
             const pass = document.getElementById('login-pass').value.trim();
             if (!name) return;
-
             if (name.toLowerCase() === 'admin' && pass === "Daniel777") {
                 userState.isAdmin = true;
                 document.getElementById('admin-back-btn').classList.remove('hidden');
                 initAdmin(); return;
             }
-
             userState.name = name;
             await setDoc(doc(db, "players", name), { name, score:0, qIndex:0, lives:3, dead:false, time:0, lastUpdate: Date.now() });
             showView('levels');
@@ -279,13 +245,18 @@
 
         function syncGlobal() {
             onSnapshot(doc(db, "config", "game"), (snap) => {
-                const data = snap.data(); if(!data) return;
+                const data = snap.data() || { levels: {}, showResults: false };
                 gameConfig = data;
                 renderLevelGrid();
-                const resOverlay = document.getElementById('global-results');
-                if(data.showResults) { resOverlay.classList.remove('hidden'); updateGlobalResultsList(); }
-                else { resOverlay.classList.add('hidden'); }
-                document.getElementById('access-code-prompt').classList.toggle('hidden', data.status !== 'active');
+                renderAdminStatus();
+                document.getElementById('global-results').classList.toggle('hidden', !data.showResults);
+                if(data.showResults) updateGlobalResultsList();
+
+                // Actualizar si el lobby actual está activo o no
+                if(activeLevelLobby > 0) {
+                    const isActive = data.levels[activeLevelLobby]?.active;
+                    document.getElementById('access-code-prompt').classList.toggle('hidden', !isActive);
+                }
             });
 
             onSnapshot(collection(db, "chat"), (snap) => {
@@ -309,7 +280,17 @@
             list.sort((a, b) => b.score - a.score || a.time - b.time);
             const container = document.getElementById('results-list'); container.innerHTML = "";
             list.slice(0, 10).forEach((p, i) => {
-                container.innerHTML += `<div class="flex justify-between p-4 card-glass rounded-xl w-full"><span>#${i+1} ${p.name}</span><span>${p.score} PTS</span></div>`;
+                container.innerHTML += `
+                <div class="flex justify-between items-center p-5 card-glass rounded-2xl w-full border-l-4 ${i<3 ? 'border-yellow-500' : 'border-zinc-700'}">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">#${i+1} Participante</span>
+                        <span class="font-royal text-xl md:text-2xl text-white uppercase">${p.name}</span>
+                    </div>
+                    <div class="text-right flex flex-col items-end">
+                        <span class="text-yellow-500 font-bold text-2xl md:text-3xl">${p.score} <small class="text-[10px]">PTS</small></span>
+                        <span class="text-zinc-400 font-mono text-sm uppercase">${formatTime(p.time)}</span>
+                    </div>
+                </div>`;
             });
         }
 
@@ -317,10 +298,10 @@
             const grid = document.getElementById('level-grid'); if(!grid) return;
             grid.innerHTML = "";
             for(let i=1; i<=12; i++) {
-                const isActive = (gameConfig.activeLevel == i && gameConfig.status === 'active');
+                const isActive = gameConfig.levels?.[i]?.active;
                 const img = levelImages[i] || "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=500";
                 grid.innerHTML += `
-                    <div class="level-card ${isActive ? '' : 'locked'}" onclick="${isActive ? 'enterLobby()' : 'alertLocked()'}">
+                    <div class="level-card ${isActive ? '' : 'locked'}" onclick="${isActive ? 'enterLobby('+i+')' : 'alertLocked()'}">
                         <img src="${img}" class="w-full h-full object-cover">
                         <div class="absolute inset-0 flex items-center justify-center font-royal text-4xl text-white/20">${i}</div>
                         ${isActive ? '<div class="absolute inset-0 border-2 border-yellow-500 animate-pulse rounded-xl"></div>' : ''}
@@ -328,17 +309,24 @@
             }
         }
 
-        window.enterLobby = () => { showView('lobby'); };
-        window.alertLocked = () => Swal.fire("Sellado", "El Rey no ha dado la orden.", "warning");
+        window.enterLobby = (lvl) => { 
+            activeLevelLobby = lvl;
+            document.getElementById('lobby-title').innerText = "CAPÍTULO " + lvl;
+            showView('lobby'); 
+        };
+        window.alertLocked = () => Swal.fire("Sellado", "Este nivel aún no ha sido activado por el Administrador.", "warning");
+
         window.validateAccessCode = () => {
-            if(document.getElementById('join-code-input').value.trim() === gameConfig.activeCode) startQuiz();
-            else Swal.fire("Código Erróneo", "", "error");
+            const inputCode = document.getElementById('join-code-input').value.trim();
+            const correctCode = gameConfig.levels?.[activeLevelLobby]?.code;
+            if(inputCode === correctCode) startQuiz();
+            else Swal.fire("Error", "El código profético es incorrecto.", "error");
         };
 
-        // QUIZ
+        // --- QUIZ ---
         async function startQuiz() {
-            const snap = await getDoc(doc(db, "levels", "lvl_" + gameConfig.activeLevel));
-            if(!snap.exists()) return;
+            const snap = await getDoc(doc(db, "levels", "lvl_" + activeLevelLobby));
+            if(!snap.exists()) return Swal.fire("Error", "Este nivel no tiene preguntas cargadas.", "error");
             const qs = snap.data().questions.sort(() => Math.random() - 0.5).slice(0, 20);
             userState.lives = 3; userState.qIndex = 0; userState.score = 0; userState.startTime = Date.now();
             showView('game'); runQuiz(qs);
@@ -385,38 +373,83 @@
             showView('lobby');
         };
 
-        // ADMIN
+        // --- ADMIN ---
+        let selectedLvlAdmin = 1;
         function initAdmin() {
             showView('admin');
             onSnapshot(collection(db, "players"), (snap) => {
                 const m = document.getElementById('adm-monitor'); m.innerHTML = "";
                 let ps = []; snap.forEach(d => ps.push(d.data()));
                 ps.sort((a,b) => b.score - a.score || a.time - b.time).forEach(p => {
-                    m.innerHTML += `<div class="p-2 border border-zinc-800 rounded flex justify-between text-[8px] uppercase">
+                    m.innerHTML += `<div class="p-3 bg-black/40 rounded-xl border border-zinc-800 flex justify-between items-center text-[10px] uppercase font-bold">
                         <span class="${p.dead?'text-red-500':'text-yellow-500'}">${p.name}</span>
-                        <span>${p.score} PTS | ${p.time}s</span>
+                        <div class="text-right">
+                            <span class="text-white">${p.score} PTS</span><br>
+                            <span class="text-zinc-500 font-mono">${formatTime(p.time)}</span>
+                        </div>
                     </div>`;
                 });
             });
             refreshAdminStatus();
         }
 
+        async function refreshAdminStatus() {
+            const controls = document.getElementById('adm-levels-controls'); if(!controls) return;
+            controls.innerHTML = "";
+            const snapLevels = await getDoc(doc(db, "config", "game"));
+            const currentLevels = snapLevels.data()?.levels || {};
+
+            for(let i=1; i<=12; i++) {
+                const s = await getDoc(doc(db, "levels", "lvl_" + i));
+                const exists = s.exists();
+                const isActive = currentLevels[i]?.active;
+                
+                controls.innerHTML += `
+                <div class="admin-level-item flex flex-col gap-3">
+                    <div class="flex justify-between items-center">
+                        <span class="font-royal text-xs">Capítulo ${i} ${exists ? '✅' : '❌'}</span>
+                        <span class="text-[10px] font-bold text-yellow-500">${currentLevels[i]?.code || '----'}</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="prepareLvlAdmin(${i}, 'img')" class="bg-zinc-800 p-2 rounded text-[8px] uppercase font-bold">Imagen</button>
+                        <button onclick="prepareLvlAdmin(${i}, 'excel')" class="bg-zinc-800 p-2 rounded text-[8px] uppercase font-bold">Cargar Doc</button>
+                    </div>
+                    <button onclick="toggleLvlState(${i})" class="w-full py-2 rounded text-[10px] font-bold uppercase ${isActive ? 'bg-red-900 text-red-200' : 'bg-green-900 text-green-200'}">
+                        ${isActive ? 'DESACTIVAR' : 'ACTIVAR'}
+                    </button>
+                </div>`;
+            }
+        }
+
+        window.prepareLvlAdmin = (lvl, type) => {
+            selectedLvlAdmin = lvl;
+            if(type === 'img') document.getElementById('adm-img-input').click();
+            else document.getElementById('adm-excel-input').click();
+        };
+
         window.handleImageUpload = (input) => {
             const reader = new FileReader();
             reader.onload = async (e) => {
-                const lvl = document.getElementById('adm-level-sel').value;
-                const up = {}; up[lvl] = e.target.result;
+                const up = {}; up[selectedLvlAdmin] = e.target.result;
                 await setDoc(doc(db, "config", "images"), up, { merge: true });
-                Swal.fire("Éxito", "Imagen Guardada", "success");
+                Swal.fire("Imagen Guardada", `Misión ${selectedLvlAdmin} actualizada.`, "success");
             };
             reader.readAsDataURL(input.files[0]);
         };
 
-        window.activateLevel = async () => {
-            const lvl = document.getElementById('adm-level-sel').value;
-            const code = Math.floor(1000 + Math.random() * 9000).toString();
-            await setDoc(doc(db, "config", "game"), { activeLevel: lvl, activeCode: code, status: 'active', showResults: false });
-            document.getElementById('adm-active-code').innerText = code;
+        window.toggleLvlState = async (lvl) => {
+            const s = await getDoc(doc(db, "levels", "lvl_" + lvl));
+            if(!s.exists()) return Swal.fire("Error", "Sube el Excel de este nivel antes de activarlo.", "error");
+            
+            const current = gameConfig.levels?.[lvl] || {};
+            const newState = !current.active;
+            const newCode = newState ? Math.floor(1000 + Math.random() * 9000).toString() : '';
+            
+            const up = { levels: { ...gameConfig.levels } };
+            up.levels[lvl] = { active: newState, code: newCode };
+            
+            await setDoc(doc(db, "config", "game"), up, { merge: true });
+            refreshAdminStatus();
         };
 
         window.toggleResults = async (val) => { await updateDoc(doc(db, "config", "game"), { showResults: val }); };
@@ -428,35 +461,25 @@
         };
 
         window.processExcel = (input) => {
-            const lvl = document.getElementById('adm-level-sel').value;
             const r = new FileReader();
             r.onload = async (e) => {
                 const book = XLSX.read(new Uint8Array(e.target.result), {type: 'array'});
                 const json = XLSX.utils.sheet_to_json(book.Sheets[book.SheetNames[0]]);
-                await setDoc(doc(db, "levels", "lvl_" + lvl), { questions: json });
-                refreshAdminStatus(); Swal.fire("Listo", "Preguntas cargadas", "success");
+                await setDoc(doc(db, "levels", "lvl_" + selectedLvlAdmin), { questions: json });
+                refreshAdminStatus(); Swal.fire("Excel Cargado", `Misión ${selectedLvlAdmin} reemplazada.`, "success");
             };
             r.readAsArrayBuffer(input.files[0]);
         };
 
-        async function refreshAdminStatus() {
-            const grid = document.getElementById('adm-levels-status'); if(!grid) return;
-            grid.innerHTML = "";
-            for(let i=1; i<=12; i++) {
-                const s = await getDoc(doc(db, "levels", "lvl_" + i));
-                grid.innerHTML += `<div class="p-1 border border-zinc-800 text-center">M${i}: ${s.exists()?'✅':'❌'}</div>`;
-            }
-        }
-
         window.resetGlobalSystem = async () => {
-            const res = await Swal.fire({ title: '¿REINICIAR TODO?', icon: 'warning', showCancelButton: true });
-            if(!res.isConfirmed) return;
+            const confirm = await Swal.fire({ title: '¿REINICIAR TODO?', text: "Se borrarán jugadores, chat y configuraciones de niveles activos.", icon: 'warning', showCancelButton: true });
+            if(!confirm.isConfirmed) return;
             const players = await getDocs(collection(db, "players"));
             players.forEach(async d => await deleteDoc(doc(db, "players", d.id)));
             const chat = await getDocs(collection(db, "chat"));
             chat.forEach(async d => await deleteDoc(doc(db, "chat", d.id)));
-            await updateDoc(doc(db, "config", "game"), { status: 'waiting', activeLevel: 0, showResults: false });
-            Swal.fire("Limpio", "", "success");
+            await setDoc(doc(db, "config", "game"), { status: 'waiting', levels: {}, showResults: false });
+            location.reload();
         };
 
         window.toggleAdminField = () => { document.getElementById('admin-pass-container').classList.toggle('hidden'); };
