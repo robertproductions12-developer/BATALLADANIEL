@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -33,16 +32,14 @@
         .level-card.locked { filter: grayscale(1) opacity(0.4); pointer-events: none; }
 
         .gold-heart { color: var(--gold); text-shadow: 0 0 10px rgba(212, 175, 55, 0.5); font-size: 1.5rem; margin-right: 6px; }
-        
         .hidden { display: none !important; }
 
-        .footer-anclado { position: relative; width: 100%; text-align: center; padding: 20px; background: linear-gradient(to top, #000, transparent); color: var(--gold); font-size: 10px; letter-spacing: 2px; font-weight: bold; }
+        .footer-anclado { position: relative; width: 100%; text-align: center; padding: 15px; background: linear-gradient(to top, #000, transparent); color: var(--gold); font-size: 10px; letter-spacing: 2px; font-weight: bold; }
 
         #music-toggle { position: fixed; top: 20px; left: 20px; z-index: 1100; background: rgba(0,0,0,0.6); border: 1px solid var(--gold); color: var(--gold); width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
         .results-overlay { position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.98); display: flex; flex-direction: column; align-items: center; padding: 1rem; overflow-y: auto; }
-        
-        .admin-level-item { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 20px; border: 1px solid rgba(212,175,55,0.15); }
+        .admin-level-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 15px; border: 1px solid rgba(212,175,55,0.15); }
     </style>
 </head>
 <body>
@@ -71,9 +68,9 @@
             <!-- LOGIN -->
             <div id="view-login" class="h-full flex flex-col items-center justify-center p-6">
                 <h1 class="font-royal text-6xl md:text-8xl mb-2 text-yellow-500 text-center drop-shadow-2xl">DANIEL</h1>
-                <p class="text-[10px] tracking-[0.6em] mb-12 text-zinc-400 uppercase font-bold">El Desafío Profético</p>
+                <p class="text-[10px] tracking-[0.6em] mb-12 text-zinc-400 uppercase">El Desafío Profético</p>
                 <div class="card-glass p-8 rounded-[2.5rem] w-full max-w-sm">
-                    <input type="text" id="login-name" placeholder="Tu Nombre" class="w-full bg-black/50 border border-zinc-800 p-4 rounded-xl mb-4 text-center text-lg text-white outline-none focus:border-gold transition-colors">
+                    <input type="text" id="login-name" placeholder="Tu Nombre" class="w-full bg-black/50 border border-zinc-800 p-4 rounded-xl mb-4 text-center text-lg text-white outline-none">
                     <div id="admin-pass-container" class="hidden">
                         <input type="password" id="login-pass" placeholder="Clave de Mando" class="w-full bg-black/50 border border-zinc-800 p-4 rounded-xl mb-4 text-center text-white outline-none">
                     </div>
@@ -84,34 +81,34 @@
 
             <!-- MAPA -->
             <div id="view-levels" class="hidden min-h-screen p-4 overflow-y-auto">
-                <header class="flex justify-between items-center mb-8 max-w-7xl mx-auto">
+                <header class="flex justify-between items-center mb-6 max-w-7xl mx-auto">
                     <h2 class="font-royal text-2xl text-white uppercase tracking-tighter">Misiones Reales</h2>
                     <button onclick="location.reload()" class="bg-red-900/20 text-red-500 px-4 py-2 rounded-lg text-xs font-bold border border-red-900/50">SALIR</button>
                 </header>
-                <div id="level-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto pb-10"></div>
+                <div id="level-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-7xl mx-auto pb-20"></div>
             </div>
 
             <!-- LOBBY -->
             <div id="view-lobby" class="hidden h-screen flex flex-col p-4 max-w-4xl mx-auto overflow-hidden">
                 <div class="card-glass p-4 rounded-2xl mb-4 flex flex-col gap-3">
                     <div class="flex justify-between items-center border-b border-white/10 pb-2">
-                        <h2 id="lobby-title" class="font-royal text-xl text-yellow-500 uppercase">SALA DE ESPERA</h2>
-                        <button onclick="showView('levels')" class="text-xs text-yellow-600 underline uppercase font-bold hover:text-white">Volver al Mapa</button>
+                        <h2 id="lobby-title" class="font-royal text-xl text-yellow-500 uppercase">LOBBY</h2>
+                        <button onclick="showView('levels')" class="text-[10px] text-yellow-600 underline uppercase font-bold hover:text-white">Regresar al Mapa</button>
                     </div>
                     <div id="access-code-prompt" class="hidden flex gap-2 w-full">
-                        <input type="text" id="join-code-input" placeholder="CÓDIGO" class="flex-1 bg-black border border-yellow-600/50 p-3 rounded-xl text-center text-yellow-500 font-bold outline-none">
-                        <button onclick="validateAccessCode()" class="btn-gold px-6 rounded-xl text-xs">Iniciar Quiz</button>
+                        <input type="text" id="join-code-input" placeholder="CÓDIGO" class="flex-1 bg-black border border-yellow-600/50 p-2 rounded-xl text-center text-yellow-500 font-bold outline-none text-sm">
+                        <button onclick="validateAccessCode()" class="btn-gold px-5 rounded-xl text-[10px]">Unirme al Quiz</button>
                     </div>
-                    <button id="admin-back-btn" onclick="showView('admin')" class="hidden w-full bg-zinc-800 py-2 rounded-lg text-xs uppercase font-bold text-zinc-300">Volver al Mando</button>
+                    <button id="admin-back-btn" onclick="showView('admin')" class="hidden w-full bg-zinc-800 py-2 rounded-lg text-xs uppercase font-bold text-zinc-300 tracking-widest">Panel de Control</button>
                 </div>
-                <div class="flex-1 card-glass rounded-2xl p-4 mb-4 overflow-y-auto" id="chat-messages"></div>
-                <div class="flex gap-2 pb-6">
-                    <input type="text" id="chat-input" placeholder="Escribe un mensaje..." class="flex-1 bg-black border border-zinc-800 p-4 rounded-2xl text-white outline-none">
-                    <button onclick="sendChatMessage()" class="btn-gold px-6 rounded-2xl font-bold">Enviar</button>
+                <div class="flex-1 card-glass rounded-2xl p-4 mb-4 overflow-y-auto max-h-[50vh]" id="chat-messages"></div>
+                <div class="flex gap-2 pb-10">
+                    <input type="text" id="chat-input" placeholder="Escribe al Reino..." class="flex-1 bg-black border border-zinc-800 p-3 rounded-xl text-white outline-none text-sm">
+                    <button onclick="sendChatMessage()" class="btn-gold px-5 rounded-xl font-bold text-sm">Enviar</button>
                 </div>
             </div>
 
-            <!-- RESULTADOS FINALES -->
+            <!-- RESULTADOS GLOBALES -->
             <div id="global-results" class="results-overlay hidden">
                 <h2 class="font-royal text-3xl md:text-6xl text-yellow-500 mb-10 mt-6 tracking-widest drop-shadow-2xl">HALL DE LA GLORIA</h2>
                 <div id="results-list" class="w-full max-w-3xl space-y-4 px-2 pb-20"></div>
@@ -124,7 +121,7 @@
                         <div id="game-lives" class="flex"></div>
                         <div class="text-right">
                             <span id="game-score" class="text-4xl font-bold text-yellow-500 font-royal">0</span><br>
-                            <span id="game-timer-label" class="text-sm font-mono text-zinc-400">00:00</span>
+                            <span id="game-timer-label" class="text-sm font-mono text-zinc-400 tracking-widest">00:00</span>
                         </div>
                     </div>
                     <div class="card-glass p-8 md:p-12 rounded-[3rem] flex flex-col min-h-[500px] border-t-4 border-yellow-500/50">
@@ -140,21 +137,41 @@
             <div id="view-admin" class="hidden min-h-screen p-4 overflow-y-auto">
                 <div class="max-w-7xl mx-auto pb-20">
                     <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-10">
-                        <button onclick="showView('lobby')" class="bg-blue-900/40 text-blue-400 px-8 py-3 rounded-xl border border-blue-900 font-bold text-[10px] uppercase tracking-widest">Sala de Chat</button>
-                        <h2 class="font-royal text-4xl text-red-600 text-center tracking-widest uppercase">Mando Supremo</h2>
-                        <button onclick="resetGlobalSystem()" class="bg-red-900/40 text-red-400 px-8 py-3 rounded-xl border border-red-900 font-bold text-[10px] uppercase tracking-widest">Reiniciar Todo</button>
+                        <button onclick="showView('lobby')" class="bg-blue-900/40 text-blue-400 px-8 py-3 rounded-xl border border-blue-900 font-bold text-[10px] uppercase tracking-widest">Entrar al Chat</button>
+                        <h2 class="font-royal text-4xl text-red-600 text-center drop-shadow-lg tracking-widest uppercase">Mando Supremo</h2>
+                        <button onclick="resetGlobalSystem()" class="bg-red-900/40 text-red-400 px-8 py-3 rounded-xl border border-red-900 font-bold text-[10px] uppercase tracking-widest">Limpiar Datos</button>
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- CAPÍTULOS -->
                         <div class="card-glass p-6 rounded-3xl h-fit">
-                            <h3 class="text-yellow-500 font-royal mb-6 border-b border-zinc-800 pb-2 uppercase text-sm tracking-widest">Control Capítulos</h3>
+                            <h3 class="text-yellow-500 font-royal mb-6 border-b border-zinc-800 pb-2 uppercase text-sm tracking-widest">Configuración de Niveles</h3>
+                            
+                            <!-- Ajustes Globales de dificultad -->
+                            <div class="flex flex-wrap gap-4 mb-6 bg-black/40 p-4 rounded-xl border border-zinc-800">
+                                <div class="flex-1 min-w-[120px]">
+                                    <label class="text-[10px] text-zinc-500 uppercase block mb-1">Vidas del Quiz</label>
+                                    <select id="adm-diff" class="w-full bg-black border border-zinc-700 p-2 rounded text-white text-xs">
+                                        <option value="6">6 Vidas</option>
+                                        <option value="3" selected>3 Vidas</option>
+                                        <option value="1">1 Vida</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="adm-show-cita" class="w-5 h-5 accent-yellow-500">
+                                    <label class="text-[10px] text-zinc-300 uppercase">Mostrar Citas</label>
+                                </div>
+                            </div>
+
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="adm-levels-controls"></div>
+                            
                             <div class="mt-10 grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <button onclick="toggleResults(true)" class="bg-yellow-600 text-black py-4 rounded-xl font-bold uppercase text-xs">Publicar Resultados</button>
-                                <button onclick="toggleResults(false)" class="bg-zinc-800 text-white py-4 rounded-xl font-bold uppercase text-xs">Ocultar Resultados</button>
+                                <button onclick="toggleResults(true)" class="bg-yellow-600 text-black py-4 rounded-xl font-bold uppercase text-[10px]">Publicar Ranking Final</button>
+                                <button onclick="toggleResults(false)" class="bg-zinc-800 text-white py-4 rounded-xl font-bold uppercase text-[10px]">Quitar Ranking</button>
                             </div>
                         </div>
 
+                        <!-- RANKING MONITOR -->
                         <div class="card-glass p-6 rounded-3xl h-fit">
                             <h3 class="text-yellow-500 font-royal mb-6 border-b border-zinc-800 pb-2 uppercase text-sm tracking-widest">Monitor de Batalla</h3>
                             <div id="adm-monitor" class="space-y-3"></div>
@@ -190,9 +207,10 @@
 
         let userState = { name: '', isAdmin: false, lives: 3, score: 0, qIndex: 0, dead: false, startTime: 0, totalTime: 0 };
         let activeLevelLobby = 0;
-        let gameConfig = { levels: {}, showResults: false };
+        let gameConfig = { levels: {}, showResults: false, globalLives: 3, showCita: false };
         let levelImages = {};
 
+        // VIDEOS: REEMPLAZA ESTOS LINKS POR LOS TUYOS DE GITHUB O MIXKIT
         const VID_VICTORY = "https://assets.mixkit.co/videos/preview/mixkit-golden-confetti-falling-on-a-black-background-4148-large.mp4";
         const VID_DEFEAT = "https://assets.mixkit.co/videos/preview/mixkit-fire-and-smoke-4122-large.mp4";
 
@@ -240,7 +258,7 @@
 
         function syncGlobal() {
             onSnapshot(doc(db, "config", "game"), (snap) => {
-                const data = snap.data() || { levels: {}, showResults: false };
+                const data = snap.data() || { levels: {}, showResults: false, globalLives: 3, showCita: false };
                 gameConfig = data;
                 renderLevelGrid();
                 renderAdminStatus();
@@ -261,7 +279,6 @@
             onSnapshot(doc(db, "config", "images"), (snap) => {
                 levelImages = snap.data() || {};
                 renderLevelGrid();
-                renderAdminStatus();
             });
         }
 
@@ -294,7 +311,7 @@
             updateCodeVisibility();
         };
 
-        window.alertLocked = () => Swal.fire({ title: "Portal Cerrado", text: "Este nivel no ha sido habilitado todavía.", icon: "info", confirmButtonColor: "#d4af37" });
+        window.alertLocked = () => Swal.fire({ title: "Portal Cerrado", text: "Este nivel no ha sido habilitado todavía por el Rey.", icon: "info", confirmButtonColor: "#d4af37" });
 
         window.validateAccessCode = () => {
             const input = document.getElementById('join-code-input').value.trim();
@@ -302,12 +319,12 @@
             else Swal.fire("Denegado", "El código es incorrecto.", "error");
         };
 
-        // --- QUIZ ---
         async function startQuiz() {
             const snap = await getDoc(doc(db, "levels", "lvl_" + activeLevelLobby));
             if(!snap.exists()) return Swal.fire("Vacio", "No hay preguntas en este nivel.", "warning");
             const qs = snap.data().questions.sort(() => Math.random() - 0.5).slice(0, 20);
-            userState.lives = 3; userState.qIndex = 0; userState.score = 0; userState.startTime = Date.now();
+            userState.lives = gameConfig.globalLives || 3; 
+            userState.qIndex = 0; userState.score = 0; userState.startTime = Date.now();
             window.showView('game'); runQuiz(qs);
         }
 
@@ -319,10 +336,14 @@
             document.getElementById('game-lives').innerHTML = `<i class="fa-solid fa-heart gold-heart"></i>`.repeat(userState.lives);
             document.getElementById('game-score').innerText = userState.score;
             
+            const citation = document.getElementById('q-cita');
+            if(gameConfig.showCita) { citation.innerText = q.Cita; citation.classList.remove('hidden'); }
+            else { citation.classList.add('hidden'); }
+
             const grid = document.getElementById('options-grid'); grid.innerHTML = "";
             [q.Correcta, q.Inc1, q.Inc2, q.Inc3].sort(() => Math.random() - 0.5).forEach(o => {
                 const b = document.createElement('button');
-                b.className = "btn-option p-5 rounded-2xl text-left text-xs md:text-sm font-bold uppercase tracking-wider shadow-lg";
+                b.className = "btn-option p-4 md:p-5 rounded-2xl text-left text-[11px] md:text-sm font-bold uppercase tracking-wider shadow-lg";
                 b.innerText = o;
                 b.onclick = () => {
                     if(o === q.Correcta) { userState.score += 100; userState.qIndex++; }
@@ -423,11 +444,17 @@
         window.toggleLvlState = async (lvl) => {
             const s = await getDoc(doc(db, "levels", "lvl_" + lvl));
             if(!s.exists()) return Swal.fire("Error", "Sube el Excel primero.", "error");
+            
             const up = { levels: { ...gameConfig.levels } };
             const current = up.levels[lvl] || {};
             current.active = !current.active;
             current.code = current.active ? Math.floor(1000 + Math.random() * 9000).toString() : '';
             up.levels[lvl] = current;
+            
+            // También enviamos la dificultad global y citas configuradas en ese momento
+            up.globalLives = parseInt(document.getElementById('adm-diff').value);
+            up.showCita = document.getElementById('adm-show-cita').checked;
+            
             await setDoc(doc(db, "config", "game"), up, { merge: true });
             refreshAdminStatus();
         };
@@ -441,17 +468,17 @@
             list.slice(0, 10).forEach((p, i) => {
                 const isGold = i === 0;
                 container.innerHTML += `
-                <div class="flex justify-between items-center p-6 card-glass rounded-[2rem] border-l-8 ${i<3?'border-yellow-500 shadow-[0_0_20px_rgba(212,175,55,0.2)]':'border-zinc-700'}">
-                    <div class="flex gap-6 items-center">
-                        <span class="font-royal text-3xl md:text-5xl ${isGold?'text-yellow-500':'text-zinc-600'}">#${i+1}</span>
+                <div class="flex justify-between items-center p-5 card-glass rounded-[2rem] border-l-8 ${i<3?'border-yellow-500 shadow-[0_0_20px_rgba(212,175,55,0.2)]':'border-zinc-700'}">
+                    <div class="flex gap-4 md:gap-6 items-center">
+                        <span class="font-royal text-2xl md:text-5xl ${isGold?'text-yellow-500':'text-zinc-600'}">#${i+1}</span>
                         <div class="flex flex-col text-left">
-                            <span class="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em]">Guerrero</span>
-                            <span class="font-royal text-xl md:text-3xl text-white uppercase">${p.name}</span>
+                            <span class="text-[9px] text-zinc-500 font-bold uppercase tracking-[0.2em]">Guerrero del Reino</span>
+                            <span class="font-royal text-sm md:text-3xl text-white uppercase">${p.name}</span>
                         </div>
                     </div>
                     <div class="text-right">
-                        <span class="text-yellow-500 font-bold text-3xl md:text-5xl drop-shadow-lg">${p.score} <small class="text-xs">PTS</small></span>
-                        <div class="text-zinc-500 font-mono text-sm md:text-lg mt-1 uppercase tracking-widest">${formatTime(p.time)} <small class="text-[8px]">Time</small></div>
+                        <span class="text-yellow-500 font-bold text-xl md:text-5xl drop-shadow-lg">${p.score} <small class="text-[10px]">PTS</small></span>
+                        <div class="text-zinc-500 font-mono text-[10px] md:text-lg mt-1 uppercase tracking-widest">${formatTime(p.time)} <small class="text-[8px]">Tiempo</small></div>
                     </div>
                 </div>`;
             });
@@ -466,16 +493,15 @@
         };
 
         window.resetGlobalSystem = async () => {
-            const res = await Swal.fire({ title: '¿REINICIAR TODO?', icon: 'warning', showCancelButton: true });
+            const res = await Swal.fire({ title: '¿REINICIAR TODO?', text: "Se perderán todas las posiciones y el chat.", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' });
             if(!res.isConfirmed) return;
             const p = await getDocs(collection(db, "players")); p.forEach(async d => await deleteDoc(doc(db, "players", d.id)));
             const c = await getDocs(collection(db, "chat")); c.forEach(async d => await deleteDoc(doc(db, "chat", d.id)));
-            await setDoc(doc(db, "config", "game"), { levels: {}, showResults: false });
+            await setDoc(doc(db, "config", "game"), { levels: {}, showResults: false, globalLives: 3, showCita: false });
             location.reload();
         };
 
         window.toggleAdminField = () => { document.getElementById('admin-pass-container').classList.toggle('hidden'); };
-
     </script>
 </body>
 </html>
