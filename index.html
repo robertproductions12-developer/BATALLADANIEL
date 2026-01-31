@@ -35,26 +35,29 @@
         .progress-bar { transition: width 0.5s ease-in-out; }
         .hidden { display: none !important; }
 
-        /* Status badges */
-        .badge { padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
+        .badge { padding: 2px 6px; border-radius: 4px; font-size: 8px; font-weight: bold; text-transform: uppercase; }
         .badge-green { background: #065f46; color: #34d399; }
         .badge-red { background: #7f1d1d; color: #f87171; }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <!-- VIDEO INTRO (Línea 44: Cambia el src aquí) -->
+    <!-- VIDEO INTRO: Cambia 'intro.mp4' por tu ruta -->
     <div id="intro-overlay">
-        <video id="intro-video" playsinline loop class="w-full h-full object-cover">
+        <video id="intro-video" playsinline autoplay muted loop class="w-full h-full object-cover">
             <source src="intro.mp4" type="video/mp4">
         </video>
-        <button onclick="endIntro()" class="absolute bottom-10 right-10 text-white/50 text-xs border border-white/20 px-6 py-3 rounded-full uppercase tracking-widest hover:bg-white/10">Entrar a la Cueva</button>
+        <button onclick="endIntro()" class="absolute bottom-10 btn-gold px-8 py-4 rounded-full text-sm tracking-widest">Entrar a la Cueva</button>
     </div>
 
-    <!-- VIDEO FONDO LOOP (Línea 50: Cambia el src aquí) -->
+    <!-- VIDEO FONDO: Cambia 'intro.mp4' por tu ruta -->
     <div id="video-bg-container">
-        <video id="bg-video-loop" loop playsinline>
-            <source src="" type="video/mp4">
+        <video id="bg-video-loop" loop playsinline muted>
+            <source src="intro.mp4" type="video/mp4">
         </video>
     </div>
 
@@ -62,107 +65,103 @@
         
         <!-- LOGIN -->
         <div id="view-login" class="min-h-screen flex flex-col items-center justify-center p-6">
-            <h1 class="font-royal text-6xl md:text-8xl mb-2 text-yellow-500 text-center drop-shadow-2xl">DANIEL</h1>
-            <p class="text-[10px] tracking-[0.8em] mb-12 text-zinc-400 uppercase">El Desafío Profético</p>
-            <div class="card-glass p-10 rounded-[2.5rem] w-full max-w-md">
-                <input type="text" id="login-name" placeholder="Tu Nombre" class="w-full bg-black/50 border border-zinc-800 p-5 rounded-2xl mb-5 text-center text-xl text-white outline-none focus:border-yellow-600">
+            <h1 class="font-royal text-5xl md:text-8xl mb-2 text-yellow-500 text-center drop-shadow-2xl">DANIEL</h1>
+            <p class="text-[9px] tracking-[0.6em] mb-12 text-zinc-400 uppercase">El Desafío Profético</p>
+            <div class="card-glass p-8 rounded-[2rem] w-full max-w-sm">
+                <input type="text" id="login-name" placeholder="Tu Nombre" class="w-full bg-black/50 border border-zinc-800 p-4 rounded-xl mb-4 text-center text-lg text-white outline-none focus:border-yellow-600">
                 <div id="admin-pass-container" class="hidden">
-                    <input type="password" id="login-pass" placeholder="Clave de Mando" class="w-full bg-black/50 border border-zinc-800 p-5 rounded-2xl mb-5 text-center text-white outline-none">
+                    <input type="password" id="login-pass" placeholder="Clave de Mando" class="w-full bg-black/50 border border-zinc-800 p-4 rounded-xl mb-4 text-center text-white outline-none">
                 </div>
-                <button onclick="handleAuth()" class="btn-gold w-full py-5 rounded-2xl text-xl font-bold">Comenzar</button>
-                <button onclick="toggleAdminField()" class="text-[10px] mt-8 text-zinc-600 underline uppercase block mx-auto tracking-widest">Acceso Jerárquico</button>
+                <button onclick="handleAuth()" class="btn-gold w-full py-4 rounded-xl text-lg font-bold">Comenzar</button>
+                <button onclick="toggleAdminField()" class="text-[10px] mt-6 text-zinc-600 underline uppercase block mx-auto tracking-widest">Acceso Jerárquico</button>
             </div>
         </div>
 
         <!-- MAPA DE NIVELES -->
-        <div id="view-levels" class="hidden min-h-screen p-8">
-            <header class="flex justify-between items-center mb-12 max-w-7xl mx-auto">
-                <h2 class="font-royal text-4xl text-white">MISIONES</h2>
-                <button onclick="location.reload()" class="bg-red-900/20 text-red-500 px-6 py-2 rounded-xl text-xs font-bold border border-red-900/50">SALIR</button>
+        <div id="view-levels" class="hidden min-h-screen p-4 md:p-8">
+            <header class="flex justify-between items-center mb-8 max-w-7xl mx-auto">
+                <h2 class="font-royal text-2xl md:text-4xl text-white">MISIONES</h2>
+                <button onclick="location.reload()" class="bg-red-900/20 text-red-500 px-4 py-2 rounded-lg text-xs font-bold border border-red-900/50">SALIR</button>
             </header>
-            <div id="level-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto"></div>
+            <div id="level-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 max-w-7xl mx-auto"></div>
         </div>
 
         <!-- LOBBY / CHAT -->
-        <div id="view-lobby" class="hidden min-h-screen flex flex-col p-6 max-w-4xl mx-auto">
-            <div class="card-glass p-6 rounded-3xl mb-4 flex justify-between items-center">
-                <h2 id="lobby-title" class="font-royal text-2xl text-yellow-500 uppercase">SALA DE ESPERA</h2>
+        <div id="view-lobby" class="hidden min-h-screen flex flex-col p-4 md:p-6 max-w-4xl mx-auto">
+            <div class="card-glass p-4 rounded-2xl mb-4 flex flex-col md:flex-row gap-4 justify-between items-center">
+                <h2 id="lobby-title" class="font-royal text-xl text-yellow-500 uppercase">SALA DE ESPERA</h2>
                 <div id="access-code-prompt" class="hidden flex gap-2">
-                    <input type="text" id="join-code-input" placeholder="CÓDIGO" class="bg-black border border-yellow-600/50 p-2 rounded-lg w-24 text-center text-yellow-500 font-bold outline-none">
-                    <button onclick="validateAccessCode()" class="btn-gold px-4 rounded-lg text-xs">Unirse al Quiz</button>
+                    <input type="text" id="join-code-input" placeholder="CÓDIGO" class="bg-black border border-yellow-600/50 p-2 rounded-lg w-20 text-center text-yellow-500 font-bold outline-none">
+                    <button onclick="validateAccessCode()" class="btn-gold px-4 rounded-lg text-[10px]">Unirse</button>
                 </div>
-                <button id="admin-back-btn" onclick="showView('admin')" class="hidden bg-zinc-800 px-4 py-2 rounded-lg text-xs uppercase font-bold">Volver al Mando</button>
+                <button id="admin-back-btn" onclick="showView('admin')" class="hidden bg-zinc-800 px-4 py-2 rounded-lg text-[10px] uppercase font-bold text-zinc-300">Panel Mando</button>
             </div>
-            <div class="flex-1 card-glass rounded-3xl p-6 mb-4 overflow-y-auto" id="chat-messages" style="height: 400px;"></div>
-            <div class="flex gap-3">
-                <input type="text" id="chat-input" placeholder="Escribe al grupo..." class="flex-1 bg-black/50 border border-zinc-800 p-4 rounded-2xl text-white outline-none">
-                <button onclick="sendChatMessage()" class="btn-gold px-8 rounded-2xl font-bold">Enviar</button>
+            <div class="flex-1 card-glass rounded-2xl p-4 mb-4 overflow-y-auto min-h-[300px]" id="chat-messages"></div>
+            <div class="flex gap-2">
+                <input type="text" id="chat-input" placeholder="Mensaje..." class="flex-1 bg-black/50 border border-zinc-800 p-3 rounded-xl text-white outline-none text-sm">
+                <button onclick="sendChatMessage()" class="btn-gold px-6 rounded-xl font-bold text-sm">Enviar</button>
             </div>
         </div>
 
         <!-- QUIZ -->
-        <div id="view-game" class="hidden min-h-screen flex flex-col p-6 max-w-2xl mx-auto justify-center">
-            <div class="flex justify-between items-center mb-8">
-                <div id="game-lives" class="text-2xl"></div>
-                <div class="text-right"><span id="game-score" class="text-3xl font-bold text-yellow-500 font-royal">0</span></div>
+        <div id="view-game" class="hidden min-h-screen flex flex-col p-4 max-w-xl mx-auto justify-center">
+            <div class="flex justify-between items-center mb-6">
+                <div id="game-lives" class="text-xl"></div>
+                <div class="text-right"><span id="game-score" class="text-2xl font-bold text-yellow-500 font-royal">0</span></div>
             </div>
-            <div class="card-glass p-8 rounded-[3rem] min-h-[400px] flex flex-col">
-                <p id="q-index" class="text-center text-xs text-yellow-600 font-bold mb-4 tracking-widest"></p>
-                <h3 id="q-text" class="text-2xl text-center font-semibold mb-8 leading-tight"></h3>
-                <div id="options-grid" class="grid grid-cols-1 gap-4"></div>
-                <p id="q-cita" class="mt-8 text-center italic text-sm text-zinc-500 hidden"></p>
+            <div class="card-glass p-6 md:p-8 rounded-[2rem] flex flex-col min-h-[400px]">
+                <p id="q-index" class="text-center text-[10px] text-yellow-600 font-bold mb-4 tracking-widest uppercase"></p>
+                <h3 id="q-text" class="text-xl md:text-2xl text-center font-semibold mb-8 leading-tight"></h3>
+                <div id="options-grid" class="grid grid-cols-1 gap-3"></div>
+                <p id="q-cita" class="mt-8 text-center italic text-xs text-zinc-500 hidden"></p>
             </div>
         </div>
 
         <!-- ADMIN -->
-        <div id="view-admin" class="hidden min-h-screen p-8">
+        <div id="view-admin" class="hidden min-h-screen p-4 md:p-8">
             <div class="max-w-7xl mx-auto">
-                <div class="flex justify-between items-center mb-10">
-                    <button onclick="showView('lobby')" class="bg-blue-900/40 text-blue-400 px-6 py-3 rounded-xl border border-blue-900 font-bold text-xs uppercase">Ir a la Sala de Espera</button>
-                    <h2 class="font-royal text-4xl text-red-600 text-center">PANEL DE MANDO</h2>
-                    <button onclick="resetGlobalSystem()" class="bg-red-900/40 text-red-400 px-6 py-3 rounded-xl border border-red-900 font-bold text-xs uppercase">Reiniciar Todo</button>
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
+                    <button onclick="enterAdminLobby()" class="w-full md:w-auto bg-blue-900/40 text-blue-400 px-6 py-3 rounded-xl border border-blue-900 font-bold text-[10px] uppercase">Ir a la Sala</button>
+                    <h2 class="font-royal text-2xl md:text-4xl text-red-600 text-center">PANEL DE MANDO</h2>
+                    <button onclick="resetGlobalSystem()" class="w-full md:w-auto bg-red-900/40 text-red-400 px-6 py-3 rounded-xl border border-red-900 font-bold text-[10px] uppercase">Reiniciar Sistema</button>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <!-- Configuración -->
-                    <div class="card-glass p-6 rounded-3xl">
-                        <h3 class="text-yellow-500 font-royal mb-4 border-b border-zinc-800 pb-2">Control de Misión</h3>
-                        <select id="adm-level-sel" onchange="updateAdminPreview()" class="w-full bg-black border border-zinc-800 p-3 rounded-xl mb-4 text-white">
+                    <div class="card-glass p-5 rounded-2xl">
+                        <h3 class="text-yellow-500 font-royal mb-4 border-b border-zinc-800 pb-2 text-sm uppercase">Misión</h3>
+                        <select id="adm-level-sel" class="w-full bg-black border border-zinc-800 p-3 rounded-xl mb-3 text-white text-sm">
                             <script>for(let i=1;i<=12;i++) document.write(`<option value="${i}">Capítulo ${i}</option>`)</script>
                         </select>
-                        <input type="text" id="adm-img-url" placeholder="URL Imagen (GitHub/Web)" class="w-full bg-black border border-zinc-800 p-3 rounded-xl mb-4 text-sm">
-                        <button onclick="updateLevelImage()" class="w-full bg-zinc-800 text-white p-2 rounded-lg text-xs mb-6 uppercase font-bold">Actualizar Imagen</button>
+                        <input type="text" id="adm-img-url" placeholder="URL Imagen Nivel" class="w-full bg-black border border-zinc-800 p-3 rounded-xl mb-3 text-xs">
+                        <button onclick="updateLevelImage()" class="w-full bg-zinc-800 text-white p-2 rounded-lg text-[10px] mb-4 uppercase font-bold">Guardar Imagen</button>
                         
-                        <div class="space-y-4">
-                            <select id="adm-diff" class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-white">
+                        <div class="space-y-3">
+                            <select id="adm-diff" class="w-full bg-black border border-zinc-800 p-3 rounded-xl text-white text-xs">
                                 <option value="6">6 Vidas</option><option value="3" selected>3 Vidas</option><option value="1">1 Vida</option>
                             </select>
                             <label class="flex items-center gap-2 cursor-pointer bg-black/30 p-3 rounded-xl border border-zinc-800">
-                                <input type="checkbox" id="adm-show-cita" class="w-5 h-5 accent-yellow-500"> <span class="text-sm">Mostrar Citas Bíblicas</span>
+                                <input type="checkbox" id="adm-show-cita" class="w-4 h-4 accent-yellow-500"> <span class="text-[10px] uppercase">Citas Bíblicas</span>
                             </label>
-                            <button onclick="activateLevel()" class="btn-gold w-full py-5 rounded-xl text-lg">Activar Nivel Ahora</button>
-                            <button onclick="stopGame()" class="w-full bg-zinc-900 text-zinc-500 py-3 rounded-xl font-bold uppercase text-xs border border-zinc-800">Cerrar Sesión Actual</button>
-                            <div id="adm-active-code" class="text-center text-3xl font-bold text-yellow-500 mt-4 tracking-widest"></div>
+                            <button onclick="activateLevel()" class="btn-gold w-full py-4 rounded-xl text-sm font-bold">ACTIVAR NIVEL</button>
+                            <div id="adm-active-code" class="text-center text-3xl font-bold text-yellow-500 tracking-widest"></div>
                         </div>
                     </div>
 
-                    <!-- Estado de Niveles -->
-                    <div class="card-glass p-6 rounded-3xl">
-                        <h3 class="text-yellow-500 font-royal mb-4 border-b border-zinc-800 pb-2">Estado de Misiones</h3>
-                        <div id="adm-levels-status" class="grid grid-cols-2 gap-2 text-[9px]">
-                            <!-- Dinámico -->
-                        </div>
+                    <!-- Estado -->
+                    <div class="card-glass p-5 rounded-2xl">
+                        <h3 class="text-yellow-500 font-royal mb-4 border-b border-zinc-800 pb-2 text-sm uppercase">Estado</h3>
+                        <div id="adm-levels-status" class="grid grid-cols-2 gap-2 text-[8px]"></div>
                         <div class="mt-6">
-                            <h3 class="text-zinc-500 text-[10px] mb-2 uppercase font-bold">Cargar Preguntas (.xlsx)</h3>
                             <input type="file" id="adm-excel" accept=".xlsx" class="hidden" onchange="processExcel(this)">
-                            <button onclick="document.getElementById('adm-excel').click()" class="w-full py-8 border-2 border-dashed border-zinc-800 rounded-xl text-zinc-500 font-bold text-center">SUBIR EXCEL</button>
+                            <button onclick="document.getElementById('adm-excel').click()" class="w-full py-6 border-2 border-dashed border-zinc-800 rounded-xl text-zinc-500 font-bold text-center text-[10px] uppercase">Subir Preguntas .xlsx</button>
                         </div>
                     </div>
 
                     <!-- Ranking -->
-                    <div class="card-glass p-6 rounded-3xl">
-                        <h3 class="text-yellow-500 font-royal mb-4 border-b border-zinc-800 pb-2">Ranking en Tiempo Real</h3>
-                        <div id="adm-monitor" class="space-y-3 max-h-[500px] overflow-y-auto pr-2"></div>
+                    <div class="card-glass p-5 rounded-2xl">
+                        <h3 class="text-yellow-500 font-royal mb-4 border-b border-zinc-800 pb-2 text-sm uppercase">Ranking en Vivo</h3>
+                        <div id="adm-monitor" class="space-y-2 max-h-[400px] overflow-y-auto pr-1"></div>
                     </div>
                 </div>
             </div>
@@ -230,7 +229,7 @@
                 const box = document.getElementById('chat-messages'); box.innerHTML = "";
                 snap.docs.reverse().forEach(d => {
                     const m = d.data();
-                    box.innerHTML += `<div class="mb-2 text-sm"><b class="text-yellow-600 uppercase">${m.user}:</b> <span class="text-zinc-300">${m.text}</span></div>`;
+                    box.innerHTML += `<div class="mb-2 text-xs"><b class="text-yellow-600 uppercase">${m.user}:</b> <span class="text-zinc-300">${m.text}</span></div>`;
                 });
                 box.scrollTop = box.scrollHeight;
             });
@@ -255,26 +254,34 @@
             }
         }
 
-        window.enterLobby = (lvl) => { document.getElementById('lobby-title').innerText = "CAPÍTULO " + lvl; showView('lobby'); };
-        window.alertLocked = () => Swal.fire("Nivel Sellado", "El Administrador aún no ha abierto este sello profético.", "warning");
+        window.enterLobby = (lvl) => { 
+            document.getElementById('lobby-title').innerText = "CAPÍTULO " + lvl; 
+            showView('lobby'); 
+        };
 
-        // CHAT
+        window.enterAdminLobby = () => {
+            if(!userState.isAdmin) return;
+            document.getElementById('lobby-title').innerText = "SALA DE MANDO (ADMIN)";
+            showView('lobby');
+        };
+
+        window.alertLocked = () => Swal.fire("Nivel Sellado", "Espera a que se abra el sello profético.", "warning");
+
         window.sendChatMessage = async () => {
             const i = document.getElementById('chat-input'); if(!i.value.trim()) return;
             await addDoc(collection(db, "chat"), { user: userState.isAdmin ? 'REINO' : userState.name, text: i.value, time: Date.now() });
             i.value = "";
         };
 
-        // QUIZ LOGIC
         window.validateAccessCode = async () => {
             const code = document.getElementById('join-code-input').value.trim();
             if(code === gameConfig.activeCode) startQuiz();
-            else Swal.fire("Código Erróneo", "Verifica el código con el Administrador", "error");
+            else Swal.fire("Código Erróneo", "Pregunta al Administrador", "error");
         };
 
         async function startQuiz() {
             const snap = await getDoc(doc(db, "levels", "lvl_" + gameConfig.activeLevel));
-            if(!snap.exists()) return Swal.fire("Error", "No hay preguntas en este nivel.", "error");
+            if(!snap.exists()) return Swal.fire("Error", "No hay preguntas cargadas.", "error");
             const qs = snap.data().questions.sort(() => Math.random() - 0.5).slice(0, 20);
             userState.lives = gameConfig.diff; userState.qIndex = 0; userState.score = 0; userState.startTime = Date.now();
             showView('game'); runQuiz(qs);
@@ -294,7 +301,7 @@
             const grid = document.getElementById('options-grid'); grid.innerHTML = "";
             [q.Correcta, q.Inc1, q.Inc2, q.Inc3].sort(() => Math.random() - 0.5).forEach(o => {
                 const b = document.createElement('button');
-                b.className = "btn-option p-4 rounded-xl text-left text-xs font-bold uppercase";
+                b.className = "btn-option p-4 rounded-xl text-left text-[10px] font-bold uppercase";
                 b.innerText = o;
                 b.onclick = () => {
                     if(o === q.Correcta) { userState.score += 100; userState.qIndex++; }
@@ -315,7 +322,6 @@
             Swal.fire({ title: ok ? 'MISIÓN CUMPLIDA' : 'DERROTADO', text: `Puntos: ${userState.score}`, icon: ok ? 'success' : 'error' }).then(()=>showView('levels'));
         }
 
-        // --- ADMIN FUNCTIONS ---
         function initAdmin() {
             showView('admin'); syncGlobal();
             onSnapshot(collection(db, "players"), (snap) => {
@@ -323,10 +329,10 @@
                 snap.forEach(d => {
                     const p = d.data(); const per = (p.qIndex/20)*100;
                     m.innerHTML += `
-                        <div class="bg-black/50 p-3 rounded-xl border border-zinc-800">
-                            <div class="flex justify-between text-[9px] font-bold uppercase mb-1">
+                        <div class="bg-black/50 p-2 rounded-xl border border-zinc-800">
+                            <div class="flex justify-between text-[8px] font-bold uppercase mb-1">
                                 <span class="${p.dead ? 'text-red-500' : 'text-yellow-500'}">${p.name}</span>
-                                <span>${p.score} pts | ${p.time}s</span>
+                                <span>${p.score} pts</span>
                             </div>
                             <div class="h-1 bg-zinc-900 rounded-full overflow-hidden"><div class="progress-bar h-full ${p.dead?'bg-red-800':'bg-yellow-600'}" style="width:${per}%"></div></div>
                         </div>`;
@@ -366,31 +372,26 @@
             if(!url) return;
             const up = {}; up[lvl] = url;
             await setDoc(doc(db, "config", "images"), up, { merge: true });
-            Swal.fire("Imagen Vinculada", `Nivel ${lvl} actualizado`, "success");
+            Swal.fire("Éxito", "Imagen guardada", "success");
         };
 
         window.activateLevel = async () => {
             const lvl = document.getElementById('adm-level-sel').value;
-            if(!levelDocs[lvl]) return Swal.fire("Error", "No puedes activar un nivel sin preguntas cargadas.", "error");
+            if(!levelDocs[lvl]) return Swal.fire("Error", "Sube el Excel primero.", "error");
             const code = Math.floor(1000 + Math.random() * 9000).toString();
             await setDoc(doc(db, "config", "game"), { activeLevel: lvl, activeCode: code, diff: parseInt(document.getElementById('adm-diff').value), showCita: document.getElementById('adm-show-cita').checked, status: 'active' });
             document.getElementById('adm-active-code').innerText = code;
         };
 
-        window.stopGame = async () => {
-            await updateDoc(doc(db, "config", "game"), { status: 'waiting', activeLevel: 0, activeCode: '' });
-            document.getElementById('adm-active-code').innerText = "";
-        };
-
         window.resetGlobalSystem = async () => {
-            const confirm = await Swal.fire({ title: '¿REINICIAR TODO?', text: "Se borrarán jugadores y chat.", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' });
+            const confirm = await Swal.fire({ title: '¿REINICIAR TODO?', text: "Se borrarán jugadores y chat.", icon: 'warning', showCancelButton: true });
             if(!confirm.isConfirmed) return;
             const players = await getDocs(collection(db, "players"));
             players.forEach(async d => await deleteDoc(doc(db, "players", d.id)));
             const chat = await getDocs(collection(db, "chat"));
             chat.forEach(async d => await deleteDoc(doc(db, "chat", d.id)));
             await updateDoc(doc(db, "config", "game"), { status: 'waiting', activeLevel: 0 });
-            Swal.fire("Sistema Limpio", "Todo ha sido reiniciado.", "success");
+            Swal.fire("Limpio", "Sistema reiniciado", "success");
         };
 
         window.processExcel = (input) => {
@@ -401,7 +402,7 @@
                 const json = XLSX.utils.sheet_to_json(book.Sheets[book.SheetNames[0]]);
                 await setDoc(doc(db, "levels", "lvl_" + lvl), { questions: json });
                 refreshLevelStatus();
-                Swal.fire("Excel Cargado", `Misión ${lvl} lista con ${json.length} preguntas.`, "success");
+                Swal.fire("Éxito", "Excel cargado", "success");
             };
             r.readAsArrayBuffer(input.files[0]);
         };
