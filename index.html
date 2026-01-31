@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -15,88 +14,49 @@
         body { font-family: 'Poppins', sans-serif; background-color: var(--bg-dark); color: #f0f0f0; margin: 0; overflow-x: hidden; }
         .font-royal { font-family: 'Cinzel', serif; }
         
-        /* --- FONDO DE VIDEO EN LOOP (REEMPLAZA LAS CAPAS 3D) --- */
-        #video-bg-container {
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-        #video-bg-container video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            filter: brightness(0.4); /* Oscurece un poco para que se lea el texto */
-        }
+        #video-bg-container { position: fixed; inset: 0; z-index: -1; width: 100%; height: 100%; overflow: hidden; }
+        #video-bg-container video { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.3); }
 
-        /* --- INTRO VIDEO --- */
-        #intro-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 1000;
-            background: black;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 1.5s ease, visibility 1.5s;
-        }
+        #intro-overlay { position: fixed; inset: 0; z-index: 1000; background: black; display: flex; align-items: center; justify-content: center; transition: opacity 1.5s ease, visibility 1.5s; }
         #intro-overlay.fade-out { opacity: 0; visibility: hidden; }
 
         .btn-gold { 
             background: linear-gradient(135deg, #bf953f 0%, #fcf6ba 45%, #b38728 100%); 
             color: #1a1a1a; font-weight: 800; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.4), inset 0 0 5px rgba(255,255,255,0.5);
-            text-transform: uppercase;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4); text-transform: uppercase;
         }
-        .btn-gold:hover { transform: translateY(-3px); box-shadow: 0 15px 25px rgba(191, 149, 63, 0.4); }
+        .btn-gold:hover { transform: translateY(-3px); filter: brightness(1.1); }
+        .btn-option { background: rgba(30, 30, 30, 0.6); border: 1px solid rgba(212, 175, 55, 0.3); transition: all 0.2s; }
+        .btn-option:hover { background: rgba(212, 175, 55, 0.2); border-color: var(--gold); }
         
-        .card-glass { background: rgba(15, 15, 15, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(212, 175, 55, 0.1); }
-        
-        .level-card { 
-            position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 1.5rem;
-            cursor: pointer; transition: all 0.4s ease; border: 2px solid rgba(212, 175, 55, 0.2);
-        }
-        .level-card:hover { border-color: var(--gold); transform: scale(1.02); }
-        .level-card img { width: 100%; height: 100%; object-fit: cover; }
-        .level-overlay-num { 
-            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-            font-size: 4rem; font-family: 'Cinzel'; color: rgba(255,255,255,0.2); font-weight: 900;
-        }
-        
+        .card-glass { background: rgba(15, 15, 15, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(212, 175, 55, 0.1); }
+        .level-card { position: relative; aspect-ratio: 16/9; overflow: hidden; border-radius: 1.5rem; border: 2px solid rgba(212, 175, 55, 0.2); cursor: pointer; transition: 0.4s; }
+        .level-card.locked { filter: grayscale(1) opacity(0.5); cursor: not-allowed; }
+        .progress-bar { transition: width 0.5s ease-in-out; }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <!-- 1. VIDEO DE INTRODUCCIÓN (SOLO AL INICIO) -->
     <div id="intro-overlay">
         <video id="intro-video" playsinline muted class="w-full h-full object-cover">
-            <!-- URL DE TU VIDEO DE INTRODUCCIÓN -->
-            <source src="https://assets.mixkit.co/videos/preview/mixkit-mysterious-cave-entrance-with-light-coming-in-41138-large.mp4" type="video/mp4">
+            <source .mp4" type="video/mp4">
         </video>
         <button onclick="endIntro()" class="absolute bottom-10 right-10 text-white/50 text-xs border border-white/20 px-6 py-3 rounded-full uppercase tracking-widest hover:bg-white/10">Saltar Intro</button>
     </div>
 
-    <!-- 2. FONDO DE VIDEO CONSTANTE (LOOP) -->
     <div id="video-bg-container">
-        <video autoplay muted loop playsinline>
-            <!-- REEMPLAZA CON EL LINK DE TU VIDEO DE CUEVA (LOOP) -->
-            <source src="https://assets.mixkit.co/videos/preview/mixkit-fire-burning-in-a-dark-cave-43034-large.mp4" type="video/mp4">
-        </video>
+        <video intro.mp4" type="video/mp4"></video>
     </div>
 
-    <!-- 3. CONTENIDO DEL JUEGO -->
     <div id="main-content" class="relative z-10 opacity-0 transition-opacity duration-1000">
         
-        <!-- VISTA: LOGIN -->
+        <!-- LOGIN -->
         <div id="view-login" class="min-h-screen flex flex-col items-center justify-center p-6">
             <h1 class="font-royal text-6xl md:text-8xl mb-2 text-yellow-500 text-center drop-shadow-2xl">DANIEL</h1>
-            <p class="text-[10px] tracking-[0.8em] mb-12 text-zinc-400 uppercase text-center">El Desafío de los Reinos</p>
-            
+            <p class="text-[10px] tracking-[0.8em] mb-12 text-zinc-400 uppercase">El Desafío Profético</p>
             <div class="card-glass p-10 rounded-[2.5rem] w-full max-w-md">
-                <input type="text" id="login-name" placeholder="Tu Nombre" class="w-full bg-black/50 border border-zinc-800 p-5 rounded-2xl mb-5 text-center text-xl text-white outline-none focus:border-yellow-600 transition-colors">
+                <input type="text" id="login-name" placeholder="Tu Nombre" class="w-full bg-black/50 border border-zinc-800 p-5 rounded-2xl mb-5 text-center text-xl text-white outline-none focus:border-yellow-600">
                 <div id="admin-pass-container" class="hidden">
                     <input type="password" id="login-pass" placeholder="Clave de Mando" class="w-full bg-black/50 border border-zinc-800 p-5 rounded-2xl mb-5 text-center text-white outline-none">
                 </div>
@@ -105,53 +65,93 @@
             </div>
         </div>
 
-        <!-- VISTA: MAPA DE 12 NIVELES -->
-        <div id="view-levels" class="hidden min-h-screen p-8 md:p-16">
+        <!-- MAPA DE NIVELES -->
+        <div id="view-levels" class="hidden min-h-screen p-8">
             <header class="flex justify-between items-center mb-12 max-w-7xl mx-auto">
-                <div>
-                    <p id="player-welcome" class="text-yellow-600 text-[10px] tracking-widest uppercase font-bold"></p>
-                    <h2 class="font-royal text-4xl text-white">MISIONES</h2>
+                <h2 class="font-royal text-4xl text-white">MISIONES</h2>
+                <button onclick="location.reload()" class="bg-red-900/20 text-red-500 px-6 py-2 rounded-xl text-xs font-bold border border-red-900/50">SALIR</button>
+            </header>
+            <div id="level-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto"></div>
+        </div>
+
+        <!-- LOBBY / CHAT -->
+        <div id="view-lobby" class="hidden min-h-screen flex flex-col p-6 max-w-4xl mx-auto">
+            <div class="card-glass p-6 rounded-3xl mb-4 flex justify-between items-center">
+                <h2 id="lobby-title" class="font-royal text-2xl text-yellow-500">SALA DE ESPERA</h2>
+                <div id="access-code-prompt" class="hidden flex gap-2">
+                    <input type="text" id="join-code-input" placeholder="CÓDIGO" class="bg-black border border-yellow-600/50 p-2 rounded-lg w-24 text-center text-yellow-500 font-bold">
+                    <button onclick="validateAccessCode()" class="btn-gold px-4 rounded-lg text-xs">Unirse</button>
                 </div>
-                <button onclick="location.reload()" class="bg-zinc-900/50 text-zinc-400 px-6 py-2 rounded-xl text-xs font-bold border border-zinc-800">SALIR</button>
-            </header>
-            
-            <div id="level-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-                <!-- Se genera por JavaScript -->
+            </div>
+            <div class="flex-1 card-glass rounded-3xl p-6 mb-4 overflow-y-auto" id="chat-messages" style="height: 400px;"></div>
+            <div class="flex gap-3">
+                <input type="text" id="chat-input" placeholder="Escribe al grupo..." class="flex-1 bg-black/50 border border-zinc-800 p-4 rounded-2xl text-white outline-none">
+                <button onclick="sendChatMessage()" class="btn-gold px-8 rounded-2xl font-bold">Enviar</button>
             </div>
         </div>
 
-        <!-- VISTA: LOBBY DE ESPERA -->
-        <div id="view-lobby" class="hidden min-h-screen flex flex-col p-6 max-w-3xl mx-auto">
-            <header class="flex justify-between items-center mb-8">
-                <button onclick="showView('levels')" class="bg-zinc-900 p-3 rounded-full text-yellow-600">←</button>
-                <h2 id="lobby-title" class="font-royal text-2xl text-yellow-500 uppercase">Lobby</h2>
-                <div class="w-10"></div>
-            </header>
-            <div class="flex-1 card-glass rounded-3xl p-6 mb-6 overflow-y-auto" id="chat-messages"></div>
-            <div class="text-center p-10 border-2 border-dashed border-yellow-900/30 rounded-[2.5rem] bg-yellow-900/5">
-                <p class="text-yellow-600 font-bold uppercase tracking-widest animate-pulse">Esperando que el Rey de la orden...</p>
+        <!-- QUIZ -->
+        <div id="view-game" class="hidden min-h-screen flex flex-col p-6 max-w-2xl mx-auto justify-center">
+            <div class="flex justify-between items-center mb-8">
+                <div id="game-lives" class="text-2xl"></div>
+                <div class="text-right">
+                    <span id="game-score" class="text-3xl font-bold text-yellow-500 font-royal">0</span>
+                </div>
+            </div>
+            <div class="card-glass p-8 rounded-[3rem] min-h-[400px] flex flex-col">
+                <p id="q-index" class="text-center text-xs text-yellow-600 font-bold mb-4 tracking-widest"></p>
+                <h3 id="q-text" class="text-2xl text-center font-semibold mb-8 leading-tight"></h3>
+                <div id="options-grid" class="grid grid-cols-1 gap-4"></div>
+                <p id="q-cita" class="mt-8 text-center italic text-sm text-zinc-500 hidden"></p>
             </div>
         </div>
 
-        <!-- VISTA: ADMINISTRADOR -->
-        <div id="view-admin" class="hidden min-h-screen p-8 bg-zinc-950/90">
-             <div class="max-w-7xl mx-auto text-center">
-                <h2 class="font-royal text-4xl text-red-600 mb-12">SALA DE MANDO</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                    <div class="card-glass p-8 rounded-[2.5rem]">
-                        <h3 class="text-yellow-500 mb-6 font-royal">Control de Nivel</h3>
-                        <select id="adm-level" class="w-full bg-black p-4 rounded-xl mb-6 border border-zinc-800 text-white">
-                            <!-- Opciones 1-12 -->
+        <!-- ADMIN -->
+        <div id="view-admin" class="hidden min-h-screen p-8">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="font-royal text-4xl text-red-600 text-center mb-10">PANEL DE CONTROL PROFÉTICO</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Configuración -->
+                    <div class="card-glass p-6 rounded-3xl">
+                        <h3 class="text-yellow-500 font-royal mb-4 border-b border-zinc-800 pb-2">Configuración de Nivel</h3>
+                        <select id="adm-level-sel" class="w-full bg-black border border-zinc-800 p-3 rounded-xl mb-4 text-white">
+                            <option value="1">Misión 1</option><option value="2">Misión 2</option><option value="3">Misión 3</option>
+                            <option value="4">Misión 4</option><option value="5">Misión 5</option><option value="6">Misión 6</option>
+                            <option value="7">Misión 7</option><option value="8">Misión 8</option><option value="9">Misión 9</option>
+                            <option value="10">Misión 10</option><option value="11">Misión 11</option><option value="12">Misión 12</option>
                         </select>
-                        <button onclick="toggleGameState()" class="btn-gold w-full py-4 rounded-xl">Iniciar / Detener</button>
+                        <input type="text" id="adm-img-url" placeholder="URL Imagen personalizada" class="w-full bg-black border border-zinc-800 p-3 rounded-xl mb-4 text-sm">
+                        <button onclick="updateLevelImage()" class="w-full bg-zinc-800 text-white p-2 rounded-lg text-xs mb-6">Guardar Imagen</button>
+                        
+                        <div class="flex flex-col gap-4">
+                            <select id="adm-diff" class="bg-black border border-zinc-800 p-3 rounded-xl text-white">
+                                <option value="6">6 Vidas (Fácil)</option>
+                                <option value="3" selected>3 Vidas (Normal)</option>
+                                <option value="1">1 Vida (Extremo)</option>
+                            </select>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" id="adm-show-cita" class="w-5 h-5 accent-yellow-500"> <span>Mostrar Citas Bíblicas</span>
+                            </label>
+                            <button onclick="activateLevel()" class="btn-gold w-full py-4 rounded-xl text-lg">ACTIVAR NIVEL</button>
+                            <button onclick="stopGame()" class="bg-red-600 text-white w-full py-2 rounded-xl font-bold">DETENER TODO</button>
+                            <div id="adm-active-code" class="text-center text-2xl font-bold text-yellow-500 mt-2"></div>
+                        </div>
                     </div>
-                    <div class="card-glass p-8 rounded-[2.5rem]">
-                        <h3 class="text-yellow-500 mb-6 font-royal">Subir Preguntas</h3>
+
+                    <!-- Excel -->
+                    <div class="card-glass p-6 rounded-3xl">
+                        <h3 class="text-yellow-500 font-royal mb-4 border-b border-zinc-800 pb-2">Cargar Preguntas</h3>
                         <input type="file" id="adm-excel" accept=".xlsx" class="hidden" onchange="processExcel(this)">
-                        <button onclick="document.getElementById('adm-excel').click()" class="w-full py-10 border-2 border-dashed border-zinc-700 rounded-3xl text-zinc-500 font-bold">CARGAR EXCEL</button>
+                        <button onclick="document.getElementById('adm-excel').click()" class="w-full py-12 border-2 border-dashed border-zinc-800 rounded-3xl text-zinc-500 hover:border-yellow-600 transition font-bold uppercase text-xs">Seleccionar .xlsx</button>
+                        <div class="mt-4 text-[10px] text-zinc-500">Columnas req: Pregunta, Correcta, Inc1, Inc2, Inc3, Cita</div>
+                    </div>
+
+                    <!-- Monitoreo -->
+                    <div class="card-glass p-6 rounded-3xl col-span-1 lg:col-span-1">
+                        <h3 class="text-yellow-500 font-royal mb-4 border-b border-zinc-800 pb-2">Ranking en Vivo</h3>
+                        <div id="adm-monitor" class="space-y-4 max-h-[400px] overflow-y-auto"></div>
                     </div>
                 </div>
-                <button onclick="location.reload()" class="mt-12 text-zinc-600 underline uppercase text-[10px]">Cerrar Sesión</button>
             </div>
         </div>
 
@@ -159,7 +159,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, onSnapshot, updateDoc, collection, addDoc, deleteDoc, query, orderBy, limit, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, onSnapshot, updateDoc, collection, addDoc, query, orderBy, limit, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         // CONFIGURACIÓN FIREBASE (Mantén la tuya)
         const firebaseConfig = {
@@ -173,80 +173,268 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        let userState = { name: '', isAdmin: false };
+        // ESTADO GLOBAL
+        let userState = { name: '', lives: 3, score: 0, qIndex: 0, dead: false, startTime: 0 };
+        let gameConfig = { activeLevel: 0, activeCode: '', diff: 3, showCita: false, status: 'waiting' };
+        let currentQuestions = [];
+        let levelImages = {};
 
-        // --- MANEJO DE INTRO ---
+        // INICIO
         const introVid = document.getElementById('intro-video');
         window.addEventListener('load', () => { introVid.play().catch(() => {}); });
         introVid.onended = () => endIntro();
-
         window.endIntro = () => {
             document.getElementById('intro-overlay').classList.add('fade-out');
             document.getElementById('main-content').classList.remove('opacity-0');
         };
 
-        // --- AUTH Y NIVELES ---
+        // AUTH
         window.toggleAdminField = () => document.getElementById('admin-pass-container').classList.toggle('hidden');
-
         window.handleAuth = async () => {
             const name = document.getElementById('login-name').value.trim();
             const pass = document.getElementById('login-pass').value.trim();
             if (!name) return;
-
             if (name.toLowerCase() === 'admin' && pass === "Daniel777") {
-                userState.isAdmin = true;
-                initAdmin();
-                return;
+                initAdmin(); return;
             }
-
             userState.name = name;
-            document.getElementById('player-welcome').innerText = "Soldado: " + name;
+            await setDoc(doc(db, "players", name), { name, score:0, qIndex:0, lives:3, dead:false, time:0, status:'online' });
             showView('levels');
-            renderLevelGrid();
+            syncGlobal();
         };
+
+        // SYNC GLOBAL
+        function syncGlobal() {
+            onSnapshot(doc(db, "config", "game"), (snap) => {
+                const data = snap.data();
+                if(!data) return;
+                gameConfig = data;
+                renderLevelGrid();
+                
+                if(data.status === 'active' && userState.name) {
+                    document.getElementById('access-code-prompt').classList.remove('hidden');
+                } else {
+                    document.getElementById('access-code-prompt').classList.add('hidden');
+                }
+            });
+
+            onSnapshot(collection(db, "chat"), (snap) => {
+                const box = document.getElementById('chat-messages');
+                box.innerHTML = "";
+                snap.docs.reverse().forEach(d => {
+                    const m = d.data();
+                    box.innerHTML += `<div class="mb-2 text-sm"><b class="text-yellow-600 uppercase">${m.user}:</b> <span class="text-zinc-300">${m.text}</span></div>`;
+                });
+                box.scrollTop = box.scrollHeight;
+            });
+            
+            // Listen to level images
+            onSnapshot(doc(db, "config", "images"), (snap) => {
+                levelImages = snap.data() || {};
+                renderLevelGrid();
+            });
+        }
 
         function renderLevelGrid() {
             const grid = document.getElementById('level-grid');
+            if(!grid) return;
             grid.innerHTML = "";
             for(let i=1; i<=12; i++) {
+                const isActive = (gameConfig.activeLevel == i && gameConfig.status === 'active');
+                const img = levelImages[i] || "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=500";
                 const card = document.createElement('div');
-                card.className = "level-card";
+                card.className = `level-card ${isActive ? '' : 'locked'}`;
                 card.innerHTML = `
-                    <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=60" alt="Nivel ${i}">
+                    <img src="${img}" class="w-full h-full object-cover">
                     <div class="level-overlay-num">${i}</div>
-                    <div class="absolute bottom-4 left-4 font-royal text-white text-sm">Capítulo ${i}</div>
+                    ${isActive ? '<div class="absolute inset-0 bg-yellow-500/20 animate-pulse"></div>' : ''}
                 `;
                 card.onclick = () => {
-                    document.getElementById('lobby-title').innerText = "Misión " + i;
-                    showView('lobby');
+                    if(isActive) {
+                        document.getElementById('lobby-title').innerText = "MISIÓN " + i + " ACTIVADA";
+                        showView('lobby');
+                    } else {
+                        Swal.fire("Nivel Bloqueado", "Espera a que el Administrador active este capítulo.", "warning");
+                    }
                 };
                 grid.appendChild(card);
             }
         }
 
-        // --- VISTAS ---
+        // ACCESO Y QUIZ
+        window.validateAccessCode = () => {
+            const code = document.getElementById('join-code-input').value.trim();
+            if(code === gameConfig.activeCode) {
+                startQuiz();
+            } else {
+                Swal.fire("Código Incorrecto", "Pide el código al Administrador", "error");
+            }
+        };
+
+        async function startQuiz() {
+            const snap = await getDoc(doc(db, "levels", "lvl_" + gameConfig.activeLevel));
+            if(!snap.exists()) return Swal.fire("Error", "No hay preguntas cargadas.", "error");
+            
+            currentQuestions = snap.data().questions.sort(() => Math.random() - 0.5).slice(0, 20);
+            userState.lives = gameConfig.diff;
+            userState.qIndex = 0;
+            userState.score = 0;
+            userState.dead = false;
+            userState.startTime = Date.now();
+            
+            showView('game');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            if(userState.qIndex >= currentQuestions.length || userState.lives <= 0) {
+                endGame(); return;
+            }
+
+            const q = currentQuestions[userState.qIndex];
+            document.getElementById('q-index').innerText = `PREGUNTA ${userState.qIndex + 1} / 20`;
+            document.getElementById('q-text').innerText = q.Pregunta;
+            document.getElementById('game-lives').innerHTML = "❤️".repeat(userState.lives);
+            document.getElementById('game-score').innerText = userState.score;
+
+            const cita = document.getElementById('q-cita');
+            if(gameConfig.showCita) { cita.innerText = q.Cita; cita.classList.remove('hidden'); }
+            else { cita.classList.add('hidden'); }
+
+            const options = [q.Correcta, q.Inc1, q.Inc2, q.Inc3].sort(() => Math.random() - 0.5);
+            const grid = document.getElementById('options-grid');
+            grid.innerHTML = "";
+            
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "btn-option p-4 rounded-2xl text-left font-bold uppercase text-sm";
+                btn.innerText = opt;
+                btn.onclick = () => {
+                    if(opt === q.Correcta) {
+                        userState.score += 100;
+                        userState.qIndex++;
+                    } else {
+                        userState.lives--;
+                        if(userState.lives <= 0) userState.dead = true;
+                        else userState.qIndex++;
+                    }
+                    updatePlayerInFirebase();
+                    renderQuestion();
+                };
+                grid.appendChild(btn);
+            });
+        }
+
+        async function updatePlayerInFirebase() {
+            const timeElapsed = Math.floor((Date.now() - userState.startTime) / 1000);
+            await updateDoc(doc(db, "players", userState.name), {
+                score: userState.score,
+                qIndex: userState.qIndex,
+                lives: userState.lives,
+                dead: userState.dead,
+                time: timeElapsed
+            });
+        }
+
+        function endGame() {
+            const passed = (userState.qIndex >= 20 && !userState.dead);
+            Swal.fire({
+                title: passed ? '¡VICTORIA!' : 'FIN DEL JUEGO',
+                text: `Puntaje: ${userState.score} - Preguntas: ${userState.qIndex}/20`,
+                icon: passed ? 'success' : 'error',
+                confirmButtonText: 'Ver Resultados'
+            }).then(() => showView('levels'));
+        }
+
+        // CHAT
+        window.sendChatMessage = async () => {
+            const input = document.getElementById('chat-input');
+            if(!input.value.trim()) return;
+            await addDoc(collection(db, "chat"), { user: userState.name, text: input.value, time: Date.now() });
+            input.value = "";
+        };
+
+        // --- FUNCIONES ADMIN ---
+        function initAdmin() {
+            showView('admin');
+            onSnapshot(collection(db, "players"), (snap) => {
+                const mon = document.getElementById('adm-monitor');
+                mon.innerHTML = "";
+                snap.forEach(d => {
+                    const p = d.data();
+                    const progress = (p.qIndex / 20) * 100;
+                    mon.innerHTML += `
+                        <div class="p-3 bg-black/40 rounded-xl border border-zinc-800">
+                            <div class="flex justify-between text-[10px] uppercase font-bold mb-1">
+                                <span class="${p.dead ? 'text-red-500' : 'text-yellow-500'}">${p.name} ${p.dead ? '(ELIMINADO)' : ''}</span>
+                                <span class="text-zinc-500">${p.score} pts | ${p.time}s</span>
+                            </div>
+                            <div class="w-full h-2 bg-zinc-900 rounded-full overflow-hidden">
+                                <div class="progress-bar h-full ${p.dead ? 'bg-red-900' : 'bg-green-600'}" style="width: ${progress}%"></div>
+                            </div>
+                        </div>`;
+                });
+            });
+        }
+
+        window.activateLevel = async () => {
+            const lvl = document.getElementById('adm-level-sel').value;
+            const code = Math.floor(1000 + Math.random() * 9000).toString();
+            const diff = parseInt(document.getElementById('adm-diff').value);
+            const showCita = document.getElementById('adm-show-cita').checked;
+
+            await setDoc(doc(db, "config", "game"), {
+                activeLevel: lvl,
+                activeCode: code,
+                diff: diff,
+                showCita: showCita,
+                status: 'active'
+            });
+            document.getElementById('adm-active-code').innerText = "CÓDIGO: " + code;
+            Swal.fire("Nivel Activado", `Capítulo ${lvl} abierto con código ${code}`, "success");
+        };
+
+        window.stopGame = async () => {
+            await updateDoc(doc(db, "config", "game"), { status: 'waiting', activeLevel: 0, activeCode: '' });
+            document.getElementById('adm-active-code').innerText = "";
+            Swal.fire("Juego Detenido", "Todos los jugadores han sido regresados al mapa.", "info");
+        };
+
+        window.updateLevelImage = async () => {
+            const lvl = document.getElementById('adm-level-sel').value;
+            const url = document.getElementById('adm-img-url').value;
+            if(!url) return;
+            const updates = {}; updates[lvl] = url;
+            await setDoc(doc(db, "config", "images"), updates, { merge: true });
+            Swal.fire("Imagen Actualizada", `Misión ${lvl} tiene nueva imagen.`, "success");
+        };
+
+        window.processExcel = (input) => {
+            const lvl = document.getElementById('adm-level-sel').value;
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                const json = XLSX.utils.sheet_to_json(sheet);
+                
+                if(json.length < 20) {
+                    Swal.fire("Atención", "El archivo tiene menos de 20 preguntas, pero se cargará igualmente.", "warning");
+                }
+                
+                await setDoc(doc(db, "levels", "lvl_" + lvl), { questions: json });
+                Swal.fire("Carga Exitosa", `Se han cargado las preguntas al Nivel ${lvl}`, "success");
+            };
+            reader.readAsArrayBuffer(input.files[0]);
+        };
+
+        // AUX
         function showView(id) {
-            ['view-login', 'view-levels', 'view-lobby', 'view-admin'].forEach(v => {
+            ['view-login', 'view-levels', 'view-lobby', 'view-game', 'view-admin'].forEach(v => {
                 document.getElementById(v).classList.add('hidden');
             });
             document.getElementById('view-' + id).classList.remove('hidden');
         }
-        window.showView = showView;
-
-        // --- ADMIN ---
-        function initAdmin() {
-            showView('admin');
-            const sel = document.getElementById('adm-level');
-            for(let i=1; i<=12; i++) sel.innerHTML += `<option value="${i}">Misión ${i}</option>`;
-        }
-
-        window.toggleGameState = () => {
-            Swal.fire("Acción", "Sincronizando con el servidor...", "info");
-        };
-
-        window.processExcel = (input) => {
-            Swal.fire("Éxito", "Archivo analizado correctamente", "success");
-        };
     </script>
 </body>
 </html>
