@@ -31,9 +31,8 @@
         .level-card { position: relative; aspect-ratio: 16/9; overflow: hidden; border-radius: 1.2rem; border: 2px solid rgba(212, 175, 55, 0.2); cursor: pointer; transition: 0.3s; }
         .level-card.locked { filter: grayscale(1) opacity(0.4); pointer-events: none; }
 
-        .gold-heart { color: var(--gold); text-shadow: 0 0 10px rgba(212, 175, 55, 0.5); font-size: 1.2rem; margin-right: 4px; }
+        .gold-heart { color: var(--gold); text-shadow: 0 0 10px rgba(212, 175, 55, 0.5); font-size: 1.5rem; margin-right: 6px; }
         
-        #view-game { min-height: 100vh; display: flex; flex-direction: column; }
         .hidden { display: none !important; }
 
         .footer-anclado { position: relative; width: 100%; text-align: center; padding: 20px; background: linear-gradient(to top, #000, transparent); color: var(--gold); font-size: 10px; letter-spacing: 2px; font-weight: bold; }
@@ -42,7 +41,7 @@
 
         .results-overlay { position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.98); display: flex; flex-direction: column; align-items: center; padding: 1rem; overflow-y: auto; }
         
-        .admin-level-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 15px; border: 1px solid rgba(212,175,55,0.15); }
+        .admin-level-item { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 20px; border: 1px solid rgba(212,175,55,0.15); }
     </style>
 </head>
 <body>
@@ -50,12 +49,10 @@
     <audio id="game-music" loop preload="auto"><source src="musica.mp3" type="audio/mpeg"></audio>
     <div id="music-toggle" onclick="toggleMusic()" class="hidden"><i id="music-icon" class="fa-solid fa-volume-xmark"></i></div>
 
-    <!-- FONDO -->
     <div id="video-bg-container">
         <video id="bg-video-loop" loop playsinline muted><source src="intro.mp4" type="video/mp4"></video>
     </div>
 
-    <!-- RESULTADO VIDEOS -->
     <div id="video-outcome" class="fullscreen-video hidden">
         <video id="outcome-player" playsinline class="w-full h-full object-cover"></video>
         <div class="absolute bottom-10 w-full text-center">
@@ -63,7 +60,6 @@
         </div>
     </div>
 
-    <!-- INTRO -->
     <div id="intro-overlay">
         <video id="intro-video" playsinline autoplay muted loop class="w-full h-full object-cover"><source src="intro.mp4" type="video/mp4"></video>
         <button onclick="endIntro()" class="absolute bottom-20 btn-gold px-12 py-5 rounded-full text-lg z-[1001]">Entrar a la Batalla</button>
@@ -73,7 +69,7 @@
         <div class="flex-grow">
             <!-- LOGIN -->
             <div id="view-login" class="h-full flex flex-col items-center justify-center p-6">
-                <h1 class="font-royal text-5xl md:text-8xl mb-2 text-yellow-500 text-center drop-shadow-2xl">DANIEL</h1>
+                <h1 class="font-royal text-6xl md:text-8xl mb-2 text-yellow-500 text-center drop-shadow-2xl">DANIEL</h1>
                 <p class="text-[10px] tracking-[0.6em] mb-12 text-zinc-400 uppercase">El Desafío Profético</p>
                 <div class="card-glass p-8 rounded-[2.5rem] w-full max-w-sm">
                     <input type="text" id="login-name" placeholder="Tu Nombre" class="w-full bg-black/50 border border-zinc-800 p-4 rounded-xl mb-4 text-center text-lg text-white outline-none">
@@ -88,7 +84,7 @@
             <!-- MAPA -->
             <div id="view-levels" class="hidden min-h-screen p-4 overflow-y-auto">
                 <header class="flex justify-between items-center mb-8 max-w-7xl mx-auto">
-                    <h2 class="font-royal text-2xl text-white">MISIONES</h2>
+                    <h2 class="font-royal text-2xl text-white uppercase tracking-tighter">Misiones del Reino</h2>
                     <button onclick="location.reload()" class="bg-red-900/20 text-red-500 px-4 py-2 rounded-lg text-xs font-bold border border-red-900/50">SALIR</button>
                 </header>
                 <div id="level-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto pb-10"></div>
@@ -97,27 +93,27 @@
             <!-- LOBBY -->
             <div id="view-lobby" class="hidden h-screen flex flex-col p-4 max-w-4xl mx-auto overflow-hidden">
                 <div class="card-glass p-4 rounded-2xl mb-4 flex flex-col gap-3">
-                    <div class="flex justify-between items-center">
+                    <div class="flex justify-between items-center border-b border-white/10 pb-2">
                         <h2 id="lobby-title" class="font-royal text-xl text-yellow-500 uppercase">SALA DE ESPERA</h2>
-                        <button onclick="showView('levels')" class="text-xs text-zinc-500 underline uppercase font-bold hover:text-white">Volver al Mapa</button>
+                        <button onclick="showView('levels')" class="text-xs text-yellow-600 underline uppercase font-bold hover:text-white">Volver al Mapa</button>
                     </div>
-                    <div id="access-code-prompt" class="flex gap-2 w-full">
+                    <div id="access-code-prompt" class="hidden flex gap-2 w-full">
                         <input type="text" id="join-code-input" placeholder="CÓDIGO" class="flex-1 bg-black border border-yellow-600/50 p-3 rounded-xl text-center text-yellow-500 font-bold outline-none">
-                        <button onclick="validateAccessCode()" class="btn-gold px-6 rounded-xl">Entrar al Quiz</button>
+                        <button onclick="validateAccessCode()" class="btn-gold px-6 rounded-xl text-xs">Entrar al Quiz</button>
                     </div>
-                    <button id="admin-back-btn" onclick="showView('admin')" class="hidden w-full bg-zinc-800 py-2 rounded-lg text-xs uppercase font-bold text-zinc-300">Panel Admin</button>
+                    <button id="admin-back-btn" onclick="showView('admin')" class="hidden w-full bg-zinc-800 py-2 rounded-lg text-xs uppercase font-bold text-zinc-300">Volver al Mando</button>
                 </div>
                 <div class="flex-1 card-glass rounded-2xl p-4 mb-4 overflow-y-auto" id="chat-messages"></div>
                 <div class="flex gap-2 pb-6">
-                    <input type="text" id="chat-input" placeholder="Mensaje..." class="flex-1 bg-black border border-zinc-800 p-4 rounded-2xl text-white outline-none">
-                    <button onclick="sendChatMessage()" class="btn-gold px-6 rounded-2xl">Enviar</button>
+                    <input type="text" id="chat-input" placeholder="Escribe al Reino..." class="flex-1 bg-black border border-zinc-800 p-4 rounded-2xl text-white outline-none">
+                    <button onclick="sendChatMessage()" class="btn-gold px-6 rounded-2xl font-bold">Enviar</button>
                 </div>
             </div>
 
-            <!-- RESULTADOS -->
+            <!-- RESULTADOS GLOBALES -->
             <div id="global-results" class="results-overlay hidden">
-                <h2 class="font-royal text-3xl md:text-5xl text-yellow-500 mb-8 mt-6">CUADRO DE HONOR</h2>
-                <div id="results-list" class="w-full max-w-2xl space-y-4 px-2 pb-10"></div>
+                <h2 class="font-royal text-3xl md:text-6xl text-yellow-500 mb-10 mt-6 tracking-widest drop-shadow-2xl">HALL DE LA GLORIA</h2>
+                <div id="results-list" class="w-full max-w-3xl space-y-4 px-2 pb-20"></div>
             </div>
 
             <!-- QUIZ -->
@@ -126,15 +122,15 @@
                     <div class="flex justify-between items-center mb-6">
                         <div id="game-lives" class="flex"></div>
                         <div class="text-right">
-                            <span id="game-score" class="text-3xl font-bold text-yellow-500 font-royal">0</span><br>
-                            <span id="game-timer-label" class="text-xs font-mono text-zinc-500">00:00</span>
+                            <span id="game-score" class="text-4xl font-bold text-yellow-500 font-royal">0</span><br>
+                            <span id="game-timer-label" class="text-sm font-mono text-zinc-400">00:00</span>
                         </div>
                     </div>
-                    <div class="card-glass p-6 md:p-10 rounded-[2.5rem] flex flex-col min-h-[500px]">
-                        <p id="q-index" class="text-center text-[11px] text-yellow-600 font-bold mb-6 tracking-widest uppercase"></p>
-                        <h3 id="q-text" class="text-xl md:text-3xl text-center font-semibold mb-8 leading-tight"></h3>
+                    <div class="card-glass p-8 md:p-12 rounded-[3rem] flex flex-col min-h-[500px] border-t-4 border-yellow-500/50">
+                        <p id="q-index" class="text-center text-[12px] text-yellow-600 font-bold mb-6 tracking-[0.3em] uppercase border-b border-white/10 pb-4"></p>
+                        <h3 id="q-text" class="text-2xl md:text-4xl text-center font-semibold mb-10 leading-tight"></h3>
                         <div id="options-grid" class="grid grid-cols-1 gap-4"></div>
-                        <p id="q-cita" class="mt-8 text-center italic text-sm text-zinc-500 hidden"></p>
+                        <p id="q-cita" class="mt-10 text-center italic text-sm text-zinc-500 hidden"></p>
                     </div>
                 </div>
             </div>
@@ -143,23 +139,25 @@
             <div id="view-admin" class="hidden min-h-screen p-4 overflow-y-auto">
                 <div class="max-w-7xl mx-auto pb-20">
                     <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-10">
-                        <button onclick="showView('lobby')" class="bg-blue-900/40 text-blue-400 px-8 py-3 rounded-xl border border-blue-900 font-bold text-[10px] uppercase tracking-widest">Chat Reino</button>
-                        <h2 class="font-royal text-4xl text-red-600">CENTRO DE MANDO</h2>
-                        <button onclick="resetGlobalSystem()" class="bg-red-900/40 text-red-400 px-8 py-3 rounded-xl border border-red-900 font-bold text-[10px] uppercase tracking-widest">Reinicio Total</button>
+                        <button onclick="showView('lobby')" class="bg-blue-900/40 text-blue-400 px-8 py-3 rounded-xl border border-blue-900 font-bold text-[10px] uppercase tracking-widest">Entrar al Chat</button>
+                        <h2 class="font-royal text-4xl text-red-600 text-center drop-shadow-lg tracking-widest">SALA DE GUERRA</h2>
+                        <button onclick="resetGlobalSystem()" class="bg-red-900/40 text-red-400 px-8 py-3 rounded-xl border border-red-900 font-bold text-[10px] uppercase tracking-widest">Borrar Memoria</button>
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- CAPÍTULOS -->
                         <div class="card-glass p-6 rounded-3xl h-fit">
-                            <h3 class="text-yellow-500 font-royal mb-6 border-b border-zinc-800 pb-2 uppercase text-sm tracking-widest">Control de Capítulos</h3>
+                            <h3 class="text-yellow-500 font-royal mb-6 border-b border-zinc-800 pb-2 uppercase text-sm tracking-widest">Gestión de Capítulos</h3>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="adm-levels-controls"></div>
-                            <div class="mt-10 space-y-4">
-                                <button onclick="toggleResults(true)" class="w-full bg-yellow-600 text-black py-4 rounded-xl font-bold uppercase text-xs">Publicar Resultados</button>
-                                <button onclick="toggleResults(false)" class="w-full bg-zinc-800 text-white py-3 rounded-xl font-bold uppercase text-xs">Ocultar Resultados</button>
+                            <div class="mt-10 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <button onclick="toggleResults(true)" class="bg-yellow-600 text-black py-4 rounded-xl font-bold uppercase text-xs">Publicar Ranking Global</button>
+                                <button onclick="toggleResults(false)" class="bg-zinc-800 text-white py-4 rounded-xl font-bold uppercase text-xs">Cerrar Ranking</button>
                             </div>
                         </div>
 
+                        <!-- RANKING -->
                         <div class="card-glass p-6 rounded-3xl h-fit">
-                            <h3 class="text-yellow-500 font-royal mb-6 border-b border-zinc-800 pb-2 uppercase text-sm tracking-widest">Ranking En Vivo</h3>
+                            <h3 class="text-yellow-500 font-royal mb-6 border-b border-zinc-800 pb-2 uppercase text-sm tracking-widest">Monitor de Batalla</h3>
                             <div id="adm-monitor" class="space-y-3"></div>
                         </div>
                     </div>
@@ -195,7 +193,6 @@
         let activeLevelLobby = 0;
         let gameConfig = { levels: {}, showResults: false };
         let levelImages = {};
-        let levelDocs = {};
 
         const VID_VICTORY = "https://assets.mixkit.co/videos/preview/mixkit-golden-confetti-falling-on-a-black-background-4148-large.mp4";
         const VID_DEFEAT = "https://assets.mixkit.co/videos/preview/mixkit-fire-and-smoke-4122-large.mp4";
@@ -215,6 +212,11 @@
             else { gameMusic.pause(); document.getElementById('music-icon').className = "fa-solid fa-volume-xmark"; }
         };
 
+        window.showView = (id) => {
+            ['view-login', 'view-levels', 'view-lobby', 'view-game', 'view-admin'].forEach(v => document.getElementById(v).classList.add('hidden'));
+            document.getElementById('view-' + id).classList.remove('hidden');
+        };
+
         function formatTime(s) {
             const m = Math.floor(s / 60);
             const sec = s % 60;
@@ -232,8 +234,8 @@
                 initAdmin(); return;
             }
             userState.name = name;
-            await setDoc(doc(db, "players", name), { name, score:0, qIndex:0, lives:3, dead:false, time:0 });
-            showView('levels');
+            await setDoc(doc(db, "players", name), { name, score:0, qIndex:0, lives:3, dead:false, time:0, lastUpdate: Date.now() });
+            window.showView('levels');
             syncGlobal();
         };
 
@@ -245,13 +247,19 @@
                 renderAdminStatus();
                 document.getElementById('global-results').classList.toggle('hidden', !data.showResults);
                 if(data.showResults) updateGlobalResultsList();
+
+                // Toggle Code Input in Lobby
+                if(activeLevelLobby > 0) {
+                    const isActive = data.levels[activeLevelLobby]?.active;
+                    document.getElementById('access-code-prompt').classList.toggle('hidden', !isActive);
+                }
             });
 
             onSnapshot(collection(db, "chat"), (snap) => {
                 const box = document.getElementById('chat-messages'); box.innerHTML = "";
                 snap.docs.reverse().forEach(d => {
                     const m = d.data();
-                    box.innerHTML += `<div class="mb-3 text-xs bg-white/5 p-2 rounded-lg"><b class="text-yellow-600">${m.user}:</b> <span class="text-zinc-300">${m.text}</span></div>`;
+                    box.innerHTML += `<div class="mb-3 text-xs bg-white/5 p-2 rounded-lg border-l-2 border-yellow-600"><b class="text-yellow-600 uppercase">${m.user}:</b> <span class="text-zinc-300 ml-2">${m.text}</span></div>`;
                 });
                 box.scrollTop = box.scrollHeight;
             });
@@ -259,6 +267,7 @@
             onSnapshot(doc(db, "config", "images"), (snap) => {
                 levelImages = snap.data() || {};
                 renderLevelGrid();
+                renderAdminStatus();
             });
         }
 
@@ -271,39 +280,38 @@
                 grid.innerHTML += `
                     <div class="level-card ${isActive ? '' : 'locked'}" onclick="${isActive ? 'enterLobby('+i+')' : 'alertLocked()'}">
                         <img src="${img}" class="w-full h-full object-cover">
-                        <div class="absolute inset-0 flex items-center justify-center font-royal text-4xl text-white/20">${i}</div>
-                        ${isActive ? '<div class="absolute inset-0 border-2 border-yellow-500 animate-pulse rounded-xl"></div>' : ''}
+                        <div class="absolute inset-0 flex items-center justify-center font-royal text-5xl text-white/20">${i}</div>
+                        ${isActive ? '<div class="absolute inset-0 border-2 border-yellow-500 animate-pulse rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.4)]"></div>' : ''}
                     </div>`;
             }
         }
 
         window.enterLobby = (lvl) => { 
             activeLevelLobby = lvl;
-            document.getElementById('lobby-title').innerText = "CAPÍTULO " + lvl;
-            showView('lobby'); 
+            document.getElementById('lobby-title').innerText = "MISIÓN DEL CAPÍTULO " + lvl;
+            window.showView('lobby'); 
         };
-        window.alertLocked = () => Swal.fire("Sellado", "Este nivel aún no ha sido activado.", "warning");
+        window.alertLocked = () => Swal.fire({ title: "Sello Sagrado", text: "Este portal está cerrado bajo orden real.", icon: "info", background: "#080808", color: "#d4af37", confirmButtonColor: "#d4af37" });
 
         window.validateAccessCode = () => {
-            const code = document.getElementById('join-code-input').value.trim();
-            if(code === gameConfig.levels?.[activeLevelLobby]?.code) startQuiz();
-            else Swal.fire("Error", "Código profético incorrecto.", "error");
+            const input = document.getElementById('join-code-input').value.trim();
+            if(input === gameConfig.levels?.[activeLevelLobby]?.code) startQuiz();
+            else Swal.fire("Código Incorrecto", "El permiso ha sido denegado.", "error");
         };
 
         // --- QUIZ ---
         async function startQuiz() {
             const snap = await getDoc(doc(db, "levels", "lvl_" + activeLevelLobby));
-            if(!snap.exists()) return Swal.fire("Error", "No hay preguntas en este nivel.", "error");
+            if(!snap.exists()) return Swal.fire("Sin Datos", "Esta misión no tiene instrucciones cargadas.", "warning");
             const qs = snap.data().questions.sort(() => Math.random() - 0.5).slice(0, 20);
             userState.lives = 3; userState.qIndex = 0; userState.score = 0; userState.startTime = Date.now();
-            showView('game'); 
-            runQuiz(qs);
+            window.showView('game'); runQuiz(qs);
         }
 
         function runQuiz(qs) {
             if(userState.qIndex >= qs.length || userState.lives <= 0) { finishBattle(); return; }
             const q = qs[userState.qIndex];
-            document.getElementById('q-index').innerText = `DESAFÍO ${userState.qIndex+1}/20`;
+            document.getElementById('q-index').innerText = `DESAFÍO ${userState.qIndex+1} / 20`;
             document.getElementById('q-text').innerText = q.Pregunta;
             document.getElementById('game-lives').innerHTML = `<i class="fa-solid fa-heart gold-heart"></i>`.repeat(userState.lives);
             document.getElementById('game-score').innerText = userState.score;
@@ -311,7 +319,7 @@
             const grid = document.getElementById('options-grid'); grid.innerHTML = "";
             [q.Correcta, q.Inc1, q.Inc2, q.Inc3].sort(() => Math.random() - 0.5).forEach(o => {
                 const b = document.createElement('button');
-                b.className = "btn-option p-4 rounded-xl text-left text-sm font-bold uppercase";
+                b.className = "btn-option p-5 rounded-2xl text-left text-xs md:text-sm font-bold uppercase tracking-wider shadow-lg";
                 b.innerText = o;
                 b.onclick = () => {
                     if(o === q.Correcta) { userState.score += 100; userState.qIndex++; }
@@ -329,7 +337,7 @@
         }
 
         function finishBattle() {
-            const win = userState.lives > 0;
+            const win = userState.lives > 0 && userState.qIndex >= 20;
             const player = document.getElementById('outcome-player');
             player.src = win ? VID_VICTORY : VID_DEFEAT;
             document.getElementById('video-outcome').classList.remove('hidden');
@@ -338,13 +346,13 @@
 
         window.closeOutcomeVideo = () => {
             document.getElementById('video-outcome').classList.add('hidden');
-            showView('lobby');
+            window.showView('lobby');
         };
 
         // --- ADMIN ---
-        let adminTargetLvl = 1;
+        let adminLvlTarget = 1;
         function initAdmin() {
-            showView('admin'); syncGlobal();
+            window.showView('admin'); syncGlobal();
             onSnapshot(collection(db, "players"), (snap) => {
                 const m = document.getElementById('adm-monitor'); m.innerHTML = "";
                 let ps = []; snap.forEach(d => ps.push(d.data()));
@@ -366,23 +374,23 @@
                 const active = gameConfig.levels?.[i]?.active;
                 container.innerHTML += `
                     <div class="admin-level-item flex flex-col gap-3">
-                        <div class="flex justify-between items-center">
-                            <span class="font-royal text-xs">Misión ${i} ${s.exists()?'✅':'❌'}</span>
-                            <span class="text-[10px] font-bold text-yellow-500">${gameConfig.levels?.[i]?.code || '----'}</span>
+                        <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                            <span class="font-royal text-[10px] uppercase">Capítulo ${i} ${s.exists()?'✅':'❌'}</span>
+                            <span class="text-xs font-bold text-yellow-500">${gameConfig.levels?.[i]?.code || '----'}</span>
                         </div>
                         <div class="flex gap-2">
-                            <button onclick="adminPickLvl(${i},'img')" class="flex-1 bg-zinc-800 py-2 rounded text-[8px] font-bold">IMAGEN</button>
-                            <button onclick="adminPickLvl(${i},'excel')" class="flex-1 bg-zinc-800 py-2 rounded text-[8px] font-bold">DOC</button>
+                            <button onclick="adminPick(${i},'img')" class="flex-1 bg-zinc-800 py-2 rounded text-[8px] font-bold border border-white/5">FOTO</button>
+                            <button onclick="adminPick(${i},'excel')" class="flex-1 bg-zinc-800 py-2 rounded text-[8px] font-bold border border-white/5">XLSX</button>
                         </div>
-                        <button onclick="toggleLvlState(${i})" class="w-full py-2 rounded font-bold text-[10px] ${active?'bg-red-900 text-red-200':'bg-green-900 text-green-200'} uppercase">
+                        <button onclick="toggleLvlState(${i})" class="w-full py-3 rounded-xl font-bold text-[10px] ${active?'bg-red-900 text-red-100 shadow-[0_0_10px_rgba(127,29,29,0.5)]':'bg-green-900 text-green-100 shadow-[0_0_10px_rgba(20,83,45,0.5)]'} uppercase tracking-widest">
                             ${active?'Desactivar':'Activar'}
                         </button>
                     </div>`;
             }
         }
 
-        window.adminPickLvl = (lvl, type) => {
-            adminTargetLvl = lvl;
+        window.adminPick = (lvl, type) => {
+            adminLvlTarget = lvl;
             if(type === 'img') document.getElementById('adm-img-input').click();
             else document.getElementById('adm-excel-input').click();
         };
@@ -390,9 +398,9 @@
         window.handleImageUpload = (input) => {
             const r = new FileReader();
             r.onload = async (e) => {
-                const up = {}; up[adminTargetLvl] = e.target.result;
+                const up = {}; up[adminLvlTarget] = e.target.result;
                 await setDoc(doc(db, "config", "images"), up, { merge: true });
-                Swal.fire("Éxito", "Imagen vinculada.", "success");
+                Swal.fire("Imagen Guardada", "Misión actualizada con éxito.", "success");
             };
             r.readAsDataURL(input.files[0]);
         };
@@ -402,19 +410,21 @@
             r.onload = async (e) => {
                 const book = XLSX.read(new Uint8Array(e.target.result), {type: 'array'});
                 const json = XLSX.utils.sheet_to_json(book.Sheets[book.SheetNames[0]]);
-                await setDoc(doc(db, "levels", "lvl_" + adminTargetLvl), { questions: json });
+                await setDoc(doc(db, "levels", "lvl_" + adminLvlTarget), { questions: json });
                 refreshAdminStatus();
-                Swal.fire("Excel Cargado", "Preguntas reemplazadas con éxito.", "success");
+                Swal.fire("Listo", "Preguntas reemplazadas correctamente.", "success");
             };
             r.readAsArrayBuffer(input.files[0]);
         };
 
         window.toggleLvlState = async (lvl) => {
-            const current = gameConfig.levels?.[lvl] || {};
-            const newState = !current.active;
-            const newCode = newState ? Math.floor(1000 + Math.random() * 9000).toString() : '';
+            const s = await getDoc(doc(db, "levels", "lvl_" + lvl));
+            if(!s.exists()) return Swal.fire("Error", "Sube el Excel antes de activar.", "error");
             const up = { levels: { ...gameConfig.levels } };
-            up.levels[lvl] = { active: newState, code: newCode };
+            const current = up.levels[lvl] || {};
+            current.active = !current.active;
+            current.code = current.active ? Math.floor(1000 + Math.random() * 9000).toString() : '';
+            up.levels[lvl] = current;
             await setDoc(doc(db, "config", "game"), up, { merge: true });
             refreshAdminStatus();
         };
@@ -426,15 +436,19 @@
             const container = document.getElementById('results-list');
             container.innerHTML = "";
             list.slice(0, 10).forEach((p, i) => {
+                const isGold = i === 0;
                 container.innerHTML += `
-                <div class="flex justify-between items-center p-5 card-glass rounded-2xl border-l-4 ${i<3?'border-yellow-500':'border-zinc-700'}">
-                    <div class="flex flex-col">
-                        <span class="text-xs text-zinc-500 font-bold uppercase">#${i+1} Guerrero</span>
-                        <span class="font-royal text-2xl text-white uppercase">${p.name}</span>
+                <div class="flex justify-between items-center p-6 card-glass rounded-[2rem] border-l-8 ${i<3?'border-yellow-500 shadow-[0_0_20px_rgba(212,175,55,0.2)]':'border-zinc-700'}">
+                    <div class="flex gap-6 items-center">
+                        <span class="font-royal text-3xl md:text-5xl ${isGold?'text-yellow-500':'text-zinc-600'}">#${i+1}</span>
+                        <div class="flex flex-col">
+                            <span class="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em]">Guerrero del Reino</span>
+                            <span class="font-royal text-xl md:text-3xl text-white uppercase">${p.name}</span>
+                        </div>
                     </div>
-                    <div class="text-right flex flex-col items-end">
-                        <span class="text-yellow-500 font-bold text-3xl">${p.score} <small class="text-[10px]">PTS</small></span>
-                        <span class="text-zinc-400 font-mono text-sm">${formatTime(p.time)}</span>
+                    <div class="text-right">
+                        <span class="text-yellow-500 font-bold text-3xl md:text-5xl drop-shadow-lg">${p.score} <small class="text-xs">PTS</small></span>
+                        <div class="text-zinc-500 font-mono text-sm md:text-lg mt-1 uppercase tracking-widest">${formatTime(p.time)} <small class="text-[8px]">Tiempo</small></div>
                     </div>
                 </div>`;
             });
@@ -449,7 +463,7 @@
         };
 
         window.resetGlobalSystem = async () => {
-            const res = await Swal.fire({ title: '¿REINICIAR TODO?', icon: 'warning', showCancelButton: true });
+            const res = await Swal.fire({ title: '¿REINICIAR TODO?', text: "Se perderán todas las posiciones y el chat.", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' });
             if(!res.isConfirmed) return;
             const p = await getDocs(collection(db, "players")); p.forEach(async d => await deleteDoc(doc(db, "players", d.id)));
             const c = await getDocs(collection(db, "chat")); c.forEach(async d => await deleteDoc(doc(db, "chat", d.id)));
@@ -459,10 +473,6 @@
 
         window.toggleAdminField = () => { document.getElementById('admin-pass-container').classList.toggle('hidden'); };
 
-        function showView(id) {
-            ['view-login', 'view-levels', 'view-lobby', 'view-game', 'view-admin'].forEach(v => document.getElementById(v).classList.add('hidden'));
-            document.getElementById('view-' + id).classList.remove('hidden');
-        }
     </script>
 </body>
 </html>
