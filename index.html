@@ -36,12 +36,9 @@
 
         .footer-anclado { position: relative; width: 100%; text-align: center; padding: 15px; background: linear-gradient(to top, #000, transparent); color: var(--gold); font-size: 10px; letter-spacing: 2px; font-weight: bold; }
 
-        #music-toggle { position: fixed; top: 20px; left: 20px; z-index: 1100; background: rgba(0,0,0,0.6); border: 1px solid var(--gold); color: var(--gold); width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-
         .results-overlay { position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.98); display: flex; flex-direction: column; align-items: center; padding: 1rem; overflow-y: auto; }
         .admin-level-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 15px; border: 1px solid rgba(212,175,55,0.15); }
         
-        /* Estilos para que los botones de opciones en el quiz no se deformen */
         .btn-option { background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.2); transition: 0.2s; color: white; }
         .btn-option:hover { background: rgba(212,175,55,0.2); border-color: var(--gold); }
     </style>
@@ -49,7 +46,6 @@
 <body>
 
     <audio id="game-music" loop preload="auto"><source src="musica.mp3" type="audio/mpeg"></audio>
-    <div id="music-toggle" onclick="toggleMusic()" class="hidden"><i id="music-icon" class="fa-solid fa-volume-xmark"></i></div>
 
     <div id="video-bg-container">
         <video id="bg-video-loop" loop playsinline muted><source src="intro.mp4" type="video/mp4"></video>
@@ -70,7 +66,6 @@
     <div id="main-content" class="relative z-10 opacity-0 transition-opacity duration-1000 h-screen flex flex-col">
         <div class="flex-grow overflow-y-auto">
             
-            <!-- LOGIN -->
             <div id="view-login" class="min-h-full flex flex-col items-center justify-center p-6">
                 <h1 class="font-royal text-6xl md:text-8xl mb-2 text-yellow-500 text-center drop-shadow-2xl uppercase">Daniel</h1>
                 <p class="text-[10px] tracking-[0.6em] mb-12 text-zinc-400 uppercase text-center">El Desafío Profético</p>
@@ -84,7 +79,6 @@
                 </div>
             </div>
 
-            <!-- MAPA -->
             <div id="view-levels" class="hidden min-h-screen p-4">
                 <header class="flex justify-between items-center mb-6 max-w-7xl mx-auto">
                     <h2 class="font-royal text-2xl text-white uppercase tracking-tighter">Misiones</h2>
@@ -93,15 +87,13 @@
                 <div id="level-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-7xl mx-auto pb-20"></div>
             </div>
 
-            <!-- LOBBY (MEJORADO PARA MÓVILES) -->
-            <div id="view-lobby" class="hidden h-[calc(100vh-60px)] flex flex-col p-4 max-w-4xl mx-auto">
+            <div id="view-lobby" class="hidden h-[calc(100vh-80px)] flex flex-col p-4 max-w-4xl mx-auto">
                 <div class="card-glass p-4 rounded-2xl mb-3 flex flex-col gap-3 shrink-0">
                     <div class="flex justify-between items-center border-b border-white/10 pb-2">
                         <h2 id="lobby-title" class="font-royal text-xl text-yellow-500 uppercase">LOBBY</h2>
                         <button onclick="showView('levels')" class="text-[10px] text-yellow-600 underline uppercase font-bold px-2 py-1">Regresar</button>
                     </div>
                     
-                    <!-- Formulario de Código Responsive -->
                     <div id="access-code-prompt" class="hidden flex flex-col sm:flex-row gap-2 w-full">
                         <input type="text" id="join-code-input" placeholder="INGRESA EL CÓDIGO" class="flex-1 bg-black border border-yellow-600/50 p-3 rounded-xl text-center text-yellow-500 font-bold outline-none text-base">
                         <button onclick="validateAccessCode()" class="btn-gold py-3 px-4 rounded-xl text-xs sm:text-[10px] whitespace-nowrap">ENTRAR AL QUIZ</button>
@@ -110,26 +102,23 @@
                     <button id="admin-back-btn" onclick="showView('admin')" class="hidden w-full bg-zinc-800 py-3 rounded-xl text-[10px] uppercase font-bold text-zinc-300 tracking-widest border border-zinc-700">Panel Admin</button>
                 </div>
 
-                <!-- Chat: ahora usa flex-1 para ocupar el espacio restante -->
-                <div class="flex-1 card-glass rounded-2xl p-4 mb-3 overflow-y-auto" id="chat-messages" style="min-height: 200px;"></div>
+                <div class="flex-1 card-glass rounded-2xl p-4 mb-3 overflow-y-auto" id="chat-messages" style="min-height: 150px;"></div>
                 
-                <!-- Input de Chat Responsive -->
-                <div class="flex gap-2 pb-2 shrink-0">
-                    <input type="text" id="chat-input" placeholder="Escribe..." class="flex-1 bg-black border border-zinc-800 p-4 rounded-xl text-white outline-none text-sm">
-                    <button onclick="sendChatMessage()" class="btn-gold px-6 rounded-xl font-bold text-sm h-full">
-                        <i class="fa-solid fa-paper-plane md:hidden"></i>
-                        <span class="hidden md:inline">ENVIAR</span>
+                <!-- CORRECCIÓN DEL BOTÓN DE ENVIAR PARA QUE NO SE SALGA -->
+                <div class="flex gap-2 pb-2 shrink-0 w-full items-center">
+                    <input type="text" id="chat-input" placeholder="Escribe..." class="flex-1 min-w-0 bg-black border border-zinc-800 p-4 rounded-xl text-white outline-none text-sm">
+                    <button onclick="sendChatMessage()" class="btn-gold px-4 py-4 rounded-xl font-bold text-xs flex-shrink-0">
+                        <i class="fa-solid fa-paper-plane sm:hidden"></i>
+                        <span class="hidden sm:inline">ENVIAR</span>
                     </button>
                 </div>
             </div>
 
-            <!-- RESULTADOS GLOBALES -->
             <div id="global-results" class="results-overlay hidden">
                 <h2 class="font-royal text-3xl md:text-6xl text-yellow-500 mb-10 mt-6 tracking-widest text-center">HALL DE LA GLORIA</h2>
                 <div id="results-list" class="w-full max-w-3xl space-y-4 px-2 pb-20"></div>
             </div>
 
-            <!-- QUIZ -->
             <div id="view-game" class="hidden min-h-full p-4">
                 <div class="max-w-3xl mx-auto">
                     <div class="flex justify-between items-center mb-6">
@@ -148,7 +137,6 @@
                 </div>
             </div>
 
-            <!-- ADMIN -->
             <div id="view-admin" class="hidden min-h-screen p-4 overflow-y-auto">
                 <div class="max-w-7xl mx-auto pb-20">
                     <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-10">
@@ -158,7 +146,6 @@
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <!-- CONFIGURACIÓN -->
                         <div class="card-glass p-6 rounded-3xl h-fit">
                             <h3 class="text-yellow-500 font-royal mb-6 border-b border-zinc-800 pb-2 uppercase text-sm tracking-widest">Configuración</h3>
                             <div class="flex flex-wrap gap-4 mb-6 bg-black/40 p-4 rounded-xl">
@@ -181,7 +168,6 @@
                                 <button onclick="toggleResults(false)" class="bg-zinc-800 text-white py-4 rounded-xl font-bold uppercase text-[10px]">Quitar Ranking</button>
                             </div>
                         </div>
-                        <!-- MONITOR -->
                         <div class="card-glass p-6 rounded-3xl h-fit">
                             <h3 class="text-yellow-500 font-royal mb-6 border-b border-zinc-800 pb-2 uppercase text-sm tracking-widest">En Vivo</h3>
                             <div id="adm-monitor" class="space-y-3"></div>
@@ -200,7 +186,6 @@
         </footer>
     </div>
 
-    <!-- MANTENEMOS TU LÓGICA EXACTAMENTE IGUAL -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, setDoc, onSnapshot, updateDoc, collection, addDoc, query, orderBy, limit, getDoc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -229,14 +214,8 @@
         window.endIntro = () => {
             document.getElementById('intro-overlay').classList.add('fade-out');
             document.getElementById('main-content').classList.replace('opacity-0', 'opacity-100');
-            document.getElementById('music-toggle').classList.remove('hidden');
             document.getElementById('bg-video-loop').play().catch(()=>{});
             gameMusic.play().catch(()=>{});
-        };
-
-        window.toggleMusic = () => {
-            if(gameMusic.paused) { gameMusic.play(); document.getElementById('music-icon').className = "fa-solid fa-volume-high"; }
-            else { gameMusic.pause(); document.getElementById('music-icon').className = "fa-solid fa-volume-xmark"; }
         };
 
         window.showView = (id) => {
