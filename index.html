@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -66,6 +67,7 @@
     <div id="main-content" class="relative z-10 opacity-0 transition-opacity duration-1000 h-screen flex flex-col">
         <div class="flex-grow overflow-y-auto">
             
+            <!-- LOGIN -->
             <div id="view-login" class="min-h-full flex flex-col items-center justify-center p-6">
                 <h1 class="font-royal text-6xl md:text-8xl mb-2 text-yellow-500 text-center drop-shadow-2xl uppercase">Daniel</h1>
                 <p class="text-[10px] tracking-[0.6em] mb-12 text-zinc-400 uppercase text-center">El Desafío Profético</p>
@@ -79,6 +81,7 @@
                 </div>
             </div>
 
+            <!-- MAPA -->
             <div id="view-levels" class="hidden min-h-screen p-4">
                 <header class="flex justify-between items-center mb-6 max-w-7xl mx-auto">
                     <h2 class="font-royal text-2xl text-white uppercase tracking-tighter">Misiones</h2>
@@ -87,6 +90,7 @@
                 <div id="level-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-7xl mx-auto pb-20"></div>
             </div>
 
+            <!-- LOBBY -->
             <div id="view-lobby" class="hidden h-[calc(100vh-80px)] flex flex-col p-4 max-w-4xl mx-auto">
                 <div class="card-glass p-4 rounded-2xl mb-3 flex flex-col gap-3 shrink-0">
                     <div class="flex justify-between items-center border-b border-white/10 pb-2">
@@ -207,9 +211,6 @@
         let levelImages = {};
         let adminLvlTarget = 1;
 
-        const VID_VICTORY = "gano.mp4";
-        const VID_DEFEAT = "perdio.mp4";
-
         const gameMusic = document.getElementById('game-music');
 
         window.endIntro = () => {
@@ -245,23 +246,21 @@
             syncGlobal();
         };
 
-        // SINCRONIZACIÓN REAL PARA TODOS LOS JUGADORES
         function syncGlobal() {
             onSnapshot(doc(db, "config", "game"), (snap) => {
                 const data = snap.data() || { levels: {}, showResults: false, globalLives: 3, showCita: false };
                 gameConfig = data;
                 renderLevelGrid();
                 
-                // ESTO MOSTRARÁ U OCULTARÁ EL RANKING EN TODOS LOS CELULARES AL INSTANTE
                 const resOverlay = document.getElementById('global-results');
                 if(data.showResults) {
                     resOverlay.classList.remove('hidden');
-                    updateGlobalResultsList(); // Actualización en tiempo real de la lista
+                    updateGlobalResultsList(); 
                 } else {
                     resOverlay.classList.add('hidden');
                 }
                 
-                if(userState.isAdmin) renderAdminStatus();
+                if(userState.isAdmin) refreshAdminStatus();
                 updateCodeVisibility();
             });
 
@@ -292,7 +291,7 @@
             grid.innerHTML = "";
             for(let i=1; i<=12; i++) {
                 const isActive = gameConfig.levels?.[i]?.active;
-                const img = levelImages[i] || "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=500";
+                const img = levelImages[i.toString()] || "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=500";
                 grid.innerHTML += `
                     <div class="level-card ${isActive ? '' : 'locked'}" onclick="${isActive ? 'enterLobby('+i+')' : 'alertLocked()'}">
                         <img src="${img}" class="w-full h-full object-cover">
@@ -361,7 +360,7 @@
         function finishBattle() {
             const win = userState.lives > 0 && userState.qIndex >= 20;
             const player = document.getElementById('outcome-player');
-            player.src = win ? VID_VICTORY : VID_DEFEAT;
+            player.src = win ? "gano.mp4" : "perdio.mp4";
             document.getElementById('video-outcome').classList.remove('hidden');
             player.play();
         }
@@ -371,12 +370,9 @@
             window.showView('lobby');
         };
 
-        // --- FUNCIONES DE ADMINISTRACIÓN CORREGIDAS ---
-
+        // --- ADMIN ---
         function initAdmin() {
             window.showView('admin'); syncGlobal();
-            
-            // Listeners para carga de archivos
             document.getElementById('adm-img-input').onchange = (e) => handleImageUpload(e.target);
             document.getElementById('adm-excel-input').onchange = (e) => processExcel(e.target);
 
@@ -398,12 +394,12 @@
             container.innerHTML = "";
             for(let i=1; i<=12; i++) {
                 const s = await getDoc(doc(db, "levels", "lvl_" + i));
-                const active = gameConfig.levels?.[i]?.active;
+                const active = gameConfig.levels?.[i.toString()]?.active;
                 container.innerHTML += `
                     <div class="admin-level-item flex flex-col gap-3">
                         <div class="flex justify-between items-center border-b border-white/5 pb-2">
                             <span class="font-royal text-[10px] uppercase font-bold">Nivel ${i} ${s.exists()?'✅':'❌'}</span>
-                            <span class="text-xs font-bold text-yellow-500">${gameConfig.levels?.[i]?.code || '----'}</span>
+                            <span class="text-xs font-bold text-yellow-500">${gameConfig.levels?.[i.toString()]?.code || '----'}</span>
                         </div>
                         <div class="grid grid-cols-2 gap-2">
                             <button onclick="adminPick(${i},'img')" class="bg-zinc-800 py-2 rounded text-[8px] font-bold uppercase">Img</button>
@@ -424,13 +420,21 @@
 
         const handleImageUpload = (input) => {
             if(!input.files[0]) return;
+            const file = input.files[0];
+            if(file.size > 800000) return Swal.fire("Imagen muy pesada", "Usa una imagen de menos de 800KB", "warning");
+
             const r = new FileReader();
             r.onload = async (e) => {
-                const up = {}; up[adminLvlTarget] = e.target.result;
-                await setDoc(doc(db, "config", "images"), up, { merge: true });
-                Swal.fire("Imagen Guardada", "Éxito.", "success");
+                try {
+                    const up = {}; 
+                    up[adminLvlTarget.toString()] = e.target.result;
+                    await setDoc(doc(db, "config", "images"), up, { merge: true });
+                    Swal.fire("Imagen Guardada", "Éxito.", "success");
+                } catch (err) {
+                    Swal.fire("Error", "No se pudo guardar la imagen.", "error");
+                }
             };
-            r.readAsDataURL(input.files[0]);
+            r.readAsDataURL(file);
         };
 
         const processExcel = (input) => {
@@ -441,24 +445,36 @@
                     const book = XLSX.read(new Uint8Array(e.target.result), {type: 'array'});
                     const json = XLSX.utils.sheet_to_json(book.Sheets[book.SheetNames[0]]);
                     await setDoc(doc(db, "levels", "lvl_" + adminLvlTarget), { questions: json });
-                    refreshAdminStatus();
                     Swal.fire("Doc Cargado", "Éxito.", "success");
+                    refreshAdminStatus();
                 } catch(err) { Swal.fire("Error", "Formato Inválido", "error"); }
             };
             r.readAsArrayBuffer(input.files[0]);
         };
 
         window.toggleLvlState = async (lvl) => {
-            const s = await getDoc(doc(db, "levels", "lvl_" + lvl));
-            if(!s.exists()) return Swal.fire("Error", "Sube el Excel primero.", "error");
-            const up = { levels: { ...gameConfig.levels } };
-            const current = up.levels[lvl] || {};
-            current.active = !current.active;
-            current.code = current.active ? Math.floor(1000 + Math.random() * 9000).toString() : '';
-            up.levels[lvl] = current;
-            up.globalLives = parseInt(document.getElementById('adm-diff').value);
-            up.showCita = document.getElementById('adm-show-cita').checked;
-            await setDoc(doc(db, "config", "game"), up, { merge: true });
+            try {
+                const s = await getDoc(doc(db, "levels", "lvl_" + lvl));
+                if(!s.exists()) return Swal.fire("Error", "Sube el Excel primero.", "error");
+                
+                const newLevels = JSON.parse(JSON.stringify(gameConfig.levels || {}));
+                const current = newLevels[lvl.toString()] || { active: false, code: '' };
+                
+                current.active = !current.active;
+                current.code = current.active ? Math.floor(1000 + Math.random() * 9000).toString() : '';
+                newLevels[lvl.toString()] = current;
+
+                const dataToSave = {
+                    levels: newLevels,
+                    globalLives: parseInt(document.getElementById('adm-diff')?.value || 3),
+                    showCita: document.getElementById('adm-show-cita')?.checked || false,
+                    showResults: gameConfig.showResults || false
+                };
+
+                await setDoc(doc(db, "config", "game"), dataToSave);
+            } catch (error) {
+                Swal.fire("Error", "No se pudo actualizar el nivel.", "error");
+            }
         };
 
         async function updateGlobalResultsList() {
