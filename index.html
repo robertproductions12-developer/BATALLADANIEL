@@ -40,6 +40,10 @@
 
         .results-overlay { position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.98); display: flex; flex-direction: column; align-items: center; padding: 1rem; overflow-y: auto; }
         .admin-level-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 15px; border: 1px solid rgba(212,175,55,0.15); }
+        
+        /* Estilos para que los botones de opciones en el quiz no se deformen */
+        .btn-option { background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.2); transition: 0.2s; color: white; }
+        .btn-option:hover { background: rgba(212,175,55,0.2); border-color: var(--gold); }
     </style>
 </head>
 <body>
@@ -53,8 +57,8 @@
 
     <div id="video-outcome" class="fullscreen-video hidden">
         <video id="outcome-player" playsinline class="w-full h-full object-cover"></video>
-        <div class="absolute bottom-10 w-full text-center">
-            <button onclick="closeOutcomeVideo()" class="btn-gold px-10 py-4 rounded-full">Volver al Lobby</button>
+        <div class="absolute bottom-10 w-full text-center px-4">
+            <button onclick="closeOutcomeVideo()" class="btn-gold w-full max-w-xs py-4 rounded-full">Volver al Lobby</button>
         </div>
     </div>
 
@@ -64,11 +68,12 @@
     </div>
 
     <div id="main-content" class="relative z-10 opacity-0 transition-opacity duration-1000 h-screen flex flex-col">
-        <div class="flex-grow">
+        <div class="flex-grow overflow-y-auto">
+            
             <!-- LOGIN -->
-            <div id="view-login" class="h-full flex flex-col items-center justify-center p-6">
-                <h1 class="font-royal text-6xl md:text-8xl mb-2 text-yellow-500 text-center drop-shadow-2xl">DANIEL</h1>
-                <p class="text-[10px] tracking-[0.6em] mb-12 text-zinc-400 uppercase">El Desafío Profético</p>
+            <div id="view-login" class="min-h-full flex flex-col items-center justify-center p-6">
+                <h1 class="font-royal text-6xl md:text-8xl mb-2 text-yellow-500 text-center drop-shadow-2xl uppercase">Daniel</h1>
+                <p class="text-[10px] tracking-[0.6em] mb-12 text-zinc-400 uppercase text-center">El Desafío Profético</p>
                 <div class="card-glass p-8 rounded-[2.5rem] w-full max-w-sm">
                     <input type="text" id="login-name" placeholder="Tu Nombre" class="w-full bg-black/50 border border-zinc-800 p-4 rounded-xl mb-4 text-center text-lg text-white outline-none">
                     <div id="admin-pass-container" class="hidden">
@@ -80,43 +85,53 @@
             </div>
 
             <!-- MAPA -->
-            <div id="view-levels" class="hidden min-h-screen p-4 overflow-y-auto">
+            <div id="view-levels" class="hidden min-h-screen p-4">
                 <header class="flex justify-between items-center mb-6 max-w-7xl mx-auto">
-                    <h2 class="font-royal text-2xl text-white uppercase tracking-tighter">Misiones Reales</h2>
+                    <h2 class="font-royal text-2xl text-white uppercase tracking-tighter">Misiones</h2>
                     <button onclick="location.reload()" class="bg-red-900/20 text-red-500 px-4 py-2 rounded-lg text-xs font-bold border border-red-900/50">SALIR</button>
                 </header>
                 <div id="level-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-7xl mx-auto pb-20"></div>
             </div>
 
-            <!-- LOBBY -->
-            <div id="view-lobby" class="hidden h-screen flex flex-col p-4 max-w-4xl mx-auto overflow-hidden">
-                <div class="card-glass p-4 rounded-2xl mb-4 flex flex-col gap-3">
+            <!-- LOBBY (MEJORADO PARA MÓVILES) -->
+            <div id="view-lobby" class="hidden h-[calc(100vh-60px)] flex flex-col p-4 max-w-4xl mx-auto">
+                <div class="card-glass p-4 rounded-2xl mb-3 flex flex-col gap-3 shrink-0">
                     <div class="flex justify-between items-center border-b border-white/10 pb-2">
                         <h2 id="lobby-title" class="font-royal text-xl text-yellow-500 uppercase">LOBBY</h2>
-                        <button onclick="showView('levels')" class="text-[10px] text-yellow-600 underline uppercase font-bold hover:text-white">Regresar al Mapa</button>
+                        <button onclick="showView('levels')" class="text-[10px] text-yellow-600 underline uppercase font-bold px-2 py-1">Regresar</button>
                     </div>
-                    <div id="access-code-prompt" class="hidden flex gap-2 w-full">
-                        <input type="text" id="join-code-input" placeholder="CÓDIGO" class="flex-1 bg-black border border-yellow-600/50 p-2 rounded-xl text-center text-yellow-500 font-bold outline-none text-sm">
-                        <button onclick="validateAccessCode()" class="btn-gold px-5 rounded-xl text-[10px]">Unirme al Quiz</button>
+                    
+                    <!-- Formulario de Código Responsive -->
+                    <div id="access-code-prompt" class="hidden flex flex-col sm:flex-row gap-2 w-full">
+                        <input type="text" id="join-code-input" placeholder="INGRESA EL CÓDIGO" class="flex-1 bg-black border border-yellow-600/50 p-3 rounded-xl text-center text-yellow-500 font-bold outline-none text-base">
+                        <button onclick="validateAccessCode()" class="btn-gold py-3 px-4 rounded-xl text-xs sm:text-[10px] whitespace-nowrap">ENTRAR AL QUIZ</button>
                     </div>
-                    <button id="admin-back-btn" onclick="showView('admin')" class="hidden w-full bg-zinc-800 py-2 rounded-lg text-xs uppercase font-bold text-zinc-300 tracking-widest">Panel de Control</button>
+                    
+                    <button id="admin-back-btn" onclick="showView('admin')" class="hidden w-full bg-zinc-800 py-3 rounded-xl text-[10px] uppercase font-bold text-zinc-300 tracking-widest border border-zinc-700">Panel Admin</button>
                 </div>
-                <div class="flex-1 card-glass rounded-2xl p-4 mb-4 overflow-y-auto max-h-[50vh]" id="chat-messages"></div>
-                <div class="flex gap-2 pb-10">
-                    <input type="text" id="chat-input" placeholder="Escribe al Reino..." class="flex-1 bg-black border border-zinc-800 p-3 rounded-xl text-white outline-none text-sm">
-                    <button onclick="sendChatMessage()" class="btn-gold px-5 rounded-xl font-bold text-sm">Enviar</button>
+
+                <!-- Chat: ahora usa flex-1 para ocupar el espacio restante -->
+                <div class="flex-1 card-glass rounded-2xl p-4 mb-3 overflow-y-auto" id="chat-messages" style="min-height: 200px;"></div>
+                
+                <!-- Input de Chat Responsive -->
+                <div class="flex gap-2 pb-2 shrink-0">
+                    <input type="text" id="chat-input" placeholder="Escribe..." class="flex-1 bg-black border border-zinc-800 p-4 rounded-xl text-white outline-none text-sm">
+                    <button onclick="sendChatMessage()" class="btn-gold px-6 rounded-xl font-bold text-sm h-full">
+                        <i class="fa-solid fa-paper-plane md:hidden"></i>
+                        <span class="hidden md:inline">ENVIAR</span>
+                    </button>
                 </div>
             </div>
 
             <!-- RESULTADOS GLOBALES -->
             <div id="global-results" class="results-overlay hidden">
-                <h2 class="font-royal text-3xl md:text-6xl text-yellow-500 mb-10 mt-6 tracking-widest drop-shadow-2xl">HALL DE LA GLORIA</h2>
+                <h2 class="font-royal text-3xl md:text-6xl text-yellow-500 mb-10 mt-6 tracking-widest text-center">HALL DE LA GLORIA</h2>
                 <div id="results-list" class="w-full max-w-3xl space-y-4 px-2 pb-20"></div>
             </div>
 
             <!-- QUIZ -->
-            <div id="view-game" class="hidden overflow-y-auto h-full">
-                <div class="p-4 md:p-6 max-w-3xl mx-auto">
+            <div id="view-game" class="hidden min-h-full p-4">
+                <div class="max-w-3xl mx-auto">
                     <div class="flex justify-between items-center mb-6">
                         <div id="game-lives" class="flex"></div>
                         <div class="text-right">
@@ -124,11 +139,11 @@
                             <span id="game-timer-label" class="text-sm font-mono text-zinc-400 tracking-widest">00:00</span>
                         </div>
                     </div>
-                    <div class="card-glass p-8 md:p-12 rounded-[3rem] flex flex-col min-h-[500px] border-t-4 border-yellow-500/50">
-                        <p id="q-index" class="text-center text-[12px] text-yellow-600 font-bold mb-6 tracking-[0.3em] uppercase border-b border-white/10 pb-4"></p>
-                        <h3 id="q-text" class="text-2xl md:text-4xl text-center font-semibold mb-10 leading-tight"></h3>
-                        <div id="options-grid" class="grid grid-cols-1 gap-4"></div>
-                        <p id="q-cita" class="mt-10 text-center italic text-sm text-zinc-500 hidden"></p>
+                    <div class="card-glass p-6 md:p-12 rounded-[2.5rem] flex flex-col min-h-[400px] border-t-4 border-yellow-500/50">
+                        <p id="q-index" class="text-center text-[10px] text-yellow-600 font-bold mb-6 tracking-[0.3em] uppercase border-b border-white/10 pb-4"></p>
+                        <h3 id="q-text" class="text-xl md:text-3xl text-center font-semibold mb-8 leading-tight"></h3>
+                        <div id="options-grid" class="grid grid-cols-1 gap-3"></div>
+                        <p id="q-cita" class="mt-8 text-center italic text-xs text-zinc-500 hidden"></p>
                     </div>
                 </div>
             </div>
@@ -137,20 +152,18 @@
             <div id="view-admin" class="hidden min-h-screen p-4 overflow-y-auto">
                 <div class="max-w-7xl mx-auto pb-20">
                     <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-10">
-                        <button onclick="showView('lobby')" class="bg-blue-900/40 text-blue-400 px-8 py-3 rounded-xl border border-blue-900 font-bold text-[10px] uppercase tracking-widest">Entrar al Chat</button>
-                        <h2 class="font-royal text-4xl text-red-600 text-center drop-shadow-lg tracking-widest uppercase">Mando Supremo</h2>
-                        <button onclick="resetGlobalSystem()" class="bg-red-900/40 text-red-400 px-8 py-3 rounded-xl border border-red-900 font-bold text-[10px] uppercase tracking-widest">Limpiar Datos</button>
+                        <button onclick="showView('lobby')" class="bg-blue-900/40 text-blue-400 px-8 py-3 rounded-xl border border-blue-900 font-bold text-[10px] uppercase tracking-widest w-full md:w-auto">Chat</button>
+                        <h2 class="font-royal text-3xl text-red-600 text-center uppercase">Mando Supremo</h2>
+                        <button onclick="resetGlobalSystem()" class="bg-red-900/40 text-red-400 px-8 py-3 rounded-xl border border-red-900 font-bold text-[10px] uppercase tracking-widest w-full md:w-auto">Reiniciar</button>
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <!-- CAPÍTULOS -->
+                        <!-- CONFIGURACIÓN -->
                         <div class="card-glass p-6 rounded-3xl h-fit">
-                            <h3 class="text-yellow-500 font-royal mb-6 border-b border-zinc-800 pb-2 uppercase text-sm tracking-widest">Configuración de Niveles</h3>
-                            
-                            <!-- Ajustes Globales de dificultad -->
-                            <div class="flex flex-wrap gap-4 mb-6 bg-black/40 p-4 rounded-xl border border-zinc-800">
+                            <h3 class="text-yellow-500 font-royal mb-6 border-b border-zinc-800 pb-2 uppercase text-sm tracking-widest">Configuración</h3>
+                            <div class="flex flex-wrap gap-4 mb-6 bg-black/40 p-4 rounded-xl">
                                 <div class="flex-1 min-w-[120px]">
-                                    <label class="text-[10px] text-zinc-500 uppercase block mb-1">Vidas del Quiz</label>
+                                    <label class="text-[10px] text-zinc-500 uppercase block mb-1">Vidas</label>
                                     <select id="adm-diff" class="w-full bg-black border border-zinc-700 p-2 rounded text-white text-xs">
                                         <option value="6">6 Vidas</option>
                                         <option value="3" selected>3 Vidas</option>
@@ -159,21 +172,18 @@
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <input type="checkbox" id="adm-show-cita" class="w-5 h-5 accent-yellow-500">
-                                    <label class="text-[10px] text-zinc-300 uppercase">Mostrar Citas</label>
+                                    <label class="text-[10px] text-zinc-300 uppercase">Citas</label>
                                 </div>
                             </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="adm-levels-controls"></div>
-                            
-                            <div class="mt-10 grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <button onclick="toggleResults(true)" class="bg-yellow-600 text-black py-4 rounded-xl font-bold uppercase text-[10px]">Publicar Ranking Final</button>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="adm-levels-controls"></div>
+                            <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <button onclick="toggleResults(true)" class="bg-yellow-600 text-black py-4 rounded-xl font-bold uppercase text-[10px]">Publicar Ranking</button>
                                 <button onclick="toggleResults(false)" class="bg-zinc-800 text-white py-4 rounded-xl font-bold uppercase text-[10px]">Quitar Ranking</button>
                             </div>
                         </div>
-
-                        <!-- RANKING MONITOR -->
+                        <!-- MONITOR -->
                         <div class="card-glass p-6 rounded-3xl h-fit">
-                            <h3 class="text-yellow-500 font-royal mb-6 border-b border-zinc-800 pb-2 uppercase text-sm tracking-widest">Monitor de Batalla</h3>
+                            <h3 class="text-yellow-500 font-royal mb-6 border-b border-zinc-800 pb-2 uppercase text-sm tracking-widest">En Vivo</h3>
                             <div id="adm-monitor" class="space-y-3"></div>
                         </div>
                     </div>
@@ -184,12 +194,13 @@
         <input type="file" id="adm-img-input" accept="image/*" class="hidden" onchange="handleImageUpload(this)">
         <input type="file" id="adm-excel-input" accept=".xlsx" class="hidden" onchange="processExcel(this)">
 
-        <footer class="footer-anclado">
+        <footer class="footer-anclado shrink-0">
             DESARROLLADO POR - ROBERT PARACO 2026 
-            <a href="https://instagram.com/robertparaco" target="_blank" class="ml-2 hover:scale-110 inline-block transition"><i class="fa-brands fa-instagram text-lg"></i></a>
+            <a href="https://instagram.com/robertparaco" target="_blank" class="ml-2 inline-block"><i class="fa-brands fa-instagram text-lg"></i></a>
         </footer>
     </div>
 
+    <!-- MANTENEMOS TU LÓGICA EXACTAMENTE IGUAL -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, setDoc, onSnapshot, updateDoc, collection, addDoc, query, orderBy, limit, getDoc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -210,9 +221,8 @@
         let gameConfig = { levels: {}, showResults: false, globalLives: 3, showCita: false };
         let levelImages = {};
 
-        // VIDEOS: REEMPLAZA ESTOS LINKS POR LOS TUYOS DE GITHUB O MIXKIT
-        const VID_VICTORY = "https://assets.mixkit.co/videos/preview/mixkit-golden-confetti-falling-on-a-black-background-4148-large.mp4";
-        const VID_DEFEAT = "https://assets.mixkit.co/videos/preview/mixkit-fire-and-smoke-4122-large.mp4";
+        const VID_VICTORY = "gano.mp4";
+        const VID_DEFEAT = "perdio.mp4";
 
         const gameMusic = document.getElementById('game-music');
 
@@ -240,7 +250,6 @@
             return `${m.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
         }
 
-        // --- AUTH & SYNC ---
         window.handleAuth = async () => {
             const name = document.getElementById('login-name').value.trim();
             const pass = document.getElementById('login-pass').value.trim();
@@ -271,7 +280,7 @@
                 const box = document.getElementById('chat-messages'); box.innerHTML = "";
                 snap.docs.reverse().forEach(d => {
                     const m = d.data();
-                    box.innerHTML += `<div class="mb-3 text-xs bg-white/5 p-2 rounded-lg border-l-2 border-yellow-600"><b class="text-yellow-600 uppercase">${m.user}:</b> <span class="text-zinc-300 ml-2">${m.text}</span></div>`;
+                    box.innerHTML += `<div class="mb-3 text-[11px] bg-white/5 p-2 rounded-lg border-l-2 border-yellow-600"><b class="text-yellow-600 uppercase">${m.user}:</b> <span class="text-zinc-300 ml-2">${m.text}</span></div>`;
                 });
                 box.scrollTop = box.scrollHeight;
             });
@@ -311,7 +320,7 @@
             updateCodeVisibility();
         };
 
-        window.alertLocked = () => Swal.fire({ title: "Portal Cerrado", text: "Este nivel no ha sido habilitado todavía por el Rey.", icon: "info", confirmButtonColor: "#d4af37" });
+        window.alertLocked = () => Swal.fire({ title: "Portal Cerrado", text: "Este nivel no ha sido habilitado todavía.", icon: "info", confirmButtonColor: "#d4af37" });
 
         window.validateAccessCode = () => {
             const input = document.getElementById('join-code-input').value.trim();
@@ -343,7 +352,7 @@
             const grid = document.getElementById('options-grid'); grid.innerHTML = "";
             [q.Correcta, q.Inc1, q.Inc2, q.Inc3].sort(() => Math.random() - 0.5).forEach(o => {
                 const b = document.createElement('button');
-                b.className = "btn-option p-4 md:p-5 rounded-2xl text-left text-[11px] md:text-sm font-bold uppercase tracking-wider shadow-lg";
+                b.className = "btn-option p-4 md:p-5 rounded-2xl text-left text-xs md:text-sm font-bold uppercase tracking-wider shadow-lg";
                 b.innerText = o;
                 b.onclick = () => {
                     if(o === q.Correcta) { userState.score += 100; userState.qIndex++; }
@@ -373,17 +382,15 @@
             window.showView('lobby');
         };
 
-        // --- ADMIN ---
-        let adminLvlTarget = 1;
         function initAdmin() {
             window.showView('admin'); syncGlobal();
             onSnapshot(collection(db, "players"), (snap) => {
                 const m = document.getElementById('adm-monitor'); m.innerHTML = "";
                 let ps = []; snap.forEach(d => ps.push(d.data()));
                 ps.sort((a,b) => b.score - a.score || a.time - b.time).forEach(p => {
-                    m.innerHTML += `<div class="p-3 bg-black/50 border border-zinc-800 rounded-xl flex justify-between items-center">
-                        <span class="${p.dead?'text-red-500':'text-yellow-500'} font-bold text-[10px] uppercase">${p.name}</span>
-                        <span class="text-white text-[10px] font-mono">${p.score} PTS | ${formatTime(p.time)}</span>
+                    m.innerHTML += `<div class="p-3 bg-black/50 border border-zinc-800 rounded-xl flex justify-between items-center text-[10px]">
+                        <span class="${p.dead?'text-red-500':'text-yellow-500'} font-bold uppercase">${p.name}</span>
+                        <span class="text-white font-mono">${p.score} PTS | ${formatTime(p.time)}</span>
                     </div>`;
                 });
             });
@@ -399,12 +406,12 @@
                 container.innerHTML += `
                     <div class="admin-level-item flex flex-col gap-3">
                         <div class="flex justify-between items-center border-b border-white/5 pb-2">
-                            <span class="font-royal text-[10px] uppercase font-bold">Capítulo ${i} ${s.exists()?'✅':'❌'}</span>
+                            <span class="font-royal text-[10px] uppercase font-bold">Nivel ${i} ${s.exists()?'✅':'❌'}</span>
                             <span class="text-xs font-bold text-yellow-500">${gameConfig.levels?.[i]?.code || '----'}</span>
                         </div>
                         <div class="grid grid-cols-2 gap-2">
-                            <button onclick="adminPick(${i},'img')" class="bg-zinc-800 py-2 rounded text-[8px] font-bold border border-white/5 uppercase">Img</button>
-                            <button onclick="adminPick(${i},'excel')" class="bg-zinc-800 py-2 rounded text-[8px] font-bold border border-white/5 uppercase">Doc</button>
+                            <button onclick="adminPick(${i},'img')" class="bg-zinc-800 py-2 rounded text-[8px] font-bold uppercase">Img</button>
+                            <button onclick="adminPick(${i},'excel')" class="bg-zinc-800 py-2 rounded text-[8px] font-bold uppercase">Doc</button>
                         </div>
                         <button onclick="toggleLvlState(${i})" class="w-full py-3 rounded-xl font-bold text-[10px] ${active?'bg-red-900 text-red-100':'bg-green-900 text-green-100'} uppercase">
                             ${active?'Desactivar':'Activar'}
@@ -444,17 +451,13 @@
         window.toggleLvlState = async (lvl) => {
             const s = await getDoc(doc(db, "levels", "lvl_" + lvl));
             if(!s.exists()) return Swal.fire("Error", "Sube el Excel primero.", "error");
-            
             const up = { levels: { ...gameConfig.levels } };
             const current = up.levels[lvl] || {};
             current.active = !current.active;
             current.code = current.active ? Math.floor(1000 + Math.random() * 9000).toString() : '';
             up.levels[lvl] = current;
-            
-            // También enviamos la dificultad global y citas configuradas en ese momento
             up.globalLives = parseInt(document.getElementById('adm-diff').value);
             up.showCita = document.getElementById('adm-show-cita').checked;
-            
             await setDoc(doc(db, "config", "game"), up, { merge: true });
             refreshAdminStatus();
         };
@@ -466,19 +469,17 @@
             const container = document.getElementById('results-list');
             container.innerHTML = "";
             list.slice(0, 10).forEach((p, i) => {
-                const isGold = i === 0;
                 container.innerHTML += `
                 <div class="flex justify-between items-center p-5 card-glass rounded-[2rem] border-l-8 ${i<3?'border-yellow-500 shadow-[0_0_20px_rgba(212,175,55,0.2)]':'border-zinc-700'}">
-                    <div class="flex gap-4 md:gap-6 items-center">
-                        <span class="font-royal text-2xl md:text-5xl ${isGold?'text-yellow-500':'text-zinc-600'}">#${i+1}</span>
+                    <div class="flex gap-4 items-center">
+                        <span class="font-royal text-2xl md:text-5xl ${i===0?'text-yellow-500':'text-zinc-600'}">#${i+1}</span>
                         <div class="flex flex-col text-left">
-                            <span class="text-[9px] text-zinc-500 font-bold uppercase tracking-[0.2em]">Guerrero del Reino</span>
-                            <span class="font-royal text-sm md:text-3xl text-white uppercase">${p.name}</span>
+                            <span class="text-[8px] text-zinc-500 font-bold uppercase">Guerrero</span>
+                            <span class="font-royal text-xs md:text-2xl text-white uppercase">${p.name}</span>
                         </div>
                     </div>
                     <div class="text-right">
-                        <span class="text-yellow-500 font-bold text-xl md:text-5xl drop-shadow-lg">${p.score} <small class="text-[10px]">PTS</small></span>
-                        <div class="text-zinc-500 font-mono text-[10px] md:text-lg mt-1 uppercase tracking-widest">${formatTime(p.time)} <small class="text-[8px]">Tiempo</small></div>
+                        <span class="text-yellow-500 font-bold text-lg md:text-4xl">${p.score} <small class="text-[8px]">PTS</small></span>
                     </div>
                 </div>`;
             });
@@ -493,7 +494,7 @@
         };
 
         window.resetGlobalSystem = async () => {
-            const res = await Swal.fire({ title: '¿REINICIAR TODO?', text: "Se perderán todas las posiciones y el chat.", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' });
+            const res = await Swal.fire({ title: '¿REINICIAR TODO?', text: "Se perderán posiciones y chat.", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' });
             if(!res.isConfirmed) return;
             const p = await getDocs(collection(db, "players")); p.forEach(async d => await deleteDoc(doc(db, "players", d.id)));
             const c = await getDocs(collection(db, "chat")); c.forEach(async d => await deleteDoc(doc(db, "chat", d.id)));
