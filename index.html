@@ -45,7 +45,7 @@
 </head>
 <body>
 
-    <audio id="game-music" loop preload="auto"><source src="musica.mp3" type="audio/mpeg"></audio>
+    <audio id="game-music" loop preload="auto"><source src="music.mp3" type="audio/mpeg"></audio>
 
     <div id="video-bg-container">
         <video id="bg-video-loop" loop playsinline muted><source src="intro.mp4" type="video/mp4"></video>
@@ -66,6 +66,7 @@
     <div id="main-content" class="relative z-10 opacity-0 transition-opacity duration-1000 h-screen flex flex-col">
         <div class="flex-grow overflow-y-auto">
             
+            <!-- LOGIN -->
             <div id="view-login" class="min-h-full flex flex-col items-center justify-center p-6">
                 <h1 class="font-royal text-6xl md:text-8xl mb-2 text-yellow-500 text-center drop-shadow-2xl uppercase">Daniel</h1>
                 <p class="text-[10px] tracking-[0.6em] mb-12 text-zinc-400 uppercase text-center">El Desafío Profético</p>
@@ -79,6 +80,7 @@
                 </div>
             </div>
 
+            <!-- MAPA -->
             <div id="view-levels" class="hidden min-h-screen p-4">
                 <header class="flex justify-between items-center mb-6 max-w-7xl mx-auto">
                     <h2 class="font-royal text-2xl text-white uppercase tracking-tighter">Misiones</h2>
@@ -87,6 +89,7 @@
                 <div id="level-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-7xl mx-auto pb-20"></div>
             </div>
 
+            <!-- LOBBY -->
             <div id="view-lobby" class="hidden h-[calc(100vh-80px)] flex flex-col p-4 max-w-4xl mx-auto">
                 <div class="card-glass p-4 rounded-2xl mb-3 flex flex-col gap-3 shrink-0">
                     <div class="flex justify-between items-center border-b border-white/10 pb-2">
@@ -104,7 +107,6 @@
 
                 <div class="flex-1 card-glass rounded-2xl p-4 mb-3 overflow-y-auto" id="chat-messages" style="min-height: 150px;"></div>
                 
-                <!-- CORRECCIÓN DEL BOTÓN DE ENVIAR PARA QUE NO SE SALGA -->
                 <div class="flex gap-2 pb-2 shrink-0 w-full items-center">
                     <input type="text" id="chat-input" placeholder="Escribe..." class="flex-1 min-w-0 bg-black border border-zinc-800 p-4 rounded-xl text-white outline-none text-sm">
                     <button onclick="sendChatMessage()" class="btn-gold px-4 py-4 rounded-xl font-bold text-xs flex-shrink-0">
@@ -114,11 +116,13 @@
                 </div>
             </div>
 
+            <!-- RESULTADOS GLOBALES -->
             <div id="global-results" class="results-overlay hidden">
                 <h2 class="font-royal text-3xl md:text-6xl text-yellow-500 mb-10 mt-6 tracking-widest text-center">HALL DE LA GLORIA</h2>
                 <div id="results-list" class="w-full max-w-3xl space-y-4 px-2 pb-20"></div>
             </div>
 
+            <!-- QUIZ -->
             <div id="view-game" class="hidden min-h-full p-4">
                 <div class="max-w-3xl mx-auto">
                     <div class="flex justify-between items-center mb-6">
@@ -137,6 +141,7 @@
                 </div>
             </div>
 
+            <!-- ADMIN -->
             <div id="view-admin" class="hidden min-h-screen p-4 overflow-y-auto">
                 <div class="max-w-7xl mx-auto pb-20">
                     <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-10">
@@ -177,8 +182,9 @@
             </div>
         </div>
 
-        <input type="file" id="adm-img-input" accept="image/*" class="hidden" onchange="handleImageUpload(this)">
-        <input type="file" id="adm-excel-input" accept=".xlsx" class="hidden" onchange="processExcel(this)">
+        <!-- INPUTS OCULTOS PARA ADMIN -->
+        <input type="file" id="adm-img-input" accept="image/*" class="hidden">
+        <input type="file" id="adm-excel-input" accept=".xlsx" class="hidden">
 
         <footer class="footer-anclado shrink-0">
             DESARROLLADO POR - ROBERT PARACO 2026 
@@ -205,6 +211,7 @@
         let activeLevelLobby = 0;
         let gameConfig = { levels: {}, showResults: false, globalLives: 3, showCita: false };
         let levelImages = {};
+        let adminLvlTarget = 1; // Variable para saber qué nivel estamos editando
 
         const VID_VICTORY = "gano.mp4";
         const VID_DEFEAT = "perdio.mp4";
@@ -310,7 +317,10 @@
         async function startQuiz() {
             const snap = await getDoc(doc(db, "levels", "lvl_" + activeLevelLobby));
             if(!snap.exists()) return Swal.fire("Vacio", "No hay preguntas en este nivel.", "warning");
+            
+            // ALEATORIEDAD DE PREGUNTAS (Se barajan y se sacan 20)
             const qs = snap.data().questions.sort(() => Math.random() - 0.5).slice(0, 20);
+            
             userState.lives = gameConfig.globalLives || 3; 
             userState.qIndex = 0; userState.score = 0; userState.startTime = Date.now();
             window.showView('game'); runQuiz(qs);
@@ -329,6 +339,8 @@
             else { citation.classList.add('hidden'); }
 
             const grid = document.getElementById('options-grid'); grid.innerHTML = "";
+            
+            // ALEATORIEDAD DE RESPUESTAS (Siempre salen en orden distinto)
             [q.Correcta, q.Inc1, q.Inc2, q.Inc3].sort(() => Math.random() - 0.5).forEach(o => {
                 const b = document.createElement('button');
                 b.className = "btn-option p-4 md:p-5 rounded-2xl text-left text-xs md:text-sm font-bold uppercase tracking-wider shadow-lg";
@@ -361,8 +373,15 @@
             window.showView('lobby');
         };
 
+        // --- ARREGLO DE CARGAS ADMIN ---
+
         function initAdmin() {
             window.showView('admin'); syncGlobal();
+            
+            // Listener de archivos para Admin
+            document.getElementById('adm-img-input').addEventListener('change', (e) => handleImageUpload(e.target));
+            document.getElementById('adm-excel-input').addEventListener('change', (e) => processExcel(e.target));
+
             onSnapshot(collection(db, "players"), (snap) => {
                 const m = document.getElementById('adm-monitor'); m.innerHTML = "";
                 let ps = []; snap.forEach(d => ps.push(d.data()));
@@ -400,29 +419,36 @@
         }
 
         window.adminPick = (lvl, type) => {
-            adminLvlTarget = lvl;
+            adminLvlTarget = lvl; // Guardamos el nivel que se va a editar
             if(type === 'img') document.getElementById('adm-img-input').click();
             else document.getElementById('adm-excel-input').click();
         };
 
-        window.handleImageUpload = (input) => {
+        const handleImageUpload = (input) => {
+            if(!input.files[0]) return;
             const r = new FileReader();
             r.onload = async (e) => {
-                const up = {}; up[adminLvlTarget] = e.target.result;
+                const up = {}; 
+                up[adminLvlTarget] = e.target.result;
                 await setDoc(doc(db, "config", "images"), up, { merge: true });
-                Swal.fire("Imagen Guardada", "Éxito.", "success");
+                Swal.fire("Imagen Guardada", `El nivel ${adminLvlTarget} ha sido actualizado.`, "success");
             };
             r.readAsDataURL(input.files[0]);
         };
 
-        window.processExcel = (input) => {
+        const processExcel = (input) => {
+            if(!input.files[0]) return;
             const r = new FileReader();
             r.onload = async (e) => {
-                const book = XLSX.read(new Uint8Array(e.target.result), {type: 'array'});
-                const json = XLSX.utils.sheet_to_json(book.Sheets[book.SheetNames[0]]);
-                await setDoc(doc(db, "levels", "lvl_" + adminLvlTarget), { questions: json });
-                refreshAdminStatus();
-                Swal.fire("Doc Cargado", "Éxito.", "success");
+                try {
+                    const book = XLSX.read(new Uint8Array(e.target.result), {type: 'array'});
+                    const json = XLSX.utils.sheet_to_json(book.Sheets[book.SheetNames[0]]);
+                    await setDoc(doc(db, "levels", "lvl_" + adminLvlTarget), { questions: json });
+                    refreshAdminStatus();
+                    Swal.fire("Excel Cargado", `Preguntas del nivel ${adminLvlTarget} listas.`, "success");
+                } catch (err) {
+                    Swal.fire("Error", "Archivo no válido.", "error");
+                }
             };
             r.readAsArrayBuffer(input.files[0]);
         };
