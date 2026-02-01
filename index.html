@@ -66,7 +66,6 @@
     <div id="main-content" class="relative z-10 opacity-0 transition-opacity duration-1000 h-screen flex flex-col">
         <div class="flex-grow overflow-y-auto">
             
-            <!-- LOGIN -->
             <div id="view-login" class="min-h-full flex flex-col items-center justify-center p-6">
                 <h1 class="font-royal text-6xl md:text-8xl mb-2 text-yellow-500 text-center drop-shadow-2xl uppercase">Daniel</h1>
                 <p class="text-[10px] tracking-[0.6em] mb-12 text-zinc-400 uppercase text-center">El Desafío Profético</p>
@@ -80,7 +79,6 @@
                 </div>
             </div>
 
-            <!-- MAPA -->
             <div id="view-levels" class="hidden min-h-screen p-4">
                 <header class="flex justify-between items-center mb-6 max-w-7xl mx-auto">
                     <h2 class="font-royal text-2xl text-white uppercase tracking-tighter">Misiones</h2>
@@ -89,7 +87,6 @@
                 <div id="level-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-7xl mx-auto pb-20"></div>
             </div>
 
-            <!-- LOBBY -->
             <div id="view-lobby" class="hidden h-[calc(100vh-80px)] flex flex-col p-4 max-w-4xl mx-auto">
                 <div class="card-glass p-4 rounded-2xl mb-3 flex flex-col gap-3 shrink-0">
                     <div class="flex justify-between items-center border-b border-white/10 pb-2">
@@ -122,7 +119,6 @@
                 <div id="results-list" class="w-full max-w-3xl space-y-4 px-2 pb-20"></div>
             </div>
 
-            <!-- QUIZ -->
             <div id="view-game" class="hidden min-h-full p-4">
                 <div class="max-w-3xl mx-auto">
                     <div class="flex justify-between items-center mb-6">
@@ -141,7 +137,6 @@
                 </div>
             </div>
 
-            <!-- ADMIN -->
             <div id="view-admin" class="hidden min-h-screen p-4 overflow-y-auto">
                 <div class="max-w-7xl mx-auto pb-20">
                     <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-10">
@@ -182,7 +177,6 @@
             </div>
         </div>
 
-        <!-- INPUTS OCULTOS PARA ADMIN -->
         <input type="file" id="adm-img-input" accept="image/*" class="hidden">
         <input type="file" id="adm-excel-input" accept=".xlsx" class="hidden">
 
@@ -211,7 +205,7 @@
         let activeLevelLobby = 0;
         let gameConfig = { levels: {}, showResults: false, globalLives: 3, showCita: false };
         let levelImages = {};
-        let adminLvlTarget = 1; // Variable para saber qué nivel estamos editando
+        let adminLvlTarget = 1;
 
         const VID_VICTORY = "gano.mp4";
         const VID_DEFEAT = "perdio.mp4";
@@ -251,14 +245,23 @@
             syncGlobal();
         };
 
+        // SINCRONIZACIÓN REAL PARA TODOS LOS JUGADORES
         function syncGlobal() {
             onSnapshot(doc(db, "config", "game"), (snap) => {
                 const data = snap.data() || { levels: {}, showResults: false, globalLives: 3, showCita: false };
                 gameConfig = data;
                 renderLevelGrid();
-                renderAdminStatus();
-                document.getElementById('global-results').classList.toggle('hidden', !data.showResults);
-                if(data.showResults) updateGlobalResultsList();
+                
+                // ESTO MOSTRARÁ U OCULTARÁ EL RANKING EN TODOS LOS CELULARES AL INSTANTE
+                const resOverlay = document.getElementById('global-results');
+                if(data.showResults) {
+                    resOverlay.classList.remove('hidden');
+                    updateGlobalResultsList(); // Actualización en tiempo real de la lista
+                } else {
+                    resOverlay.classList.add('hidden');
+                }
+                
+                if(userState.isAdmin) renderAdminStatus();
                 updateCodeVisibility();
             });
 
@@ -317,10 +320,7 @@
         async function startQuiz() {
             const snap = await getDoc(doc(db, "levels", "lvl_" + activeLevelLobby));
             if(!snap.exists()) return Swal.fire("Vacio", "No hay preguntas en este nivel.", "warning");
-            
-            // ALEATORIEDAD DE PREGUNTAS (Se barajan y se sacan 20)
             const qs = snap.data().questions.sort(() => Math.random() - 0.5).slice(0, 20);
-            
             userState.lives = gameConfig.globalLives || 3; 
             userState.qIndex = 0; userState.score = 0; userState.startTime = Date.now();
             window.showView('game'); runQuiz(qs);
@@ -339,8 +339,6 @@
             else { citation.classList.add('hidden'); }
 
             const grid = document.getElementById('options-grid'); grid.innerHTML = "";
-            
-            // ALEATORIEDAD DE RESPUESTAS (Siempre salen en orden distinto)
             [q.Correcta, q.Inc1, q.Inc2, q.Inc3].sort(() => Math.random() - 0.5).forEach(o => {
                 const b = document.createElement('button');
                 b.className = "btn-option p-4 md:p-5 rounded-2xl text-left text-xs md:text-sm font-bold uppercase tracking-wider shadow-lg";
@@ -373,14 +371,14 @@
             window.showView('lobby');
         };
 
-        // --- ARREGLO DE CARGAS ADMIN ---
+        // --- FUNCIONES DE ADMINISTRACIÓN CORREGIDAS ---
 
         function initAdmin() {
             window.showView('admin'); syncGlobal();
             
-            // Listener de archivos para Admin
-            document.getElementById('adm-img-input').addEventListener('change', (e) => handleImageUpload(e.target));
-            document.getElementById('adm-excel-input').addEventListener('change', (e) => processExcel(e.target));
+            // Listeners para carga de archivos
+            document.getElementById('adm-img-input').onchange = (e) => handleImageUpload(e.target);
+            document.getElementById('adm-excel-input').onchange = (e) => processExcel(e.target);
 
             onSnapshot(collection(db, "players"), (snap) => {
                 const m = document.getElementById('adm-monitor'); m.innerHTML = "";
@@ -419,7 +417,7 @@
         }
 
         window.adminPick = (lvl, type) => {
-            adminLvlTarget = lvl; // Guardamos el nivel que se va a editar
+            adminLvlTarget = lvl;
             if(type === 'img') document.getElementById('adm-img-input').click();
             else document.getElementById('adm-excel-input').click();
         };
@@ -428,10 +426,9 @@
             if(!input.files[0]) return;
             const r = new FileReader();
             r.onload = async (e) => {
-                const up = {}; 
-                up[adminLvlTarget] = e.target.result;
+                const up = {}; up[adminLvlTarget] = e.target.result;
                 await setDoc(doc(db, "config", "images"), up, { merge: true });
-                Swal.fire("Imagen Guardada", `El nivel ${adminLvlTarget} ha sido actualizado.`, "success");
+                Swal.fire("Imagen Guardada", "Éxito.", "success");
             };
             r.readAsDataURL(input.files[0]);
         };
@@ -445,10 +442,8 @@
                     const json = XLSX.utils.sheet_to_json(book.Sheets[book.SheetNames[0]]);
                     await setDoc(doc(db, "levels", "lvl_" + adminLvlTarget), { questions: json });
                     refreshAdminStatus();
-                    Swal.fire("Excel Cargado", `Preguntas del nivel ${adminLvlTarget} listas.`, "success");
-                } catch (err) {
-                    Swal.fire("Error", "Archivo no válido.", "error");
-                }
+                    Swal.fire("Doc Cargado", "Éxito.", "success");
+                } catch(err) { Swal.fire("Error", "Formato Inválido", "error"); }
             };
             r.readAsArrayBuffer(input.files[0]);
         };
@@ -464,7 +459,6 @@
             up.globalLives = parseInt(document.getElementById('adm-diff').value);
             up.showCita = document.getElementById('adm-show-cita').checked;
             await setDoc(doc(db, "config", "game"), up, { merge: true });
-            refreshAdminStatus();
         };
 
         async function updateGlobalResultsList() {
@@ -472,6 +466,7 @@
             let list = []; players.forEach(d => list.push(d.data()));
             list.sort((a,b) => b.score - a.score || a.time - b.time);
             const container = document.getElementById('results-list');
+            if(!container) return;
             container.innerHTML = "";
             list.slice(0, 10).forEach((p, i) => {
                 container.innerHTML += `
@@ -485,12 +480,15 @@
                     </div>
                     <div class="text-right">
                         <span class="text-yellow-500 font-bold text-lg md:text-4xl">${p.score} <small class="text-[8px]">PTS</small></span>
+                        <div class="text-zinc-400 text-[10px]">${formatTime(p.time || 0)}</div>
                     </div>
                 </div>`;
             });
         }
 
-        window.toggleResults = async (val) => { await updateDoc(doc(db, "config", "game"), { showResults: val }); };
+        window.toggleResults = async (val) => { 
+            await updateDoc(doc(db, "config", "game"), { showResults: val }); 
+        };
 
         window.sendChatMessage = async () => {
             const i = document.getElementById('chat-input'); if(!i.value.trim()) return;
