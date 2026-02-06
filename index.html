@@ -161,10 +161,10 @@
 
             <!-- RESULTADOS GLOBALES -->
             <div id="global-results" class="results-overlay hidden">
-                <h2 class="font-royal text-3xl md:text-6xl text-yellow-500 mb-6 mt-6 tracking-widest text-center">HALL DE LA GLORIA</h2>
+                <h2 class="font-royal text-3xl md:text-6xl text-yellow-500 mb-6 mt-6 tracking-widest text-center uppercase">Hall de la Gloria</h2>
                 <div id="results-list" class="w-full max-w-3xl space-y-4 px-2 pb-10"></div>
                 <div class="w-full max-w-xs pb-10">
-                    <button onclick="toggleResults(false)" class="btn-gold w-full py-4 rounded-full text-sm shadow-2xl">Cerrar Tabla</button>
+                    <button id="btn-close-results" onclick="toggleResults(false)" class="btn-gold w-full py-4 rounded-full text-sm shadow-2xl hidden">Cerrar Tabla</button>
                 </div>
             </div>
 
@@ -276,7 +276,6 @@
         const lionRoar = document.getElementById('lion-roar');
         const lobbyVideo = document.getElementById('lobby-level-video');
 
-        // LÓGICA DE SILENCIAR MÚSICA CON VIDEOS
         lobbyVideo.addEventListener('play', () => { gameMusic.pause(); });
         lobbyVideo.addEventListener('pause', () => { gameMusic.play(); });
         lobbyVideo.addEventListener('ended', () => { gameMusic.play(); });
@@ -299,16 +298,13 @@
             return `${m.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
         }
 
-        // FUNCIÓN DE EFECTO DAÑO (TEMBLOR + FLASH + RUGIDO)
         function triggerDamageEffect() {
             lionRoar.currentTime = 0;
             lionRoar.play();
             const body = document.getElementById('game-body');
             const flash = document.getElementById('flash-overlay');
-            
             body.classList.add('shake-screen');
             flash.style.opacity = "1";
-
             setTimeout(() => {
                 body.classList.remove('shake-screen');
                 flash.style.opacity = "0";
@@ -381,12 +377,10 @@
         window.enterLobby = (lvl) => { 
             activeLevelLobby = lvl;
             document.getElementById('lobby-title').innerText = "CAPÍTULO " + lvl;
-            
             const videoPlayer = document.getElementById('lobby-level-video');
             const videoSrc = document.getElementById('lobby-video-src');
             videoSrc.src = LEVEL_VIDEOS[lvl] || "default.mp4";
             videoPlayer.load();
-
             window.showView('lobby'); 
             updateCodeVisibility();
         };
@@ -434,7 +428,7 @@
                     else { 
                         userState.lives--; 
                         userState.qIndex++; 
-                        triggerDamageEffect(); // SE DISPARA EL EFECTO AQUÍ
+                        triggerDamageEffect();
                     }
                     updateStats(); runQuiz(qs);
                 };
@@ -460,21 +454,19 @@
             const player = document.getElementById('outcome-player');
             player.src = win ? "gano.mp4" : "perdio.mp4";
             document.getElementById('video-outcome').classList.remove('hidden');
-            gameMusic.pause(); // Pausar musica en el video final
+            gameMusic.pause();
             player.play();
         }
 
         window.closeOutcomeVideo = () => {
             document.getElementById('video-outcome').classList.add('hidden');
-            gameMusic.play(); // Volver musica
+            gameMusic.play();
             window.showView('levels');
         };
 
-        // --- ADMIN ---
         function initAdmin() {
             window.showView('admin'); syncGlobal();
             document.getElementById('adm-excel-input').onchange = (e) => processExcel(e.target);
-
             onSnapshot(collection(db, "players"), (snap) => {
                 const m = document.getElementById('adm-monitor'); m.innerHTML = "";
                 let ps = []; snap.forEach(d => ps.push(d.data()));
@@ -548,7 +540,6 @@
         window.toggleLvlState = async (lvl) => {
             const s = await getDoc(doc(db, "levels", "lvl_" + lvl));
             if(!s.exists()) return Swal.fire("Atención", "Carga el Excel primero.", "warning");
-            
             const newLevels = {...(gameConfig.levels || {})};
             const current = newLevels[lvl.toString()] || { active: false, code: '' };
             current.active = !current.active;
@@ -570,23 +561,36 @@
         };
 
         async function updateGlobalResultsList() {
+            // MOSTRAR/OCULTAR BOTÓN DE CIERRE (Solo Administrador)
+            const btnClose = document.getElementById('btn-close-results');
+            if(userState.isAdmin) btnClose.classList.remove('hidden');
+            else btnClose.classList.add('hidden');
+
             const playersSnapshot = await getDocs(collection(db, "players"));
             let list = []; playersSnapshot.forEach(d => list.push(d.data()));
+            // Ordenar por score alto y tiempo bajo
             list.sort((a,b) => b.score - a.score || a.time - b.time);
+            
             const container = document.getElementById('results-list');
             if(!container) return;
             container.innerHTML = "";
-            list.slice(0, 10).forEach((p, i) => {
+            
+            list.slice(0, 15).forEach((p, i) => {
+                const statusText = p.dead ? "ELIMINADO" : "MISIÓN CUMPLIDA";
+                const statusColor = p.dead ? "text-red-600" : "text-green-500";
+                const borderColor = p.dead ? "border-red-900" : "border-yellow-500";
+
                 container.innerHTML += `
-                <div class="flex justify-between items-center p-5 card-glass rounded-[2rem] border-l-8 ${i<3?'border-yellow-500':'border-zinc-700'}">
-                    <div class="flex gap-4 items-center">
-                        <span class="font-royal text-2xl md:text-5xl ${i===0?'text-yellow-500':'text-zinc-600'}">#${i+1}</span>
+                <div class="flex flex-col md:flex-row justify-between items-center p-6 card-glass rounded-[2rem] border-l-8 ${borderColor} gap-4">
+                    <div class="flex gap-6 items-center">
+                        <span class="font-royal text-3xl md:text-5xl ${i<3?'text-yellow-500':'text-zinc-600'}">#${i+1}</span>
                         <div class="flex flex-col text-left">
-                            <span class="font-royal text-xs md:text-2xl text-white uppercase">${p.name}</span>
+                            <span class="font-royal text-xl md:text-3xl text-white uppercase">${p.name}</span>
+                            <span class="text-zinc-500 font-mono text-sm tracking-widest">TIEMPO: ${formatTime(p.time || 0)}</span>
                         </div>
                     </div>
-                    <div class="text-right">
-                        <span class="text-yellow-500 font-bold text-lg md:text-4xl">${p.score} <small class="text-[8px]">PTS</small></span>
+                    <div class="text-center md:text-right">
+                        <span class="font-royal ${statusColor} text-2xl md:text-4xl block font-bold drop-shadow-lg">${statusText}</span>
                     </div>
                 </div>`;
             });
