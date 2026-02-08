@@ -82,7 +82,6 @@
     <div id="main-content" class="relative z-10 opacity-0 transition-opacity duration-1000 h-screen flex flex-col">
         <div class="flex-grow overflow-y-auto">
             
-            <!-- LOGIN MULTI-ADMIN -->
             <div id="view-login" class="min-h-full flex flex-col items-center justify-center p-6">
                 <h1 class="font-royal text-5xl md:text-8xl mb-2 text-yellow-500 text-center drop-shadow-2xl uppercase">Daniel</h1>
                 <p class="text-[10px] tracking-[0.6em] mb-8 text-zinc-400 uppercase text-center">El Desafío Profético</p>
@@ -99,19 +98,16 @@
                     </div>
 
                     <button onclick="handleAuth()" class="btn-gold w-full py-4 rounded-xl text-lg font-bold">Entrar</button>
-                    
                     <button id="toggle-admin-btn" onclick="toggleLoginMode()" class="text-[10px] mt-6 text-zinc-600 underline uppercase block mx-auto tracking-widest">Soy Administrador</button>
                 </div>
             </div>
 
-            <!-- VISTA SUPER ADMIN -->
             <div id="view-super-admin" class="hidden min-h-screen p-6">
                 <h2 class="font-royal text-3xl text-red-600 text-center mb-10">CONTROL MAESTRO</h2>
                 <div id="admin-list" class="max-w-4xl mx-auto grid grid-cols-1 gap-4"></div>
                 <button onclick="location.reload()" class="mt-10 block mx-auto text-zinc-500">Salir</button>
             </div>
 
-            <!-- MAPA -->
             <div id="view-levels" class="hidden min-h-screen p-4">
                 <header class="flex justify-between items-center mb-6 max-w-7xl mx-auto">
                     <div class="flex flex-col">
@@ -123,7 +119,6 @@
                 <div id="level-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-7xl mx-auto pb-20"></div>
             </div>
 
-            <!-- LOBBY -->
             <div id="view-lobby" class="hidden h-[calc(100vh-80px)] flex flex-col p-4 max-w-4xl mx-auto">
                 <div class="card-glass p-4 rounded-2xl mb-3 flex flex-col gap-3 shrink-0">
                     <div class="flex justify-between items-center border-b border-white/10 pb-2">
@@ -146,14 +141,12 @@
                 </div>
             </div>
 
-            <!-- RESULTADOS -->
             <div id="global-results" class="results-overlay hidden">
                 <h2 class="font-royal text-3xl md:text-6xl text-yellow-500 mb-6 mt-6 tracking-widest text-center uppercase">Hall de la Gloria</h2>
                 <div id="results-list" class="w-full max-w-3xl space-y-4 px-2 pb-10"></div>
                 <button id="btn-close-results" onclick="toggleResults(false)" class="btn-gold w-full max-w-xs py-4 rounded-full text-sm mb-10 hidden">Cerrar Tabla</button>
             </div>
 
-            <!-- JUEGO -->
             <div id="view-game" class="hidden min-h-full p-4">
                 <div class="max-w-3xl mx-auto">
                     <div class="flex justify-between items-center mb-6">
@@ -172,7 +165,6 @@
                 </div>
             </div>
 
-            <!-- ADMIN PANEL -->
             <div id="view-admin" class="hidden min-h-screen p-4 overflow-y-auto">
                 <div class="max-w-7xl mx-auto pb-20">
                     <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-10">
@@ -236,7 +228,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // --- VARIABLES DE ESTADO MULTI-ADMIN ---
         let currentBattleID = ""; 
         let userState = { name: '', isAdmin: false, isSuperAdmin: false, lives: 3, score: 0, qIndex: 0 };
         let gameConfig = { levels: {}, showResults: false, globalLives: 3, chatLocked: false, showCitas: false };
@@ -271,32 +262,27 @@
             document.getElementById('toggle-admin-btn').innerText = isP ? "Soy Jugador" : "Soy Administrador";
         };
 
-        // --- AUTENTICACIÓN ADAPTADA ---
         window.handleAuth = async () => {
             const adminIdInput = document.getElementById('admin-id').value.trim().toUpperCase();
             const adminPass = document.getElementById('admin-pass').value.trim();
             const battleIdInput = document.getElementById('login-battle-id').value.trim().toUpperCase();
             const playerName = document.getElementById('login-name').value.trim();
 
-            // CASO 1: SUPER ADMIN
             if (adminIdInput === "SUPER" && adminPass === "Daniel777") {
                 userState.isSuperAdmin = true;
                 initSuperAdmin();
                 return;
             }
 
-            // CASO 2: ADMINISTRADOR LOCAL
             if (adminIdInput && adminPass) {
                 const adminRef = doc(db, "admins", adminIdInput);
                 const snap = await getDoc(adminRef);
-                
                 if (snap.exists() && snap.data().pass === adminPass) {
                     currentBattleID = adminIdInput;
                     userState.isAdmin = true;
                     document.getElementById('admin-back-btn').classList.remove('hidden');
                     initAdmin();
                 } else if (!snap.exists()) {
-                    // Si no existe, lo creamos (Primer logueo)
                     await setDoc(adminRef, { pass: adminPass, createdAt: Date.now() });
                     currentBattleID = adminIdInput;
                     userState.isAdmin = true;
@@ -307,31 +293,28 @@
                 return;
             }
 
-            // CASO 3: JUGADOR
             if (battleIdInput && playerName) {
                 const adminSnap = await getDoc(doc(db, "admins", battleIdInput));
                 if (!adminSnap.exists()) return Swal.fire("Error", "Este Código de Batalla no existe", "error");
-
                 currentBattleID = battleIdInput;
                 userState.name = playerName;
                 document.getElementById('display-battle-id').innerText = "BATALLA: " + currentBattleID;
-                
                 await setDoc(doc(db, "batallas", currentBattleID, "players", playerName), { 
                     name: playerName, score:0, qIndex:0, lives:3, dead:false, time:0, lastUpdate: Date.now() 
                 });
-                
                 window.showView('levels');
                 syncGlobal();
             }
         };
 
-        // --- SINCRONIZACIÓN POR ADMIN ---
         function syncGlobal() {
             onSnapshot(doc(db, "batallas", currentBattleID, "config", "game"), (snap) => {
                 gameConfig = snap.data() || { levels: {}, showResults: false, globalLives: 3, chatLocked: false, showCitas: false };
                 renderLevelGrid();
                 document.getElementById('global-results').classList.toggle('hidden', !gameConfig.showResults);
                 if(gameConfig.showResults) updateGlobalResultsList();
+                // Actualizar panel admin si está abierto
+                if(userState.isAdmin) refreshAdminStatus();
             });
 
             onSnapshot(collection(db, "batallas", currentBattleID, "chat"), (snap) => {
@@ -344,7 +327,6 @@
             });
         }
 
-        // --- LÓGICA DE JUEGO (SE MANTIENE IGUAL, SOLO CAMBIA RUTA FIREBASE) ---
         function renderLevelGrid() {
             const grid = document.getElementById('level-grid'); if(!grid) return;
             grid.innerHTML = "";
@@ -423,11 +405,11 @@
 
         window.closeOutcomeVideo = () => { document.getElementById('video-outcome').classList.add('hidden'); window.showView('levels'); };
 
-        // --- PANEL ADMINISTRADOR LOCAL ---
         function initAdmin() {
             document.getElementById('admin-display-id').innerText = "ID BATALLA: " + currentBattleID;
             window.showView('admin');
             syncGlobal();
+            refreshAdminStatus(); // CARGAR CONTROLES AL ENTRAR
             document.getElementById('adm-excel-input').onchange = (e) => processExcel(e.target);
             onSnapshot(collection(db, "batallas", currentBattleID, "players"), (snap) => {
                 const m = document.getElementById('adm-monitor'); m.innerHTML = "";
@@ -462,7 +444,9 @@
         };
 
         async function refreshAdminStatus() {
-            const cont = document.getElementById('adm-levels-controls'); cont.innerHTML = "";
+            const cont = document.getElementById('adm-levels-controls'); 
+            if(!cont) return;
+            cont.innerHTML = "";
             for(let i=1; i<=12; i++) {
                 const snap = await getDoc(doc(db, "batallas", currentBattleID, "levels", "lvl_" + i));
                 const active = gameConfig.levels?.[i]?.active;
@@ -498,7 +482,6 @@
 
         window.toggleResults = async (val) => { await updateDoc(doc(db, "batallas", currentBattleID, "config", "game"), { showResults: val }); };
 
-        // --- SUPER ADMINISTRADOR (TU CONTROL) ---
         async function initSuperAdmin() {
             window.showView('super-admin');
             const adminsSnap = await getDocs(collection(db, "admins"));
@@ -562,7 +545,6 @@
         }
 
         window.formatTime = (s) => Math.floor(s/60) + ":" + (s%60).toString().padStart(2,'0');
-
     </script>
 </body>
 </html>
