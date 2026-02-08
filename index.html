@@ -75,11 +75,9 @@
 </head>
 <body id="game-body">
 
-    <!-- Flash Overlay para daño -->
     <div id="flash-overlay"></div>
 
     <audio id="game-music" loop preload="auto"><source src="music.mp3" type="audio/mpeg"></audio>
-    <!-- Rugido del León -->
     <audio id="lion-roar" preload="auto"><source src="lion.mp3" type="audio/mpeg"></audio>
 
     <div id="video-bg-container">
@@ -101,7 +99,6 @@
     <div id="main-content" class="relative z-10 opacity-0 transition-opacity duration-1000 h-screen flex flex-col">
         <div class="flex-grow overflow-y-auto">
             
-            <!-- LOGIN -->
             <div id="view-login" class="min-h-full flex flex-col items-center justify-center p-6">
                 <h1 class="font-royal text-6xl md:text-8xl mb-2 text-yellow-500 text-center drop-shadow-2xl uppercase">Daniel</h1>
                 <p class="text-[10px] tracking-[0.6em] mb-12 text-zinc-400 uppercase text-center">El Desafío Profético</p>
@@ -115,7 +112,6 @@
                 </div>
             </div>
 
-            <!-- MAPA -->
             <div id="view-levels" class="hidden min-h-screen p-4">
                 <header class="flex justify-between items-center mb-6 max-w-7xl mx-auto">
                     <h2 class="font-royal text-2xl text-white uppercase tracking-tighter">Misiones</h2>
@@ -124,25 +120,21 @@
                 <div id="level-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-7xl mx-auto pb-20"></div>
             </div>
 
-            <!-- LOBBY -->
             <div id="view-lobby" class="hidden h-[calc(100vh-80px)] flex flex-col p-4 max-w-4xl mx-auto">
                 <div class="card-glass p-4 rounded-2xl mb-3 flex flex-col gap-3 shrink-0">
                     <div class="flex justify-between items-center border-b border-white/10 pb-2">
                         <h2 id="lobby-title" class="font-royal text-xl text-yellow-500 uppercase">LOBBY</h2>
                         <button onclick="showView('levels')" class="text-[10px] text-yellow-600 underline uppercase font-bold px-2 py-1">Regresar</button>
                     </div>
-                    
                     <div id="access-code-prompt" class="hidden flex flex-col sm:flex-row gap-2 w-full">
                         <input type="text" id="join-code-input" placeholder="INGRESA EL CÓDIGO" class="flex-1 bg-black border border-yellow-600/50 p-3 rounded-xl text-center text-yellow-500 font-bold outline-none text-base">
                         <button onclick="validateAccessCode()" class="btn-gold py-3 px-4 rounded-xl text-xs sm:text-[10px] whitespace-nowrap">ENTRAR AL QUIZ</button>
                     </div>
-                    
                     <button id="admin-back-btn" onclick="showView('admin')" class="hidden w-full bg-zinc-800 py-3 rounded-xl text-[10px] uppercase font-bold text-zinc-300 tracking-widest border border-zinc-700">Panel Admin</button>
                 </div>
 
                 <div class="flex-1 card-glass rounded-2xl p-4 mb-3 overflow-y-auto" id="chat-messages" style="min-height: 150px;"></div>
                 
-                <!-- VIDEO DEL NIVEL EN EL LOBBY -->
                 <div id="lobby-video-container" class="card-glass p-2 rounded-2xl mb-3">
                     <video id="lobby-level-video" class="w-full rounded-xl aspect-video object-cover" controls playsinline>
                         <source id="lobby-video-src" src="default.mp4" type="video/mp4">
@@ -159,7 +151,6 @@
                 </div>
             </div>
 
-            <!-- RESULTADOS GLOBALES -->
             <div id="global-results" class="results-overlay hidden">
                 <h2 class="font-royal text-3xl md:text-6xl text-yellow-500 mb-6 mt-6 tracking-widest text-center uppercase">Hall de la Gloria</h2>
                 <div id="results-list" class="w-full max-w-3xl space-y-4 px-2 pb-10"></div>
@@ -186,7 +177,6 @@
                 </div>
             </div>
 
-            <!-- ADMIN -->
             <div id="view-admin" class="hidden min-h-screen p-4 overflow-y-auto">
                 <div class="max-w-7xl mx-auto pb-20">
                     <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-10">
@@ -417,7 +407,8 @@
             }
 
             const grid = document.getElementById('options-grid'); grid.innerHTML = "";
-            [q.Correcta, q.Inc1, q.Inc2, q.Inc3].sort(() => Math.random() - 0.5).forEach(o => {
+            // Filtramos posibles opciones undefined por seguridad
+            [q.Correcta, q.Inc1, q.Inc2, q.Inc3].filter(o => o !== undefined).sort(() => Math.random() - 0.5).forEach(o => {
                 const b = document.createElement('button');
                 b.className = "btn-option p-4 md:p-5 rounded-2xl text-left text-xs md:text-sm font-bold uppercase tracking-wider shadow-lg";
                 b.innerText = o;
@@ -528,9 +519,26 @@
             r.onload = async (e) => {
                 try {
                     const book = XLSX.read(new Uint8Array(e.target.result), {type: 'array'});
-                    const json = XLSX.utils.sheet_to_json(book.Sheets[book.SheetNames[0]]);
-                    await setDoc(doc(db, "levels", "lvl_" + adminLvlTarget), { questions: json });
-                    Swal.fire("Cargado", `Nivel ${adminLvlTarget} listo`, "success");
+                    const rawJson = XLSX.utils.sheet_to_json(book.Sheets[book.SheetNames[0]]);
+                    
+                    // NORMALIZACIÓN DE CABECERAS (Para evitar el error "undefined")
+                    const normalizedJson = rawJson.map(row => {
+                        let newRow = {};
+                        Object.keys(row).forEach(key => {
+                            let k = key.toLowerCase().trim();
+                            if(k.includes("pregunta")) newRow.Pregunta = row[key];
+                            else if(k.includes("correcta")) newRow.Correcta = row[key];
+                            else if(k.includes("inc1") || k.includes("incorrecta1")) newRow.Inc1 = row[key];
+                            else if(k.includes("inc2") || k.includes("incorrecta2")) newRow.Inc2 = row[key];
+                            else if(k.includes("inc3") || k.includes("incorrecta3")) newRow.Inc3 = row[key];
+                            else if(k.includes("cita")) newRow.Cita = row[key];
+                        });
+                        return newRow;
+                    });
+
+                    await setDoc(doc(db, "levels", "lvl_" + adminLvlTarget), { questions: normalizedJson });
+                    input.value = ""; // Limpiar input para permitir recarga
+                    Swal.fire("Cargado", `Nivel ${adminLvlTarget} listo con ${normalizedJson.length} preguntas`, "success");
                     refreshAdminStatus();
                 } catch(err) { Swal.fire("Error", "Formato Inválido", "error"); }
             };
@@ -561,14 +569,12 @@
         };
 
         async function updateGlobalResultsList() {
-            // MOSTRAR/OCULTAR BOTÓN DE CIERRE (Solo Administrador)
             const btnClose = document.getElementById('btn-close-results');
             if(userState.isAdmin) btnClose.classList.remove('hidden');
             else btnClose.classList.add('hidden');
 
             const playersSnapshot = await getDocs(collection(db, "players"));
             let list = []; playersSnapshot.forEach(d => list.push(d.data()));
-            // Ordenar por score alto y tiempo bajo
             list.sort((a,b) => b.score - a.score || a.time - b.time);
             
             const container = document.getElementById('results-list');
