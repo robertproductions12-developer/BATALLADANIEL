@@ -209,6 +209,7 @@
                 </div>
             </div>
         </div>
+        <!-- Input oculto para el archivo -->
         <input type="file" id="adm-excel-input" accept=".xlsx" class="hidden">
         <footer class="footer-anclado">DESARROLLADO POR - ROBERT PARACO 2026</footer>
     </div>
@@ -313,7 +314,6 @@
                 renderLevelGrid();
                 document.getElementById('global-results').classList.toggle('hidden', !gameConfig.showResults);
                 if(gameConfig.showResults) updateGlobalResultsList();
-                // Actualizar panel admin si está abierto
                 if(userState.isAdmin) refreshAdminStatus();
             });
 
@@ -409,7 +409,7 @@
             document.getElementById('admin-display-id').innerText = "ID BATALLA: " + currentBattleID;
             window.showView('admin');
             syncGlobal();
-            refreshAdminStatus(); // CARGAR CONTROLES AL ENTRAR
+            refreshAdminStatus(); 
             document.getElementById('adm-excel-input').onchange = (e) => processExcel(e.target);
             onSnapshot(collection(db, "batallas", currentBattleID, "players"), (snap) => {
                 const m = document.getElementById('adm-monitor'); m.innerHTML = "";
@@ -426,19 +426,40 @@
 
         window.deletePlayer = async (name) => { await deleteDoc(doc(db, "batallas", currentBattleID, "players", name)); };
 
+        // --- FUNCIÓN DE CARGA DE EXCEL CORREGIDA ---
         const processExcel = (input) => {
+            if (!input.files[0]) return;
             const reader = new FileReader();
             reader.onload = async (e) => {
-                const book = XLSX.read(new Uint8Array(e.target.result), {type: 'array'});
-                const raw = XLSX.utils.sheet_to_json(book.Sheets[book.SheetNames[0]]);
-                const clean = raw.map(r => ({
-                    Pregunta: r.Pregunta || r.pregunta,
-                    Correcta: r.Correcta || r.correcta,
-                    Inc1: r.Inc1 || r.inc1, Inc2: r.Inc2 || r.inc2, Inc3: r.Inc3 || r.inc3, Cita: r.Cita || r.cita
-                }));
-                await setDoc(doc(db, "batallas", currentBattleID, "levels", "lvl_" + adminLvlTarget), { questions: clean });
-                Swal.fire("Éxito", "Excel cargado en Nivel " + adminLvlTarget, "success");
-                refreshAdminStatus();
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const book = XLSX.read(data, {type: 'array'});
+                    const raw = XLSX.utils.sheet_to_json(book.Sheets[book.SheetNames[0]]);
+                    
+                    // Normalización inteligente de cabeceras
+                    const clean = raw.map(r => {
+                        let normalized = {};
+                        Object.keys(r).forEach(key => {
+                            let k = key.toLowerCase().trim();
+                            if(k.includes("pregunta")) normalized.Pregunta = r[key];
+                            else if(k.includes("correcta")) normalized.Correcta = r[key];
+                            else if(k.includes("inc1") || k.includes("incorrecta1")) normalized.Inc1 = r[key];
+                            else if(k.includes("inc2") || k.includes("incorrecta2")) normalized.Inc2 = r[key];
+                            else if(k.includes("inc3") || k.includes("incorrecta3")) normalized.Inc3 = r[key];
+                            else if(k.includes("cita")) normalized.Cita = r[key];
+                        });
+                        return normalized;
+                    }).filter(q => q.Pregunta && q.Correcta);
+
+                    if(clean.length === 0) throw new Error("Formato incorrecto");
+
+                    await setDoc(doc(db, "batallas", currentBattleID, "levels", "lvl_" + adminLvlTarget), { questions: clean });
+                    input.value = ""; // Limpiar el input para permitir recargar el mismo archivo
+                    Swal.fire("Éxito", `Se cargaron ${clean.length} preguntas en Nivel ${adminLvlTarget}`, "success");
+                    refreshAdminStatus();
+                } catch(err) { 
+                    Swal.fire("Error", "El archivo no tiene el formato correcto (Pregunta, Correcta, Inc1, Inc2, Inc3)", "error"); 
+                }
             };
             reader.readAsArrayBuffer(input.files[0]);
         };
@@ -453,6 +474,7 @@
                 cont.innerHTML += `<div class="p-2 bg-white/5 rounded-lg border border-white/10">
                     <div class="flex justify-between text-[10px] mb-2 uppercase"><span>Nivel ${i}</span> <span class="${snap.exists()?'text-green-500':'text-red-500'}">${snap.exists()?'Listo':'Vacio'}</span></div>
                     <div class="grid grid-cols-2 gap-2">
+                        <!-- El botón ahora asigna el nivel y dispara el input -->
                         <button onclick="adminLvlTarget=${i}; document.getElementById('adm-excel-input').click()" class="bg-zinc-700 text-[8px] py-1 rounded">EXCEL</button>
                         <button onclick="toggleLvl(${i})" class="${active?'bg-red-900':'bg-green-700'} text-[8px] py-1 rounded">${active?'OFF':'ON'}</button>
                     </div>
