@@ -167,12 +167,10 @@
                 </div>
             </div>
 
-            <!-- RESULTADOS FINALES -->
+            <!-- RESULTADOS FINALES (HALL DE LA GLORIA) -->
             <div id="global-results" class="results-overlay hidden">
                 <h2 class="font-royal text-3xl md:text-6xl text-yellow-500 mb-6 mt-6 tracking-widest text-center uppercase">Hall de la Gloria</h2>
-                <div id="results-list" class="w-full max-w-3xl space-y-3 px-2 pb-20">
-                    <!-- Dinámico -->
-                </div>
+                <div id="results-list" class="w-full max-w-3xl space-y-3 px-2 pb-20"></div>
                 <div class="fixed bottom-10 w-full max-w-xs px-4">
                     <button onclick="location.reload()" class="btn-gold w-full py-4 rounded-full text-sm">Salir del Desafío</button>
                 </div>
@@ -319,15 +317,14 @@
         };
 
         function syncGlobal() {
-            // Sincronizar Configuración y Ranking
             onSnapshot(doc(db, "config", "game"), (snap) => {
                 const data = snap.data() || { levels: {}, showResults: false, globalLives: 3, chatLocked: false, showCitas: false, timerLimit: 30 };
                 gameConfig = data;
                 renderLevelGrid();
                 
-                // Mostrar/Ocultar Ranking para TODOS
+                // CONTROL DE RANKING: Solo se muestra si el Admin lo activa Y el usuario NO es el Admin (para no bloquearte el panel)
                 const resultsView = document.getElementById('global-results');
-                if(data.showResults) {
+                if(data.showResults && !userState.isAdmin) {
                     resultsView.classList.remove('hidden');
                     loadGlobalRanking();
                 } else {
@@ -341,7 +338,6 @@
                 updateCodeVisibility();
             });
 
-            // Sincronizar Chat
             onSnapshot(collection(db, "chat"), (snap) => {
                 const box = document.getElementById('chat-messages'); box.innerHTML = "";
                 snap.docs.reverse().forEach(d => {
@@ -433,7 +429,6 @@
             const bar = document.getElementById('timer-bar');
             const icon = document.getElementById('hourglass-icon');
             
-            // Reset visual
             bar.style.backgroundColor = "var(--gold)";
             icon.className = "fa-solid fa-hourglass-half text-yellow-500 text-2xl animate-hourglass";
 
@@ -442,7 +437,6 @@
                 const percent = (remaining / limit) * 100;
                 bar.style.width = percent + "%";
                 
-                // Efecto de urgencia
                 if (percent <= 25) {
                     bar.style.backgroundColor = "#ff4d4d";
                     icon.classList.replace('text-yellow-500', 'text-red-500');
@@ -563,17 +557,19 @@
             const m = document.getElementById('adm-monitor'); if(!m) return;
             m.innerHTML = "";
             snap.docs.map(d => d.data()).sort((a,b)=>b.score-a.score).forEach(p => {
-                m.innerHTML += `<div class="p-2 bg-black/40 rounded-lg flex justify-between items-center text-[10px] border border-white/5">
-                    <span class="${p.dead?'text-red-500':'text-yellow-500'} uppercase font-bold">${p.name}</span>
-                    <span class="text-white">${p.qIndex}/20 Preg.</span>
-                    <div class="flex gap-2 text-zinc-400">
-                        <span class="text-yellow-500 font-bold">${p.score} PT</span>
-                        <span>${p.lives} ❤️</span>
+                m.innerHTML += `<div class="p-3 bg-black/40 rounded-lg flex flex-col gap-1 text-[10px] border border-white/5">
+                    <div class="flex justify-between items-center">
+                        <span class="${p.dead?'text-red-500':'text-yellow-500'} uppercase font-bold text-sm">${p.name}</span>
+                        <button onclick="deleteUser('${p.name}')" class="text-red-600"><i class="fa-solid fa-trash"></i></button>
                     </div>
-                    <button onclick="deleteUser('${p.name}')" class="text-red-600 ml-2"><i class="fa-solid fa-trash"></i></button>
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-1 text-zinc-400">
+                        <span>Preg: <b class="text-white">${p.qIndex}/20</b></span>
+                        <span>Pts: <b class="text-yellow-500">${p.score}</b></span>
+                        <span>Vidas: <b class="text-red-500">${p.lives}</b></span>
+                        <span>Tiempo: <b class="text-blue-400">${formatTime(p.time || 0)}</b></span>
+                    </div>
                 </div>`;
             });
-            // Si el ranking está abierto, actualizarlo también en tiempo real
             if(gameConfig.showResults) loadGlobalRanking();
         });
 
