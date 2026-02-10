@@ -64,6 +64,10 @@
         .results-overlay { position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.98); display: flex; flex-direction: column; align-items: center; padding: 1rem; overflow-y: auto; }
         .btn-option { background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.2); transition: 0.2s; color: white; }
         .btn-option:hover { background: rgba(212,175,55,0.1); border-color: var(--gold); }
+
+        /* NUEVA PANTALLA DE IMAGEN FINAL */
+        #final-image-screen { position: fixed; inset: 0; z-index: 3000; background-color: black; display: none; }
+        #final-image-content { width: 100%; height: 100%; object-fit: contain; } /* "Contain" para asegurar formato vertical en cualquier pantalla */
     </style>
 </head>
 <body id="game-body">
@@ -78,8 +82,14 @@
         <video id="bg-video-loop" loop playsinline muted><source src="intro.mp4" type="video/mp4"></video>
     </div>
 
+    <!-- PANTALLA DE VIDEO DE RESULTADO -->
     <div id="video-outcome" class="fullscreen-video hidden">
         <video id="outcome-player" playsinline class="w-full h-full object-cover"></video>
+    </div>
+
+    <!-- PANTALLA DE IMAGEN FINAL (VERTICAL) -->
+    <div id="final-image-screen" class="flex flex-col">
+        <img id="final-image-content" src="" alt="Resultado Final">
         <div class="absolute bottom-10 w-full text-center px-4">
             <button onclick="closeOutcomeVideo()" class="btn-gold w-full max-w-xs py-4 rounded-full">Volver al Lobby</button>
         </div>
@@ -179,10 +189,14 @@
             <!-- PANEL ADMIN -->
             <div id="view-admin" class="hidden min-h-screen p-4 overflow-y-auto">
                 <div class="max-w-7xl mx-auto pb-20">
-                    <div class="flex justify-between items-center gap-6 mb-10">
+                    <div class="flex flex-wrap justify-between items-center gap-6 mb-10">
                         <button onclick="showView('lobby')" class="bg-blue-900/40 text-blue-400 px-8 py-3 rounded-xl border border-blue-900 font-bold text-[10px] uppercase">Chat</button>
                         <h2 class="font-royal text-3xl text-red-600 text-center">Mando Supremo</h2>
-                        <button onclick="resetGlobalSystem()" class="bg-red-900/40 text-red-400 px-8 py-3 rounded-xl border border-red-900 font-bold text-[10px] uppercase">Reiniciar Todo</button>
+                        <div class="flex gap-2">
+                             <!-- NUEVO BOTÓN ELIMINAR CHAT -->
+                            <button onclick="deleteFullChat()" class="bg-orange-900/60 text-orange-200 px-4 py-3 rounded-xl border border-orange-700 font-bold text-[10px] uppercase">Borrar Chat Completo</button>
+                            <button onclick="resetGlobalSystem()" class="bg-red-900/40 text-red-400 px-8 py-3 rounded-xl border border-red-900 font-bold text-[10px] uppercase">Reiniciar Todo</button>
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -239,7 +253,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, onSnapshot, updateDoc, collection, addDoc, query, orderBy, limit, getDoc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, onSnapshot, updateDoc, collection, addDoc, query, orderBy, limit, getDoc, deleteDoc, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCEBobrmLT4Icvjn81GZx1FtkTS9IU2XsI",
@@ -266,6 +280,12 @@
         const lionRoar = document.getElementById('lion-roar');
         const successSound = document.getElementById('success-sound');
         const lobbyVideo = document.getElementById('lobby-level-video');
+        const outcomePlayer = document.getElementById('outcome-player');
+
+        // --- LÓGICA DE PAUSA DE MÚSICA PARA VIDEOS ---
+        lobbyVideo.onplay = () => gameMusic.pause();
+        lobbyVideo.onpause = () => gameMusic.play();
+        lobbyVideo.onended = () => gameMusic.play();
 
         window.endIntro = () => {
             document.getElementById('intro-overlay').classList.add('fade-out');
@@ -322,7 +342,6 @@
                 gameConfig = data;
                 renderLevelGrid();
                 
-                // CONTROL DE RANKING: Solo se muestra si el Admin lo activa Y el usuario NO es el Admin (para no bloquearte el panel)
                 const resultsView = document.getElementById('global-results');
                 if(data.showResults && !userState.isAdmin) {
                     resultsView.classList.remove('hidden');
@@ -474,17 +493,34 @@
 
         function formatTime(s) { return `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`; }
 
+        // --- LÓGICA DE VIDEO Y LUEGO IMAGEN FINAL ---
         function finishBattle() {
             const win = userState.lives > 0 && userState.qIndex >= 20;
-            const player = document.getElementById('outcome-player');
-            player.src = win ? "gano.mp4" : "perdio.mp4";
+            
+            // Pausar música durante el video
+            gameMusic.pause();
+
+            outcomePlayer.src = win ? "gano.mp4" : "perdio.mp4";
             document.getElementById('video-outcome').classList.remove('hidden');
-            gameMusic.pause(); player.play();
+            outcomePlayer.play();
+
+            // Cuando el video termina, mostrar imagen vertical
+            outcomePlayer.onended = () => {
+                document.getElementById('video-outcome').classList.add('hidden');
+                const finalImgScreen = document.getElementById('final-image-screen');
+                const finalImgContent = document.getElementById('final-image-content');
+                
+                // Nombres de tus imágenes verticales (Asegúrate de tenerlas)
+                finalImgContent.src = win ? "ganaste_vertical.jpg" : "perdiste_vertical.jpg";
+                finalImgScreen.style.display = "flex";
+            };
         }
 
         window.closeOutcomeVideo = () => {
+            document.getElementById('final-image-screen').style.display = "none";
             document.getElementById('video-outcome').classList.add('hidden');
-            gameMusic.play(); window.showView('levels');
+            gameMusic.play(); 
+            window.showView('levels');
         };
 
         // ADMIN FUNCTIONS
@@ -501,6 +537,19 @@
 
         window.toggleResults = async (val) => { 
             await updateDoc(doc(db, "config", "game"), { showResults: val }); 
+        };
+
+        // --- ELIMINAR CHAT COMPLETO ---
+        window.deleteFullChat = async () => {
+            if(confirm("¿ESTÁS SEGURO DE ELIMINAR TODO EL CHAT? Esto no se puede deshacer.")) {
+                const chatSnap = await getDocs(collection(db, "chat"));
+                const batch = writeBatch(db);
+                chatSnap.forEach((doc) => {
+                    batch.delete(doc.ref);
+                });
+                await batch.commit();
+                Swal.fire("Éxito", "Chat borrado completamente", "success");
+            }
         };
 
         window.toggleLvlState = async (lvl) => {
