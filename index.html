@@ -61,10 +61,50 @@
 
         /* PANTALLA DE IMAGEN FINAL AJUSTADA */
         #final-image-screen { position: fixed; inset: 0; z-index: 3000; background-color: black; display: none; align-items: center; justify-content: center; }
-        #final-image-content { width: 100%; height: 100%; object-fit: contain; } /* 'contain' para no estirar la imagen */
+        #final-image-content { width: 100%; height: 100%; object-fit: contain; }
+
+        /* ESTILOS BOTONES FLOTANTES */
+        @keyframes drift-down {
+            0% { transform: translateY(-120vh); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(120vh); opacity: 0; }
+        }
+        .floating-btn {
+            position: fixed; z-index: 500; cursor: pointer;
+            width: 50px; height: 50px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid var(--gold); background: rgba(0,0,0,0.8);
+            box-shadow: 0 0 15px var(--gold); color: var(--gold); font-size: 20px;
+            animation: drift-down 15s linear infinite;
+        }
+        #f-btn-1 { left: 10%; animation-delay: 0s; }
+        #f-btn-2 { left: 50%; animation-delay: 5s; }
+        #f-btn-3 { left: 85%; animation-delay: 10s; }
+
+        /* MODAL TARJETA FLOTANTE */
+        #floating-card-overlay {
+            position: fixed; inset: 0; z-index: 5000; background: rgba(0,0,0,0.85);
+            display: none; align-items: center; justify-content: center; padding: 20px;
+        }
     </style>
 </head>
 <body id="game-body">
+
+    <!-- BOTONES FLOTANTES -->
+    <div id="f-btn-1" class="floating-btn" onclick="openFloatingCard('question')"><i class="fa-solid fa-question"></i></div>
+    <div id="f-btn-2" class="floating-btn" onclick="openFloatingCard('book')"><i class="fa-solid fa-book-open"></i></div>
+    <div id="f-btn-3" class="floating-btn" onclick="openFloatingCard('heart')"><i class="fa-solid fa-heart"></i></div>
+
+    <!-- TARJETA DE CONTENIDO -->
+    <div id="floating-card-overlay">
+        <div class="card-glass p-8 rounded-[2.5rem] w-full max-w-sm text-center border-2 border-yellow-500/50">
+            <div id="f-card-icon" class="text-5xl text-yellow-500 mb-6"></div>
+            <p id="f-card-text" class="text-xl font-semibold mb-4 text-white leading-tight"></p>
+            <p id="f-card-sub" class="text-sm italic text-yellow-600 font-bold mb-8 uppercase tracking-widest"></p>
+            <button onclick="closeFloatingCard()" class="btn-gold w-full py-3 rounded-xl shadow-xl">Cerrar</button>
+        </div>
+    </div>
 
     <div id="flash-overlay"></div>
 
@@ -80,7 +120,6 @@
         <video id="outcome-player" playsinline class="w-full h-full object-cover"></video>
     </div>
 
-    <!-- VISTA IMAGEN FINAL -->
     <div id="final-image-screen">
         <img id="final-image-content" src="" alt="Resultado">
         <div class="absolute bottom-10 w-full text-center px-4">
@@ -181,6 +220,33 @@
                             <button onclick="resetGlobalSystem()" class="bg-red-900/40 text-red-400 px-8 py-3 rounded-xl border border-red-900 font-bold text-[10px] uppercase">Reiniciar Todo</button>
                         </div>
                     </div>
+                    
+                    <!-- NUEVA SECCION: CARGA DE FRASES FLOTANTES -->
+                    <div class="card-glass p-6 rounded-3xl mb-8 border-2 border-yellow-600/30">
+                        <h3 class="text-yellow-500 font-royal mb-6 text-center uppercase tracking-widest">Contenido de Botones Flotantes</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-black/40 p-4 rounded-xl border border-white/5 flex flex-col items-center">
+                                <i class="fa-solid fa-question text-2xl text-yellow-500 mb-2"></i>
+                                <span class="text-[10px] mb-3 uppercase font-bold">30 Frases (?)</span>
+                                <button onclick="triggerFloatExcel('question')" class="btn-gold px-4 py-2 rounded text-[10px] w-full">Subir Excel</button>
+                                <div id="status-question" class="mt-2 text-[9px] text-green-500 font-bold hidden">CARGADO <i class="fa-solid fa-check"></i></div>
+                            </div>
+                            <div class="bg-black/40 p-4 rounded-xl border border-white/5 flex flex-col items-center">
+                                <i class="fa-solid fa-book-open text-2xl text-yellow-500 mb-2"></i>
+                                <span class="text-[10px] mb-3 uppercase font-bold">30 Citas (Libro)</span>
+                                <button onclick="triggerFloatExcel('book')" class="btn-gold px-4 py-2 rounded text-[10px] w-full">Subir Excel</button>
+                                <div id="status-book" class="mt-2 text-[9px] text-green-500 font-bold hidden">CARGADO <i class="fa-solid fa-check"></i></div>
+                            </div>
+                            <div class="bg-black/40 p-4 rounded-xl border border-white/5 flex flex-col items-center">
+                                <i class="fa-solid fa-heart text-2xl text-yellow-500 mb-2"></i>
+                                <span class="text-[10px] mb-3 uppercase font-bold">30 Frases (Corazón)</span>
+                                <button onclick="triggerFloatExcel('heart')" class="btn-gold px-4 py-2 rounded text-[10px] w-full">Subir Excel</button>
+                                <div id="status-heart" class="mt-2 text-[9px] text-green-500 font-bold hidden">CARGADO <i class="fa-solid fa-check"></i></div>
+                            </div>
+                        </div>
+                        <input type="file" id="float-excel-input" accept=".xlsx" class="hidden">
+                    </div>
+
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div class="card-glass p-6 rounded-3xl h-fit">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
@@ -232,10 +298,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, setDoc, onSnapshot, updateDoc, collection, addDoc, query, orderBy, limit, getDoc, deleteDoc, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // ==========================================
-        // CONFIGURACIÓN DE ENLACES DE IMAGEN (GITHUP RAW)
-        // ==========================================
-        // IMPORTANTE: Asegúrate que el link diga "raw.githubusercontent.com"
         const IMAGEN_GANASTE = "https://raw.githubusercontent.com/robertproductions12-developer/BATALLADANIEL/refs/heads/main/sii.png";
         const IMAGEN_PERDISTE ="https://raw.githubusercontent.com/robertproductions12-developer/BATALLADANIEL/refs/heads/main/sii.png";
 
@@ -260,6 +322,10 @@
         let currentLevelQuestions = [];
         let questionInterval = null;
         let playersCache = [];
+
+        // NUEVAS VARIABLES PARA FRASES
+        let floatingPhrases = { question: [], book: [], heart: [] };
+        let currentFloatTarget = '';
 
         const gameMusic = document.getElementById('game-music');
         const lionRoar = document.getElementById('lion-roar');
@@ -338,6 +404,18 @@
                 updateCodeVisibility();
             });
 
+            // Sincronizar Frases Flotantes
+            onSnapshot(doc(db, "config", "floating"), (snap) => {
+                if(snap.exists()) {
+                    floatingPhrases = snap.data();
+                    if(userState.isAdmin) {
+                        if(floatingPhrases.question?.length) document.getElementById('status-question').classList.remove('hidden');
+                        if(floatingPhrases.book?.length) document.getElementById('status-book').classList.remove('hidden');
+                        if(floatingPhrases.heart?.length) document.getElementById('status-heart').classList.remove('hidden');
+                    }
+                }
+            });
+
             onSnapshot(collection(db, "chat"), (snap) => {
                 const box = document.getElementById('chat-messages'); box.innerHTML = "";
                 snap.docs.reverse().forEach(d => {
@@ -347,6 +425,51 @@
                 box.scrollTop = box.scrollHeight;
             });
         }
+
+        // --- FUNCIONES BOTONES FLOTANTES ---
+        window.openFloatingCard = (type) => {
+            const phrases = floatingPhrases[type] || [];
+            if(phrases.length === 0) return;
+            const random = phrases[Math.floor(Math.random() * phrases.length)];
+            
+            const iconEl = document.getElementById('f-card-icon');
+            const textEl = document.getElementById('f-card-text');
+            const subEl = document.getElementById('f-card-sub');
+
+            if(type === 'question') iconEl.innerHTML = '<i class="fa-solid fa-question"></i>';
+            if(type === 'book') iconEl.innerHTML = '<i class="fa-solid fa-book-open"></i>';
+            if(type === 'heart') iconEl.innerHTML = '<i class="fa-solid fa-heart"></i>';
+
+            textEl.innerText = random.Frase || random.Texto || "Cargando...";
+            subEl.innerText = random.Referencia || random.Cita || "";
+            
+            document.getElementById('floating-card-overlay').style.display = 'flex';
+        };
+
+        window.closeFloatingCard = () => {
+            document.getElementById('floating-card-overlay').style.display = 'none';
+        };
+
+        window.triggerFloatExcel = (type) => {
+            currentFloatTarget = type;
+            document.getElementById('float-excel-input').click();
+        };
+
+        document.getElementById('float-excel-input').onchange = (e) => {
+            const r = new FileReader();
+            r.onload = async (ev) => {
+                const book = XLSX.read(new Uint8Array(ev.target.result), {type: 'array'});
+                const data = XLSX.utils.sheet_to_json(book.Sheets[book.SheetNames[0]]);
+                const update = {}; update[currentFloatTarget] = data;
+                await updateDoc(doc(db, "config", "floating"), update).catch(async () => {
+                    await setDoc(doc(db, "config", "floating"), update);
+                });
+                Swal.fire("Éxito", "Frases cargadas", "success");
+            };
+            r.readAsArrayBuffer(e.target.files[0]);
+        };
+        // --- FIN FUNCIONES BOTONES FLOTANTES ---
+
 
         async function loadGlobalRanking() {
             const list = document.getElementById('results-list');
@@ -449,7 +572,6 @@
 
         function formatTime(s) { return `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`; }
 
-        // LOGICA DE RESULTADO FINAL (MODIFICADA PARA PANTALLA COMPLETA)
         function finishBattle() {
             const win = userState.lives > 0 && userState.qIndex >= 20;
             gameMusic.pause();
@@ -470,9 +592,6 @@
             gameMusic.play(); 
             window.showView('levels');
         };
-
-        // ADMIN FUNCTIONS
-        function initAdmin() { window.showView('admin'); syncGlobal(); }
 
         window.updateGlobalConfigs = async () => {
             await updateDoc(doc(db, "config", "game"), { 
@@ -587,6 +706,7 @@
                 if(btn) btn.classList.toggle('hidden', !gameConfig.levels?.[activeLevelLobby]?.active);
             }
         }
+        function initAdmin() { window.showView('admin'); syncGlobal(); }
     </script>
 </body>
 </html>
