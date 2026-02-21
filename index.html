@@ -62,13 +62,6 @@
         #final-image-screen { position: fixed; inset: 0; z-index: 3000; background-color: black; display: none; align-items: center; justify-content: center; }
         #final-image-content { width: 100%; height: 100%; object-fit: contain; }
 
-        /* ESTILOS BOTONES FLOTANTES */
-        @keyframes drift-down {
-            0% { transform: translateY(-120vh); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(120vh); opacity: 0; }
-        }
         .floating-btn {
             position: fixed; z-index: 500; cursor: pointer;
             width: 50px; height: 50px; border-radius: 50%;
@@ -85,16 +78,24 @@
             position: fixed; inset: 0; z-index: 5000; background: rgba(0,0,0,0.85);
             display: none; align-items: center; justify-content: center; padding: 20px;
         }
+        @keyframes drift-down {
+            0% { transform: translateY(-120vh); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(120vh); opacity: 0; }
+        }
     </style>
 </head>
 <body id="game-body">
 
+    <!-- BOTONES FLOTANTES -->
     <div id="floating-btns-group" class="hidden">
         <div id="f-btn-1" class="floating-btn" onclick="openFloatingCard('question')"><i class="fa-solid fa-question"></i></div>
         <div id="f-btn-2" class="floating-btn" onclick="openFloatingCard('book')"><i class="fa-solid fa-book-open"></i></div>
         <div id="f-btn-3" class="floating-btn" onclick="openFloatingCard('heart')"><i class="fa-solid fa-heart"></i></div>
     </div>
 
+    <!-- TARJETA FLOTANTE -->
     <div id="floating-card-overlay">
         <div class="card-glass p-8 rounded-[2.5rem] w-full max-w-sm text-center border-2 border-yellow-500/50">
             <div id="f-card-icon" class="text-5xl text-yellow-500 mb-6"></div>
@@ -133,23 +134,31 @@
     <div id="main-content" class="relative z-10 opacity-0 transition-opacity duration-1000 h-screen flex flex-col">
         <div class="flex-grow overflow-y-auto">
             
+            <!-- LOGIN MEJORADO -->
             <div id="view-login" class="min-h-full flex flex-col items-center justify-center p-6">
                 <h1 class="font-royal text-6xl md:text-8xl mb-2 text-yellow-500 text-center drop-shadow-2xl uppercase">Daniel</h1>
                 <p class="text-[10px] tracking-[0.6em] mb-12 text-zinc-400 uppercase text-center">El Desafío Profético</p>
                 <div class="card-glass p-8 rounded-[2.5rem] w-full max-w-sm">
-                    <input type="text" id="login-name" placeholder="Tu Nombre o Usuario Admin" class="w-full bg-black/50 border border-zinc-800 p-4 rounded-xl mb-4 text-center text-lg text-white outline-none">
+                    <input type="text" id="login-name" placeholder="Tu Nombre" class="w-full bg-black/50 border border-zinc-800 p-4 rounded-xl mb-4 text-center text-lg text-white outline-none">
+                    <input type="text" id="login-admin-key" placeholder="ID del Administrador" class="w-full bg-black/50 border border-zinc-800 p-4 rounded-xl mb-4 text-center text-white outline-none">
+                    
                     <div id="admin-pass-container" class="hidden">
-                        <input type="password" id="login-pass" placeholder="Clave de Mando" class="w-full bg-black/50 border border-zinc-800 p-4 rounded-xl mb-4 text-center text-white outline-none">
+                        <p class="text-[10px] text-center text-yellow-600 mb-2 uppercase font-bold">Modo Administrador Activo</p>
+                        <input type="password" id="login-pass" placeholder="Clave Maestra" class="w-full bg-black/50 border border-zinc-800 p-4 rounded-xl mb-4 text-center text-white outline-none">
                     </div>
+
                     <button onclick="handleAuth()" class="btn-gold w-full py-4 rounded-xl text-lg font-bold">Comenzar</button>
-                    <button onclick="toggleAdminField()" class="text-[10px] mt-6 text-zinc-600 underline uppercase block mx-auto tracking-widest">Administrador</button>
+                    <button onclick="toggleAdminField()" class="text-[10px] mt-6 text-zinc-600 underline uppercase block mx-auto tracking-widest">Soy Administrador</button>
                 </div>
             </div>
 
             <!-- VISTA DE NIVELES -->
             <div id="view-levels" class="hidden min-h-screen p-4">
                 <header class="flex justify-between items-center mb-6 max-w-7xl mx-auto">
-                    <h2 class="font-royal text-2xl text-white uppercase tracking-tighter">Misiones</h2>
+                    <div>
+                        <h2 class="font-royal text-2xl text-white uppercase tracking-tighter">Misiones</h2>
+                        <p id="player-room-info" class="text-[10px] text-yellow-600 uppercase font-bold"></p>
+                    </div>
                     <button onclick="location.reload()" class="bg-red-900/20 text-red-500 px-4 py-2 rounded-lg text-xs font-bold border border-red-900/50">SALIR</button>
                 </header>
                 <div id="level-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-7xl mx-auto pb-20"></div>
@@ -162,11 +171,11 @@
                         <h2 id="lobby-title" class="font-royal text-xl text-yellow-500 uppercase">LOBBY</h2>
                         <button onclick="showView('levels')" class="text-[10px] text-yellow-600 underline uppercase font-bold px-2 py-1">Regresar</button>
                     </div>
-                    <div id="access-code-prompt" class="hidden flex flex-col sm:flex-row gap-2 w-full">
+                    <div id="access-code-prompt" class="flex flex-col sm:flex-row gap-2 w-full">
                         <input type="text" id="join-code-input" placeholder="INGRESA EL CÓDIGO" class="flex-1 bg-black border border-yellow-600/50 p-3 rounded-xl text-center text-yellow-500 font-bold outline-none text-base">
-                        <button onclick="validateAccessCode()" class="btn-gold py-3 px-4 rounded-xl text-xs sm:text-[10px] whitespace-nowrap">ENTRAR AL QUIZ</button>
+                        <button onclick="validateAccessCode()" class="btn-gold py-3 px-4 rounded-xl text-[10px] whitespace-nowrap">ENTRAR A BATALLA</button>
                     </div>
-                    <button id="admin-back-btn" onclick="showView('admin')" class="hidden w-full bg-zinc-800 py-3 rounded-xl text-[10px] uppercase font-bold text-zinc-300 tracking-widest border border-zinc-700">Panel Admin</button>
+                    <button id="admin-back-btn" onclick="showView('admin')" class="hidden w-full bg-zinc-800 py-3 rounded-xl text-[10px] uppercase font-bold text-zinc-300 tracking-widest border border-zinc-700">Panel de Control</button>
                 </div>
                 <div class="flex-1 card-glass rounded-2xl p-4 mb-3 overflow-y-auto" id="chat-messages" style="min-height: 150px;"></div>
                 <div id="lobby-video-container" class="card-glass p-2 rounded-2xl mb-3">
@@ -202,7 +211,7 @@
                 </div>
             </div>
 
-            <!-- RESULTADOS -->
+            <!-- RANKING -->
             <div id="global-results" class="results-overlay hidden">
                 <h2 class="font-royal text-3xl md:text-6xl text-yellow-500 mb-6 mt-6 tracking-widest text-center uppercase">Hall de la Gloria</h2>
                 <div id="results-list" class="w-full max-w-3xl space-y-3 px-2 pb-20"></div>
@@ -211,88 +220,88 @@
                 </div>
             </div>
 
-            <!-- PANEL ADMIN ADAPTADO -->
+            <!-- PANEL ADMINISTRADOR -->
             <div id="view-admin" class="hidden min-h-screen p-4 overflow-y-auto">
                 <div class="max-w-7xl mx-auto pb-20">
                     <div class="flex flex-wrap justify-between items-center gap-6 mb-10">
-                        <button onclick="showView('lobby')" class="bg-blue-900/40 text-blue-400 px-8 py-3 rounded-xl border border-blue-900 font-bold text-[10px] uppercase">Chat</button>
-                        <h2 class="font-royal text-3xl text-red-600 text-center">Mando Supremo - Sala <span id="admin-room-display">0</span></h2>
-                        <div class="flex gap-2">
-                            <button onclick="deleteFullChat()" class="bg-orange-900/60 text-orange-200 px-4 py-3 rounded-xl border border-orange-700 font-bold text-[10px] uppercase">Borrar Chat</button>
-                            <button onclick="resetGlobalSystem()" class="bg-red-900/40 text-red-400 px-8 py-3 rounded-xl border border-red-900 font-bold text-[10px] uppercase">Reiniciar Sala</button>
-                        </div>
-                    </div>
-                    
-                    <!-- SECCIÓN SUPER ADMIN (CREAR ADMINS) -->
-                    <div id="super-admin-panel" class="hidden card-glass p-6 rounded-3xl mb-8 border-2 border-red-600/30">
-                        <h3 class="text-red-500 font-royal mb-4 text-center uppercase tracking-widest">Gestión de Administradores</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <input type="text" id="new-admin-user" placeholder="Usuario" class="bg-black border border-zinc-700 p-3 rounded text-white text-xs">
-                            <input type="password" id="new-admin-pass" placeholder="Clave" class="bg-black border border-zinc-700 p-3 rounded text-white text-xs">
-                            <select id="new-admin-room" class="bg-black border border-zinc-700 p-3 rounded text-white text-xs">
-                                <option value="1">SALA 1</option><option value="2">SALA 2</option><option value="3">SALA 3</option>
-                                <option value="4">SALA 4</option><option value="5">SALA 5</option><option value="6">SALA 6</option>
-                                <option value="7">SALA 7</option><option value="8">SALA 8</option><option value="9">SALA 9</option>
-                                <option value="10">SALA 10</option><option value="11">SALA 11</option><option value="12">SALA 12</option>
-                            </select>
-                            <button onclick="createNewAdmin()" class="btn-gold py-3 rounded font-bold text-xs">CREAR ADMIN</button>
-                        </div>
+                        <button onclick="showView('lobby')" class="bg-blue-900/40 text-blue-400 px-8 py-3 rounded-xl border border-blue-900 font-bold text-[10px] uppercase">Ir al Chat</button>
+                        <h2 class="font-royal text-3xl text-yellow-500 text-center uppercase">Comando Sala: <span id="admin-id-label">--</span></h2>
+                        <button onclick="resetGlobalSystem()" class="bg-red-900/40 text-red-400 px-8 py-3 rounded-xl border border-red-900 font-bold text-[10px] uppercase">Reiniciar Sala</button>
                     </div>
 
-                    <!-- BOTONES FLOTANTES (SOLO SUPER ADMIN) -->
-                    <div id="floating-admin-controls" class="hidden card-glass p-6 rounded-3xl mb-8 border-2 border-yellow-600/30">
-                        <h3 class="text-yellow-500 font-royal mb-6 text-center uppercase tracking-widest">Contenido Global de Botones Flotantes</h3>
-                        <div class="flex justify-center gap-4 mb-6 border-b border-white/10 pb-6">
-                            <button onclick="toggleFloatingGlobal(true)" class="bg-green-600/20 text-green-400 border border-green-600 px-6 py-2 rounded-xl font-bold text-[10px] uppercase">Activar para Todos</button>
-                            <button onclick="toggleFloatingGlobal(false)" class="bg-red-600/20 text-red-400 border border-red-600 px-6 py-2 rounded-xl font-bold text-[10px] uppercase">Ocultar para Todos</button>
+                    <!-- PANEL EXCLUSIVO SUPER ADMIN -->
+                    <div id="super-admin-controls" class="hidden mb-8 grid grid-cols-1 gap-4">
+                        <div class="card-glass p-6 rounded-3xl border-2 border-red-600/30">
+                            <h3 class="text-red-500 font-royal mb-4 text-center uppercase text-sm">Crear Nuevo Administrador</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
+                                <input type="text" id="new-adm-user" placeholder="Usuario/ID" class="bg-black border border-zinc-700 p-2 rounded text-white text-xs">
+                                <input type="password" id="new-adm-pass" placeholder="Contraseña" class="bg-black border border-zinc-700 p-2 rounded text-white text-xs">
+                                <select id="new-adm-room" class="bg-black border border-zinc-700 p-2 rounded text-white text-xs">
+                                    <option value="1">SALA 1</option><option value="2">SALA 2</option><option value="3">SALA 3</option><option value="4">SALA 4</option>
+                                    <option value="5">SALA 5</option><option value="6">SALA 6</option><option value="7">SALA 7</option><option value="8">SALA 8</option>
+                                </select>
+                                <button onclick="createAdminFirebase()" class="btn-gold py-2 rounded font-bold text-xs uppercase">Registrar</button>
+                            </div>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="bg-black/40 p-4 rounded-xl border border-white/5 flex flex-col items-center">
-                                <i class="fa-solid fa-question text-2xl text-yellow-500 mb-2"></i>
-                                <button onclick="triggerFloatExcel('question')" class="btn-gold px-4 py-2 rounded text-[10px] w-full">Subir Excel (?)</button>
+                        
+                        <div class="card-glass p-6 rounded-3xl border-2 border-yellow-600/30">
+                            <h3 class="text-yellow-500 font-royal mb-4 text-center uppercase text-sm">Botones Flotantes Globales</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <button onclick="triggerFloatExcel('question')" class="btn-gold py-2 rounded text-[10px]">Excel ?</button>
+                                <button onclick="triggerFloatExcel('book')" class="btn-gold py-2 rounded text-[10px]">Excel Libro</button>
+                                <button onclick="triggerFloatExcel('heart')" class="btn-gold py-2 rounded text-[10px]">Excel Corazón</button>
                             </div>
-                            <div class="bg-black/40 p-4 rounded-xl border border-white/5 flex flex-col items-center">
-                                <i class="fa-solid fa-book-open text-2xl text-yellow-500 mb-2"></i>
-                                <button onclick="triggerFloatExcel('book')" class="btn-gold px-4 py-2 rounded text-[10px] w-full">Subir Excel (Libro)</button>
-                            </div>
-                            <div class="bg-black/40 p-4 rounded-xl border border-white/5 flex flex-col items-center">
-                                <i class="fa-solid fa-heart text-2xl text-yellow-500 mb-2"></i>
-                                <button onclick="triggerFloatExcel('heart')" class="btn-gold px-4 py-2 rounded text-[10px] w-full">Subir Excel (Corazón)</button>
+                            <div class="flex justify-center mt-4">
+                                <button onclick="toggleFloatingGlobal(true)" class="bg-green-600 px-4 py-1 rounded-lg text-[8px] mr-2">ACTIVAR</button>
+                                <button onclick="toggleFloatingGlobal(false)" class="bg-red-600 px-4 py-1 rounded-lg text-[8px]">OCULTAR</button>
                             </div>
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- CONFIGURACIÓN DE SALA -->
                         <div class="card-glass p-6 rounded-3xl h-fit">
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                            <div class="grid grid-cols-2 gap-4 mb-6">
                                 <div class="bg-black/40 p-4 rounded-xl">
-                                    <label class="text-[10px] text-zinc-500 uppercase block mb-1">Vidas Globales</label>
-                                    <select id="adm-diff" onchange="updateRoomConfigs()" class="w-full bg-black border border-zinc-700 p-2 rounded text-white text-xs">
+                                    <label class="text-[10px] text-zinc-500 uppercase block mb-1">Vidas</label>
+                                    <select id="adm-diff" onchange="updateRoomConfig()" class="w-full bg-black border border-zinc-700 p-2 rounded text-white text-xs">
                                         <option value="6">6 Vidas</option><option value="3" selected>3 Vidas</option><option value="1">1 Vida</option>
                                     </select>
                                 </div>
                                 <div class="bg-black/40 p-4 rounded-xl">
                                     <label class="text-[10px] text-zinc-500 uppercase block mb-1">Tiempo</label>
-                                    <select id="adm-timer-limit" onchange="updateRoomConfigs()" class="w-full bg-black border border-zinc-700 p-2 rounded text-white text-xs">
+                                    <select id="adm-timer-limit" onchange="updateRoomConfig()" class="w-full bg-black border border-zinc-700 p-2 rounded text-white text-xs">
                                         <option value="15">15 Seg</option><option value="30" selected>30 Seg</option><option value="50">50 Seg</option>
                                     </select>
                                 </div>
                             </div>
-                            <!-- SECCIÓN SUBIR EXCEL PREGUNTAS (SOLO SUPER ADMIN) -->
-                            <div id="adm-levels-controls" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
-                            <div class="mt-10 grid grid-cols-2 gap-4">
-                                <button onclick="toggleResults(true)" class="bg-green-600 text-black py-4 rounded-xl font-bold uppercase text-[10px]">Publicar Ranking</button>
-                                <button onclick="toggleResults(false)" class="bg-red-700 text-white py-4 rounded-xl font-bold uppercase text-[10px]">Quitar Ranking</button>
+                            
+                            <h4 class="text-yellow-500 font-royal text-center text-xs mb-4 uppercase">Misiones Disponibles</h4>
+                            <div id="adm-levels-controls" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+                            
+                            <div class="mt-8 grid grid-cols-2 gap-4">
+                                <button onclick="toggleRanking(true)" class="bg-green-600 text-black py-4 rounded-xl font-bold uppercase text-[10px]">Publicar Ranking</button>
+                                <button onclick="toggleRanking(false)" class="bg-red-700 text-white py-4 rounded-xl font-bold uppercase text-[10px]">Quitar Ranking</button>
                             </div>
                         </div>
+
+                        <!-- MONITOR DE GUERREROS -->
                         <div class="card-glass p-6 rounded-3xl h-fit">
-                            <h3 class="text-yellow-500 font-royal mb-4 text-center uppercase text-sm">Guerreros en Batalla</h3>
-                            <div id="adm-monitor" class="space-y-3"></div>
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-yellow-500 font-royal uppercase text-sm">Guerreros</h3>
+                                <div id="super-admin-monitor-selector" class="hidden">
+                                    <select id="monitor-room-select" onchange="refreshMonitor()" class="bg-black border border-yellow-600 p-1 rounded text-white text-[10px]">
+                                        <option value="all">TODOS</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="adm-monitor" class="space-y-2"></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
         <input type="file" id="adm-excel-input" accept=".xlsx" class="hidden">
         <input type="file" id="float-excel-input" accept=".xlsx" class="hidden">
         <footer class="footer-anclado shrink-0">DESARROLLADO POR - ROBERT PARACO 2026</footer>
@@ -300,7 +309,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, onSnapshot, updateDoc, collection, addDoc, query, orderBy, limit, getDoc, deleteDoc, getDocs, writeBatch, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, onSnapshot, updateDoc, collection, addDoc, getDoc, getDocs, deleteDoc, writeBatch, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCEBobrmLT4Icvjn81GZx1FtkTS9IU2XsI",
@@ -316,13 +325,13 @@
         const DEFAULT_IMAGES = { "1": "1.jpg", "2": "2.jpg", "3": "3.jpg", "4": "4.jpg", "5": "5.jpg", "6": "6.jpg", "7": "7.jpg", "8": "8.jpg", "9": "9.jpg", "10": "10.jpg", "11": "11.jpg", "12": "12.jpg" };
         const LEVEL_VIDEOS = { "1": "dani.mp4", "2": "dani.mp4", "3": "dani.mp4", "4": "dani.mp4", "5": "dani.mp4", "6": "dani.mp4", "7": "dani.mp4", "8": "dani.mp4", "9": "dani.mp4", "10": "dani.mp4", "11": "dani.mp4", "12": "dani.mp4" };
 
-        let userState = { name: '', isAdmin: false, isSuperAdmin: false, roomID: '0', lives: 3, score: 0, qIndex: 0, startTime: 0, totalTime: 0 };
-        let gameConfig = {};
+        let userState = { name: '', isAdmin: false, isSuper: false, adminID: '', roomID: '', lives: 3, score: 0, qIndex: 0, startTime: 0 };
+        let roomConfig = { levels: {}, showResults: false, globalLives: 3, timerLimit: 30 };
+        let floatingPhrases = { question: [], book: [], heart: [] };
         let activeLevelLobby = 0;
-        let adminLvlTarget = 1;
         let currentLevelQuestions = [];
         let questionInterval = null;
-        let floatingPhrases = { question: [], book: [], heart: [] };
+        let playersCache = [];
 
         const gameMusic = document.getElementById('game-music');
         const lionRoar = document.getElementById('lion-roar');
@@ -340,149 +349,115 @@
         window.showView = (id) => {
             if(questionInterval) clearInterval(questionInterval);
             ['view-login', 'view-levels', 'view-lobby', 'view-game', 'view-admin'].forEach(v => {
-                const el = document.getElementById(v); if(el) el.classList.add('hidden');
+                document.getElementById(v).classList.add('hidden');
             });
             document.getElementById('view-' + id).classList.remove('hidden');
         };
 
         window.handleAuth = async () => {
             const name = document.getElementById('login-name').value.trim();
+            const adminKey = document.getElementById('login-admin-key').value.trim();
             const pass = document.getElementById('login-pass').value.trim();
+
             if (!name) return;
 
             // SUPER ADMIN
             if (name.toLowerCase() === 'admin' && pass === "Daniel777") {
-                userState.isAdmin = true; userState.isSuperAdmin = true; userState.roomID = 'all';
+                userState.isAdmin = true; userState.isSuper = true; userState.adminID = 'SUPER';
                 initAdmin(); return;
             }
 
-            // CHECK SUB-ADMINS
-            const adminSnap = await getDoc(doc(db, "admins", name));
-            if (adminSnap.exists() && adminSnap.data().pass === pass) {
-                userState.isAdmin = true; userState.isSuperAdmin = false; userState.roomID = adminSnap.data().roomID;
-                initAdmin(); return;
+            // ADMIN DE SALA
+            if (pass) {
+                const admSnap = await getDoc(doc(db, "admins", name));
+                if (admSnap.exists() && admSnap.data().pass === pass) {
+                    userState.isAdmin = true; userState.isSuper = false; 
+                    userState.adminID = name; userState.roomID = admSnap.data().roomID;
+                    initAdmin(); return;
+                }
             }
 
-            // PLAYER
-            userState.name = name;
-            await setDoc(doc(db, "players", name), { name, score:0, qIndex:0, lives:3, dead:false, time:0, roomID: '0', lastUpdate: Date.now() });
-            window.showView('levels'); syncData();
+            // JUGADOR NORMAL
+            if (!adminKey) { Swal.fire("Atención", "Debes ingresar el ID de tu administrador", "warning"); return; }
+            
+            const admRef = await getDoc(doc(db, "admins", adminKey));
+            if (!admRef.exists()) { Swal.fire("Error", "ID de Administrador no encontrado", "error"); return; }
+
+            userState.name = name; userState.adminID = adminKey; userState.roomID = admRef.data().roomID;
+            await setDoc(doc(db, "players", name), { name, score:0, qIndex:0, lives:3, dead:false, time:0, adminID: adminKey, roomID: userState.roomID, lastUpdate: Date.now() });
+            
+            document.getElementById('player-room-info').innerText = "BAJO MANDO DE: " + adminKey;
+            window.showView('levels'); syncRoom();
         };
 
-        function syncData() {
-            // Escuchar config de la sala (o global para super admin)
-            const configRef = userState.isAdmin && !userState.isSuperAdmin ? doc(db, "rooms", "sala_" + userState.roomID) : doc(db, "config", "game");
-            
-            onSnapshot(configRef, (snap) => {
-                gameConfig = snap.data() || { levels: {}, showResults: false, globalLives: 3, timerLimit: 30, showFloatingGlobal: true };
+        function syncRoom() {
+            // Sincronizar configuración de la sala
+            onSnapshot(doc(db, "rooms", "sala_" + userState.roomID), (snap) => {
+                roomConfig = snap.data() || { levels: {}, showResults: false, globalLives: 3, timerLimit: 30 };
                 renderLevelGrid();
-                updateFloatingVisibility();
-                if(gameConfig.showResults && !userState.isAdmin) {
+                if(roomConfig.showResults && !userState.isAdmin) {
                     document.getElementById('global-results').classList.remove('hidden');
                     loadRanking();
                 } else document.getElementById('global-results').classList.add('hidden');
-
+                
                 if(userState.isAdmin) refreshAdminUI();
             });
 
+            // Sincronizar frases flotantes
+            onSnapshot(doc(db, "config", "game"), (snap) => {
+                const data = snap.data();
+                document.getElementById('floating-btns-group').classList.toggle('hidden', !data?.showFloatingGlobal);
+            });
             onSnapshot(doc(db, "config", "floating"), (snap) => { if(snap.exists()) floatingPhrases = snap.data(); });
 
             // Chat filtrado por sala
-            const chatQuery = userState.isAdmin && !userState.isSuperAdmin ? query(collection(db, "chat"), where("roomID", "==", userState.roomID)) : collection(db, "chat");
-            onSnapshot(chatQuery, (snap) => {
+            const chatQ = query(collection(db, "chat"), where("roomID", "==", userState.roomID));
+            onSnapshot(chatQ, (snap) => {
                 const box = document.getElementById('chat-messages'); box.innerHTML = "";
                 snap.docs.reverse().forEach(d => {
                     const m = d.data();
-                    box.innerHTML += `<div class="mb-3 text-[11px] bg-white/5 p-2 rounded-lg border-l-2 border-yellow-600"><b class="text-yellow-600 uppercase">${m.user}:</b> <span class="text-zinc-300 ml-2">${m.text}</span></div>`;
+                    box.innerHTML += `<div class="mb-2 text-[10px] bg-white/5 p-2 rounded-lg border-l-2 border-yellow-600"><b class="text-yellow-600">${m.user}:</b> <span class="text-zinc-300 ml-1">${m.text}</span></div>`;
                 });
                 box.scrollTop = box.scrollHeight;
             });
-        }
 
-        // --- FUNCIONES SALA Y MONITOR ---
-        function refreshAdminUI() {
-            document.getElementById('admin-room-display').innerText = userState.roomID;
-            if(userState.isSuperAdmin) {
-                document.getElementById('super-admin-panel').classList.remove('hidden');
-                document.getElementById('floating-admin-controls').classList.remove('hidden');
-            }
-
-            const container = document.getElementById('adm-levels-controls'); container.innerHTML = "";
-            for(let i=1; i<=12; i++) {
-                const active = gameConfig.levels?.[i]?.active;
-                container.innerHTML += `
-                    <div class="p-3 bg-white/5 rounded-xl border border-white/10 flex flex-col gap-2">
-                        <span class="text-[10px] uppercase font-bold">Nivel ${i}</span>
-                        <div class="grid grid-cols-2 gap-2">
-                            ${userState.isSuperAdmin ? `<button onclick="adminPickExcel(${i})" class="bg-zinc-800 py-2 rounded text-[8px] uppercase">Excel</button>` : ''}
-                            <button onclick="toggleLvlState(${i})" class="py-2 rounded text-[8px] ${active?'bg-red-900':'bg-green-900'} uppercase">${active?'OFF':'ON'}</button>
-                        </div>
-                        ${active ? `<div class="text-center text-yellow-500 font-bold text-[12px] bg-black rounded">CÓDIGO: ${gameConfig.levels[i].code}</div>` : ''}
-                    </div>`;
-            }
-
-            // Monitor real-time
-            const playerQuery = userState.isSuperAdmin ? collection(db, "players") : query(collection(db, "players"), where("roomID", "==", userState.roomID));
-            onSnapshot(playerQuery, (snap) => {
-                const m = document.getElementById('adm-monitor'); m.innerHTML = "";
-                snap.docs.forEach(d => {
-                    const p = d.data();
-                    m.innerHTML += `<div class="p-3 bg-black/40 rounded-lg flex flex-col gap-1 text-[10px] border border-white/5">
-                        <div class="flex justify-between items-center"><span class="${p.dead?'text-red-500':'text-yellow-500'} font-bold">${p.name}</span><span class="text-zinc-500 text-[8px]">SALA ${p.roomID}</span></div>
-                        <div class="flex justify-between"><span>Pts: ${p.score}</span><span>Vidas: ${p.lives}</span></div>
-                    </div>`;
-                });
+            // Monitor de jugadores
+            const playersQ = userState.isSuper ? collection(db, "players") : query(collection(db, "players"), where("adminID", "==", userState.adminID));
+            onSnapshot(playersQ, (snap) => {
+                playersCache = snap.docs.map(d => d.data());
+                refreshMonitor();
             });
         }
 
-        window.createNewAdmin = async () => {
-            const user = document.getElementById('new-admin-user').value;
-            const pass = document.getElementById('new-admin-pass').value;
-            const room = document.getElementById('new-admin-room').value;
-            if(!user || !pass) return;
-            await setDoc(doc(db, "admins", user), { pass, roomID: room });
-            await setDoc(doc(db, "rooms", "sala_" + room), { levels: {}, showResults: false, globalLives: 3, timerLimit: 30, roomID: room });
-            Swal.fire("Éxito", "Administrador de Sala " + room + " Creado", "success");
-        };
-
-        window.enterLobby = async (lvl) => { 
-            activeLevelLobby = lvl;
-            if(!userState.isAdmin) {
-                // El jugador solo ve lo que su sala actual diga.
-                // Aquí podrías pedir el código primero para asignar la sala.
+        function renderLevelGrid() {
+            const grid = document.getElementById('level-grid'); grid.innerHTML = "";
+            for(let i=1; i<=12; i++) {
+                const active = roomConfig.levels?.[i]?.active;
+                grid.innerHTML += `<div class="level-card ${active ? 'active' : ''}" onclick="enterLobby(${i})"><img src="${DEFAULT_IMAGES[i]}" class="w-full h-full object-cover"></div>`;
             }
+        }
+
+        window.enterLobby = (lvl) => {
+            activeLevelLobby = lvl;
             document.getElementById('lobby-title').innerText = "CAPÍTULO " + lvl;
             document.getElementById('lobby-video-src').src = LEVEL_VIDEOS[lvl] || "default.mp4";
-            lobbyVideo.load(); window.showView('lobby'); updateCodeVisibility();
+            lobbyVideo.load(); window.showView('lobby');
         };
 
         window.validateAccessCode = async () => {
-            const codeInput = document.getElementById('join-code-input').value.trim();
-            // Buscar qué sala tiene este código activo para este nivel
-            const roomsSnap = await getDocs(collection(db, "rooms"));
-            let foundRoom = null;
-            roomsSnap.forEach(doc => {
-                const data = doc.data();
-                if(data.levels?.[activeLevelLobby]?.active && data.levels?.[activeLevelLobby]?.code === codeInput) {
-                    foundRoom = data.roomID;
-                }
-            });
-
-            if(foundRoom) {
-                userState.roomID = foundRoom;
-                await updateDoc(doc(db, "players", userState.name), { roomID: foundRoom });
+            const input = document.getElementById('join-code-input').value.trim();
+            const correct = roomConfig.levels?.[activeLevelLobby]?.code;
+            if (activeLevelLobby > 0 && input === correct) {
                 startQuiz();
             } else {
-                Swal.fire("Código Inválido", "No existe batalla activa con ese código", "error");
+                Swal.fire("Código Erróneo", "Solicita el código a tu administrador", "error");
             }
         };
-
-        // --- LO DEMÁS SIGUE FUNCIONANDO IGUAL PERO CON SCOPE DE SALA ---
 
         async function startQuiz() {
             const snap = await getDoc(doc(db, "levels", "lvl_" + activeLevelLobby));
             currentLevelQuestions = snap.data().questions.sort(() => Math.random() - 0.5).slice(0, 20);
-            userState.lives = gameConfig.globalLives || 3; 
+            userState.lives = roomConfig.globalLives || 3; 
             userState.qIndex = 0; userState.score = 0; userState.startTime = Date.now();
             window.showView('game'); runQuiz();
         }
@@ -500,102 +475,163 @@
                 const b = document.createElement('button');
                 b.className = "btn-option p-4 rounded-2xl text-left text-xs font-bold uppercase";
                 b.innerText = o;
-                b.onclick = () => handleAnswer(o === q.Correcta);
+                b.onclick = () => {
+                    if(o === q.Correcta) { userState.score += 100; successSound.play(); } 
+                    else { userState.lives--; lionRoar.play(); }
+                    userState.qIndex++; updateStats(); setTimeout(runQuiz, 600);
+                };
                 grid.appendChild(b);
             });
-            startQuestionTimer();
+            startTimer();
         }
 
-        function startQuestionTimer() {
-            const limit = parseInt(gameConfig.timerLimit) || 30;
-            let remaining = limit;
+        function startTimer() {
+            let rem = roomConfig.timerLimit || 30;
             const bar = document.getElementById('timer-bar');
             questionInterval = setInterval(() => {
-                remaining -= 0.1;
-                bar.style.width = (remaining / limit) * 100 + "%";
-                if (remaining <= 0) { clearInterval(questionInterval); handleAnswer(false); }
+                rem -= 0.1; bar.style.width = (rem/(roomConfig.timerLimit||30))*100 + "%";
+                if(rem <= 0) { clearInterval(questionInterval); userState.lives--; updateStats(); runQuiz(); }
             }, 100);
         }
 
-        function handleAnswer(isCorrect) {
-            if(questionInterval) clearInterval(questionInterval);
-            if(isCorrect) { userState.score += 100; successSound.play(); } 
-            else { userState.lives--; lionRoar.play(); }
-            userState.qIndex++;
-            updateStats();
-            setTimeout(runQuiz, 600);
+        async function updateStats() {
+            const time = Math.floor((Date.now() - userState.startTime)/1000);
+            await updateDoc(doc(db, "players", userState.name), { score: userState.score, qIndex: userState.qIndex, lives: userState.lives, dead: userState.lives <= 0, time: time, lastUpdate: Date.now() });
         }
 
-        async function updateStats() {
-            userState.totalTime = Math.floor((Date.now() - userState.startTime)/1000);
-            await updateDoc(doc(db, "players", userState.name), { 
-                score: userState.score, qIndex: userState.qIndex, lives: userState.lives, 
-                dead: userState.lives <= 0, time: userState.totalTime, lastUpdate: Date.now() 
+        // --- ADMINISTRACIÓN ---
+
+        function initAdmin() {
+            document.getElementById('admin-back-btn').classList.remove('hidden');
+            document.getElementById('admin-id-label').innerText = userState.adminID;
+            if(userState.isSuper) {
+                document.getElementById('super-admin-controls').classList.remove('hidden');
+                document.getElementById('super-admin-monitor-selector').classList.remove('hidden');
+                loadAdminList();
+            }
+            window.showView('admin'); syncRoom();
+        }
+
+        async function loadAdminList() {
+            const snap = await getDocs(collection(db, "admins"));
+            const sel = document.getElementById('monitor-room-select');
+            sel.innerHTML = '<option value="all">TODOS</option>';
+            snap.forEach(d => {
+                sel.innerHTML += `<option value="${d.id}">${d.id}</option>`;
             });
         }
 
-        window.toggleLvlState = async (lvl) => {
-            const configRef = userState.isSuperAdmin ? doc(db, "config", "game") : doc(db, "rooms", "sala_" + userState.roomID);
-            const newLevels = {...(gameConfig.levels || {})};
-            const current = newLevels[lvl] || { active: false, code: '' };
-            current.active = !current.active;
-            current.code = current.active ? Math.floor(1000 + Math.random() * 9000).toString() : '';
-            newLevels[lvl] = current;
-            await updateDoc(configRef, { levels: newLevels });
+        window.createAdminFirebase = async () => {
+            const u = document.getElementById('new-adm-user').value.trim();
+            const p = document.getElementById('new-adm-pass').value.trim();
+            const r = document.getElementById('new-adm-room').value;
+            if(!u || !p) return;
+            await setDoc(doc(db, "admins", u), { pass: p, roomID: r });
+            await setDoc(doc(db, "rooms", "sala_" + r), { levels: {}, showResults: false, globalLives: 3, timerLimit: 30, roomID: r });
+            Swal.fire("Éxito", "Administrador "+u+" Creado", "success");
+            loadAdminList();
         };
 
-        window.updateRoomConfigs = async () => {
-            const configRef = userState.isSuperAdmin ? doc(db, "config", "game") : doc(db, "rooms", "sala_" + userState.roomID);
-            await updateDoc(configRef, { 
+        function refreshAdminUI() {
+            const cont = document.getElementById('adm-levels-controls'); cont.innerHTML = "";
+            for(let i=1; i<=12; i++) {
+                const l = roomConfig.levels?.[i] || { active: false, code: '' };
+                cont.innerHTML += `
+                    <div class="p-2 bg-white/5 rounded-xl border border-white/10 flex flex-col gap-1">
+                        <div class="flex justify-between items-center"><span class="text-[9px] font-bold">Lvl ${i}</span><button onclick="toggleLvl(${i})" class="px-2 py-1 rounded text-[8px] ${l.active?'bg-red-600':'bg-green-600'}">${l.active?'OFF':'ON'}</button></div>
+                        ${l.active ? `<div class="text-center text-yellow-500 font-bold text-[10px]">CÓD: ${l.code}</div>` : ''}
+                        ${userState.isSuper ? `<button onclick="pickExcel(${i})" class="text-[8px] bg-zinc-700 rounded py-1">Subir Preguntas</button>` : ''}
+                    </div>`;
+            }
+            document.getElementById('adm-diff').value = roomConfig.globalLives;
+            document.getElementById('adm-timer-limit').value = roomConfig.timerLimit;
+        }
+
+        window.toggleLvl = async (lvl) => {
+            const lvls = {...(roomConfig.levels || {})};
+            const current = lvls[lvl] || { active: false, code: '' };
+            current.active = !current.active;
+            current.code = current.active ? Math.floor(1000 + Math.random() * 9000).toString() : '';
+            lvls[lvl] = current;
+            await updateDoc(doc(db, "rooms", "sala_" + userState.roomID), { levels: lvls });
+        };
+
+        window.updateRoomConfig = async () => {
+            await updateDoc(doc(db, "rooms", "sala_" + userState.roomID), { 
                 globalLives: parseInt(document.getElementById('adm-diff').value),
                 timerLimit: parseInt(document.getElementById('adm-timer-limit').value)
             });
         };
 
+        window.toggleRanking = async (v) => { await updateDoc(doc(db, "rooms", "sala_" + userState.roomID), { showResults: v }); };
+
+        window.refreshMonitor = () => {
+            const cont = document.getElementById('adm-monitor'); cont.innerHTML = "";
+            const filter = document.getElementById('monitor-room-select').value;
+            playersCache.filter(p => filter === 'all' || p.adminID === filter).forEach(p => {
+                cont.innerHTML += `<div class="p-2 bg-black/40 rounded border border-white/5 text-[9px] flex justify-between">
+                    <div><b class="${p.dead?'text-red-500':'text-yellow-500'}">${p.name}</b> <span class="text-zinc-500">(${p.adminID})</span></div>
+                    <div>Pts: ${p.score} | Lvl: ${p.qIndex}</div>
+                </div>`;
+            });
+        };
+
+        window.resetGlobalSystem = async () => {
+            if(confirm("¿Reiniciar esta sala?")) {
+                const batch = writeBatch(db);
+                playersCache.forEach(p => batch.delete(doc(db, "players", p.name)));
+                await batch.commit();
+                await updateDoc(doc(db, "rooms", "sala_" + userState.roomID), { levels: {}, showResults: false });
+            }
+        };
+
+        // --- EXCEL Y OTROS ---
+        let targetLvl = 1;
+        window.pickExcel = (l) => { targetLvl = l; document.getElementById('adm-excel-input').click(); };
+        document.getElementById('adm-excel-input').onchange = (e) => {
+            const reader = new FileReader();
+            reader.onload = async (ev) => {
+                const book = XLSX.read(new Uint8Array(ev.target.result), {type: 'array'});
+                const data = XLSX.utils.sheet_to_json(book.Sheets[book.SheetNames[0]]);
+                await setDoc(doc(db, "levels", "lvl_" + targetLvl), { questions: data });
+                Swal.fire("Listo", "Preguntas Cargadas", "success");
+            };
+            reader.readAsArrayBuffer(e.target.files[0]);
+        };
+
         window.sendChatMessage = async () => {
             const i = document.getElementById('chat-input'); if(!i.value.trim()) return;
-            await addDoc(collection(db, "chat"), { 
-                user: userState.isAdmin ? 'ADMIN' : userState.name, 
-                text: i.value, 
-                roomID: userState.roomID,
-                time: Date.now() 
-            });
+            await addDoc(collection(db, "chat"), { user: userState.isAdmin ? 'LÍDER' : userState.name, text: i.value, roomID: userState.roomID, time: Date.now() });
             i.value = "";
         };
 
-        // --- FUNCIONES BOTONES FLOTANTES ---
-        window.openFloatingCard = (type) => {
-            const phrases = floatingPhrases[type] || [];
-            if(phrases.length === 0) return;
-            const random = phrases[Math.floor(Math.random() * phrases.length)];
-            document.getElementById('f-card-icon').innerHTML = `<i class="fa-solid fa-${type==='question'?'question':type==='book'?'book-open':'heart'}"></i>`;
-            document.getElementById('f-card-text').innerText = random.Frase || random.Texto;
-            document.getElementById('f-card-sub').innerText = random.Referencia || random.Cita;
+        window.toggleAdminField = () => document.getElementById('admin-pass-container').classList.toggle('hidden');
+        window.closeOutcomeVideo = () => { document.getElementById('final-image-screen').style.display = "none"; window.showView('levels'); };
+        window.finishBattle = () => { gameMusic.pause(); outcomePlayer.src = userState.lives > 0 ? "gano.mp4" : "perdio.mp4"; document.getElementById('video-outcome').classList.remove('hidden'); outcomePlayer.play(); outcomePlayer.onended = () => { document.getElementById('video-outcome').classList.add('hidden'); document.getElementById('final-image-screen').style.display = 'flex'; }; };
+
+        window.openFloatingCard = (t) => {
+            const p = floatingPhrases[t]; if(!p || p.length === 0) return;
+            const r = p[Math.floor(Math.random()*p.length)];
+            document.getElementById('f-card-icon').innerHTML = `<i class="fa-solid fa-${t==='question'?'question':t==='book'?'book-open':'heart'}"></i>`;
+            document.getElementById('f-card-text').innerText = r.Frase || r.Texto;
+            document.getElementById('f-card-sub').innerText = r.Referencia || r.Cita;
             document.getElementById('floating-card-overlay').style.display = 'flex';
         };
-
         window.closeFloatingCard = () => document.getElementById('floating-card-overlay').style.display = 'none';
 
-        function updateFloatingVisibility() {
-            document.getElementById('floating-btns-group').classList.toggle('hidden', gameConfig.showFloatingGlobal === false);
-        }
-
-        window.toggleAdminField = () => document.getElementById('admin-pass-container').classList.toggle('hidden');
-        function initAdmin() { 
-            document.getElementById('admin-back-btn').classList.remove('hidden');
-            window.showView('admin'); syncData(); 
-        }
-        function renderLevelGrid() {
-            const grid = document.getElementById('level-grid'); grid.innerHTML = "";
-            for(let i=1; i<=12; i++) {
-                grid.innerHTML += `<div class="level-card active" onclick="enterLobby(${i})"><img src="${DEFAULT_IMAGES[i]}" class="w-full h-full object-cover"></div>`;
-            }
-        }
-        function updateCodeVisibility() {
-            document.getElementById('access-code-prompt').classList.remove('hidden');
-        }
-        window.finishBattle = () => { /* Igual al original */ window.showView('levels'); };
-        window.closeOutcomeVideo = () => { document.getElementById('final-image-screen').style.display="none"; window.showView('levels'); };
+        window.toggleFloatingGlobal = async (v) => { await updateDoc(doc(db, "config", "game"), { showFloatingGlobal: v }); };
+        window.triggerFloatExcel = (t) => { window.floatT = t; document.getElementById('float-excel-input').click(); };
+        document.getElementById('float-excel-input').onchange = (e) => {
+            const reader = new FileReader();
+            reader.onload = async (ev) => {
+                const book = XLSX.read(new Uint8Array(ev.target.result), {type: 'array'});
+                const data = XLSX.utils.sheet_to_json(book.Sheets[book.SheetNames[0]]);
+                const update = {}; update[window.floatT] = data;
+                await updateDoc(doc(db, "config", "floating"), update);
+                Swal.fire("Éxito", "Frases Flotantes Actualizadas", "success");
+            };
+            reader.readAsArrayBuffer(e.target.files[0]);
+        };
     </script>
 </body>
 </html>
