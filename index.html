@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Daniel: El Desafío Profético</title>
+    <title>Daniel: El Desafío Profético - Multiverse</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -20,7 +20,6 @@
 
         #intro-overlay, .fullscreen-video { position: fixed; inset: 0; z-index: 1000; background: black; display: flex; align-items: center; justify-content: center; transition: opacity 1s, visibility 1s; }
         #intro-overlay.fade-out { opacity: 0; visibility: hidden; }
-        
         #intro-video { object-fit: cover; width: 100%; height: 100%; }
 
         .btn-gold { 
@@ -44,23 +43,14 @@
         .timer-container { width: 100%; height: 12px; background: rgba(255,255,255,0.1); border-radius: 20px; overflow: hidden; }
         #timer-bar { width: 100%; height: 100%; background: var(--gold); transition: width 0.1s linear, background-color 0.3s; }
 
-        @keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-2px, -1px); } 100% { transform: translate(1px, 1px); } }
-        .shake-screen { animation: shake 0.3s infinite; }
-
         .level-card { position: relative; aspect-ratio: 16/9; overflow: hidden; border-radius: 1.2rem; border: 2px solid rgba(255, 255, 255, 0.1); cursor: pointer; transition: 0.5s; filter: brightness(0.2) grayscale(1); }
         .level-card.active { filter: brightness(1) grayscale(0); border: 3px solid var(--gold); }
-
-        .gold-heart { color: var(--gold); text-shadow: 0 0 10px rgba(212, 175, 55, 0.5); font-size: 1.2rem; margin-right: 4px; }
-        .hidden { display: none !important; }
 
         .footer-anclado { position: relative; width: 100%; text-align: center; padding: 15px; background: linear-gradient(to top, #000, transparent); color: var(--gold); font-size: 10px; letter-spacing: 2px; font-weight: bold; }
 
         .results-overlay { position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.98); display: flex; flex-direction: column; align-items: center; padding: 1rem; overflow-y: auto; }
-        .btn-option { background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.2); transition: 0.2s; color: white; }
+        .btn-option { background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.2); transition: 0.2s; color: white; width: 100%; }
         .btn-option:hover { background: rgba(212,175,55,0.1); border-color: var(--gold); }
-
-        #final-image-screen { position: fixed; inset: 0; z-index: 3000; background-color: black; display: none; align-items: center; justify-content: center; }
-        #final-image-content { width: 100%; height: 100%; object-fit: contain; }
 
         /* ESTILOS BOTONES FLOTANTES */
         @keyframes drift-down {
@@ -85,18 +75,21 @@
             position: fixed; inset: 0; z-index: 5000; background: rgba(0,0,0,0.85);
             display: none; align-items: center; justify-content: center; padding: 20px;
         }
+
+        /* SALAS GRID */
+        .room-tag { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
+        .status-free { background: #064e3b; color: #34d399; }
+        .status-busy { background: #7f1d1d; color: #f87171; }
     </style>
 </head>
 <body id="game-body">
 
-    <!-- BOTONES FLOTANTES (AGRUPADOS) -->
     <div id="floating-btns-group" class="hidden">
         <div id="f-btn-1" class="floating-btn" onclick="openFloatingCard('question')"><i class="fa-solid fa-question"></i></div>
         <div id="f-btn-2" class="floating-btn" onclick="openFloatingCard('book')"><i class="fa-solid fa-book-open"></i></div>
         <div id="f-btn-3" class="floating-btn" onclick="openFloatingCard('heart')"><i class="fa-solid fa-heart"></i></div>
     </div>
 
-    <!-- TARJETA DE CONTENIDO -->
     <div id="floating-card-overlay">
         <div class="card-glass p-8 rounded-[2.5rem] w-full max-w-sm text-center border-2 border-yellow-500/50">
             <div id="f-card-icon" class="text-5xl text-yellow-500 mb-6"></div>
@@ -107,7 +100,6 @@
     </div>
 
     <div id="flash-overlay"></div>
-
     <audio id="game-music" loop preload="auto"><source src="music.mp3" type="audio/mpeg"></audio>
     <audio id="lion-roar" preload="auto"><source src="lion.mp3" type="audio/mpeg"></audio>
     <audio id="success-sound" preload="auto"><source src="correcta.mp3" type="audio/mpeg"></audio>
@@ -120,10 +112,10 @@
         <video id="outcome-player" playsinline class="w-full h-full object-cover"></video>
     </div>
 
-    <div id="final-image-screen">
-        <img id="final-image-content" src="" alt="Resultado">
+    <div id="final-image-screen" class="hidden fixed inset-0 z-[3000] bg-black flex items-center justify-center">
+        <img id="final-image-content" src="" class="w-full h-full object-contain">
         <div class="absolute bottom-10 w-full text-center px-4">
-            <button onclick="closeOutcomeVideo()" class="btn-gold w-full max-w-xs py-4 rounded-full shadow-2xl">Volver a la batalla</button>
+            <button onclick="closeOutcomeVideo()" class="btn-gold w-full max-w-xs py-4 rounded-full">Volver</button>
         </div>
     </div>
 
@@ -135,140 +127,142 @@
     <div id="main-content" class="relative z-10 opacity-0 transition-opacity duration-1000 h-screen flex flex-col">
         <div class="flex-grow overflow-y-auto">
             
+            <!-- VISTA INICIAL / LOGIN -->
             <div id="view-login" class="min-h-full flex flex-col items-center justify-center p-6">
                 <h1 class="font-royal text-6xl md:text-8xl mb-2 text-yellow-500 text-center drop-shadow-2xl uppercase">Daniel</h1>
                 <p class="text-[10px] tracking-[0.6em] mb-12 text-zinc-400 uppercase text-center">El Desafío Profético</p>
                 <div class="card-glass p-8 rounded-[2.5rem] w-full max-w-sm">
                     <input type="text" id="login-name" placeholder="Tu Nombre" class="w-full bg-black/50 border border-zinc-800 p-4 rounded-xl mb-4 text-center text-lg text-white outline-none">
                     <div id="admin-pass-container" class="hidden">
-                        <input type="password" id="login-pass" placeholder="Clave de Mando" class="w-full bg-black/50 border border-zinc-800 p-4 rounded-xl mb-4 text-center text-white outline-none">
+                        <input type="password" id="login-pass" placeholder="Clave Suprema" class="w-full bg-black/50 border border-zinc-800 p-4 rounded-xl mb-4 text-center text-white outline-none">
                     </div>
-                    <button onclick="handleAuth()" class="btn-gold w-full py-4 rounded-xl text-lg font-bold">Comenzar</button>
-                    <button onclick="toggleAdminField()" class="text-[10px] mt-6 text-zinc-600 underline uppercase block mx-auto tracking-widest">Administrador</button>
+                    <button onclick="showView('rooms')" class="btn-gold w-full py-4 rounded-xl text-lg font-bold">Ver Salas</button>
+                    <button onclick="toggleAdminField()" class="text-[10px] mt-6 text-zinc-600 underline uppercase block mx-auto tracking-widest">Acceso Especial</button>
                 </div>
             </div>
 
+            <!-- VISTA SELECCIÓN DE SALAS -->
+            <div id="view-rooms" class="hidden min-h-screen p-6">
+                <h2 class="font-royal text-3xl text-yellow-500 text-center mb-8 uppercase">Salas de Batalla</h2>
+                <div id="rooms-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto pb-20">
+                    <!-- Dinámico -->
+                </div>
+                <div class="fixed bottom-6 left-0 w-full flex justify-center">
+                    <button onclick="showView('login')" class="bg-zinc-900 text-zinc-400 px-8 py-3 rounded-full border border-zinc-700 text-xs font-bold">Regresar</button>
+                </div>
+            </div>
+
+            <!-- VISTA NIVELES -->
             <div id="view-levels" class="hidden min-h-screen p-4">
                 <header class="flex justify-between items-center mb-6 max-w-7xl mx-auto">
-                    <h2 class="font-royal text-2xl text-white uppercase tracking-tighter">Misiones</h2>
+                    <div>
+                        <h2 class="font-royal text-2xl text-white uppercase">Misiones</h2>
+                        <p id="player-room-info" class="text-[10px] text-yellow-600 font-bold uppercase"></p>
+                    </div>
                     <button onclick="location.reload()" class="bg-red-900/20 text-red-500 px-4 py-2 rounded-lg text-xs font-bold border border-red-900/50">SALIR</button>
                 </header>
                 <div id="level-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-7xl mx-auto pb-20"></div>
             </div>
 
+            <!-- LOBBY -->
             <div id="view-lobby" class="hidden h-[calc(100vh-80px)] flex flex-col p-4 max-w-4xl mx-auto">
                 <div class="card-glass p-4 rounded-2xl mb-3 flex flex-col gap-3 shrink-0">
                     <div class="flex justify-between items-center border-b border-white/10 pb-2">
                         <h2 id="lobby-title" class="font-royal text-xl text-yellow-500 uppercase">LOBBY</h2>
-                        <button onclick="showView('levels')" class="text-[10px] text-yellow-600 underline uppercase font-bold px-2 py-1">Regresar</button>
+                        <button onclick="showView('levels')" class="text-[10px] text-yellow-600 underline uppercase font-bold">Regresar</button>
                     </div>
                     <div id="access-code-prompt" class="hidden flex flex-col sm:flex-row gap-2 w-full">
-                        <input type="text" id="join-code-input" placeholder="INGRESA EL CÓDIGO" class="flex-1 bg-black border border-yellow-600/50 p-3 rounded-xl text-center text-yellow-500 font-bold outline-none text-base">
-                        <button onclick="validateAccessCode()" class="btn-gold py-3 px-4 rounded-xl text-xs sm:text-[10px] whitespace-nowrap">ENTRAR AL QUIZ</button>
+                        <input type="text" id="join-code-input" placeholder="CÓDIGO DE ACCESO" class="flex-1 bg-black border border-yellow-600/50 p-3 rounded-xl text-center text-yellow-500 font-bold outline-none">
+                        <button onclick="validateAccessCode()" class="btn-gold py-3 px-6 rounded-xl text-[10px]">Entrar</button>
                     </div>
-                    <button id="admin-back-btn" onclick="showView('admin')" class="hidden w-full bg-zinc-800 py-3 rounded-xl text-[10px] uppercase font-bold text-zinc-300 tracking-widest border border-zinc-700">Panel Admin</button>
+                    <button id="admin-back-btn" onclick="showView('admin')" class="hidden w-full bg-zinc-800 py-3 rounded-xl text-[10px] uppercase font-bold text-zinc-300 border border-zinc-700">Panel Admin</button>
                 </div>
-                <div class="flex-1 card-glass rounded-2xl p-4 mb-3 overflow-y-auto" id="chat-messages" style="min-height: 150px;"></div>
+                <div class="flex-1 card-glass rounded-2xl p-4 mb-3 overflow-y-auto" id="chat-messages"></div>
                 <div id="lobby-video-container" class="card-glass p-2 rounded-2xl mb-3">
-                    <video id="lobby-level-video" class="w-full rounded-xl aspect-video object-cover" controls playsinline><source id="lobby-video-src" src="default.mp4" type="video/mp4"></video>
+                    <video id="lobby-level-video" class="w-full rounded-xl aspect-video object-cover" controls playsinline><source id="lobby-video-src" src="" type="video/mp4"></video>
                 </div>
-                <div class="flex gap-2 pb-2 shrink-0 w-full items-center">
-                    <input type="text" id="chat-input" placeholder="Escribe..." class="flex-1 min-w-0 bg-black border border-zinc-800 p-4 rounded-xl text-white outline-none text-sm">
-                    <button onclick="sendChatMessage()" class="btn-gold px-4 py-4 rounded-xl font-bold text-xs flex-shrink-0">ENVIAR</button>
+                <div class="flex gap-2 pb-2 shrink-0">
+                    <input type="text" id="chat-input" placeholder="Escribe..." class="flex-1 bg-black border border-zinc-800 p-4 rounded-xl text-white outline-none text-sm">
+                    <button onclick="sendChatMessage()" class="btn-gold px-6 rounded-xl font-bold">ENVIAR</button>
                 </div>
             </div>
 
+            <!-- JUEGO -->
             <div id="view-game" class="hidden min-h-full p-4">
                 <div class="max-w-3xl mx-auto">
                     <div class="flex justify-between items-center mb-6">
                         <div id="game-lives" class="flex"></div>
                         <div class="text-right">
                             <span id="game-score" class="text-4xl font-bold text-yellow-500 font-royal">0</span><br>
-                            <span id="game-timer-label" class="text-sm font-mono text-zinc-400 tracking-widest">00:00</span>
+                            <span id="game-timer-label" class="text-sm font-mono text-zinc-400">00:00</span>
                         </div>
                     </div>
                     <div class="flex items-center gap-4 mb-8">
-                        <div id="hourglass-container">
-                            <i id="hourglass-icon" class="fa-solid fa-hourglass-half text-yellow-500 text-2xl animate-hourglass"></i>
-                        </div>
+                        <i id="hourglass-icon" class="fa-solid fa-hourglass-half text-yellow-500 text-2xl animate-hourglass"></i>
                         <div class="timer-container flex-1"><div id="timer-bar"></div></div>
                     </div>
                     <div id="q-card" class="card-glass p-6 md:p-12 rounded-[2.5rem] flex flex-col min-h-[400px] border-t-4 border-yellow-500/50">
-                        <p id="q-index" class="text-center text-[10px] text-yellow-600 font-bold mb-6 tracking-[0.3em] uppercase border-b border-white/10 pb-4"></p>
-                        <h3 id="q-text" class="text-xl md:text-3xl text-center font-semibold mb-8 leading-tight"></h3>
+                        <p id="q-index" class="text-center text-[10px] text-yellow-600 font-bold mb-6 tracking-widest uppercase"></p>
+                        <h3 id="q-text" class="text-xl md:text-3xl text-center font-semibold mb-8"></h3>
                         <div id="options-grid" class="grid grid-cols-1 gap-3"></div>
-                        <p id="q-cita" class="mt-8 text-center italic text-sm text-yellow-500/80 font-semibold hidden"></p>
                     </div>
                 </div>
             </div>
 
-            <div id="global-results" class="results-overlay hidden">
-                <h2 class="font-royal text-3xl md:text-6xl text-yellow-500 mb-6 mt-6 tracking-widest text-center uppercase">Hall de la Gloria</h2>
-                <div id="results-list" class="w-full max-w-3xl space-y-3 px-2 pb-20"></div>
-                <div class="fixed bottom-10 w-full max-w-xs px-4">
-                    <button onclick="location.reload()" class="btn-gold w-full py-4 rounded-full text-sm">Salir del Desafío</button>
-                </div>
-            </div>
-
+            <!-- PANEL ADMIN (SUPER Y SALA) -->
             <div id="view-admin" class="hidden min-h-screen p-4 overflow-y-auto">
                 <div class="max-w-7xl mx-auto pb-20">
                     <div class="flex flex-wrap justify-between items-center gap-6 mb-10">
-                        <button onclick="showView('lobby')" class="bg-blue-900/40 text-blue-400 px-8 py-3 rounded-xl border border-blue-900 font-bold text-[10px] uppercase">Chat</button>
-                        <h2 class="font-royal text-3xl text-red-600 text-center">Mando Supremo</h2>
+                        <button onclick="showView('lobby')" class="bg-blue-900/40 text-blue-400 px-6 py-2 rounded-xl border border-blue-900 text-[10px] uppercase">Chat</button>
+                        <h2 id="admin-panel-title" class="font-royal text-3xl text-red-600">Comando</h2>
                         <div class="flex gap-2">
-                            <button onclick="deleteFullChat()" class="bg-orange-900/60 text-orange-200 px-4 py-3 rounded-xl border border-orange-700 font-bold text-[10px] uppercase">Borrar Chat Completo</button>
-                            <button onclick="resetGlobalSystem()" class="bg-red-900/40 text-red-400 px-8 py-3 rounded-xl border border-red-900 font-bold text-[10px] uppercase">Reiniciar Todo</button>
+                            <button onclick="deleteFullChat()" class="bg-orange-900/40 text-orange-400 px-4 py-2 rounded-xl text-[10px] uppercase">Borrar Chat</button>
+                            <button onclick="resetGlobalSystem()" class="bg-red-900/40 text-red-400 px-4 py-2 rounded-xl text-[10px] uppercase">Reiniciar Sala</button>
                         </div>
                     </div>
-                    
-                    <div class="card-glass p-6 rounded-3xl mb-8 border-2 border-yellow-600/30">
-                        <h3 class="text-yellow-500 font-royal mb-6 text-center uppercase tracking-widest">Contenido de Botones Flotantes</h3>
-                        
-                        <div class="flex justify-center gap-4 mb-6 border-b border-white/10 pb-6">
-                            <button onclick="toggleFloatingGlobal(true)" class="bg-green-600/20 text-green-400 border border-green-600 px-6 py-2 rounded-xl font-bold text-[10px] uppercase">Activar Botones para Todos</button>
-                            <button onclick="toggleFloatingGlobal(false)" class="bg-red-600/20 text-red-400 border border-red-600 px-6 py-2 rounded-xl font-bold text-[10px] uppercase">Ocultar Botones para Todos</button>
-                        </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="bg-black/40 p-4 rounded-xl border border-white/5 flex flex-col items-center">
-                                <i class="fa-solid fa-question text-2xl text-yellow-500 mb-2"></i>
-                                <span class="text-[10px] mb-3 uppercase font-bold">30 Frases (?)</span>
-                                <button onclick="triggerFloatExcel('question')" class="btn-gold px-4 py-2 rounded text-[10px] w-full">Subir Excel</button>
-                                <div id="status-question" class="mt-2 text-[9px] text-green-500 font-bold hidden">CARGADO <i class="fa-solid fa-check"></i></div>
+                    <!-- SOLO SUPER ADMIN CARGA PREGUNTAS -->
+                    <div id="super-admin-tools" class="hidden card-glass p-6 rounded-3xl mb-8 border-2 border-red-600/30">
+                        <h3 class="text-red-500 font-royal mb-4 text-center uppercase text-sm">Carga Maestra (Solo Super Admin)</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="space-y-4">
+                                <p class="text-xs text-zinc-400">Cargar preguntas de nivel:</p>
+                                <div class="flex gap-2">
+                                    <select id="super-lvl-select" class="bg-black border border-zinc-700 p-2 text-xs rounded">
+                                        <option value="1">Nivel 1</option><option value="2">Nivel 2</option><option value="3">Nivel 3</option>
+                                        <option value="4">Nivel 4</option><option value="5">Nivel 5</option><option value="6">Nivel 6</option>
+                                        <option value="7">Nivel 7</option><option value="8">Nivel 8</option><option value="9">Nivel 9</option>
+                                        <option value="10">Nivel 10</option><option value="11">Nivel 11</option><option value="12">Nivel 12</option>
+                                    </select>
+                                    <button onclick="triggerExcel('questions')" class="btn-gold px-4 py-2 text-[10px]">Subir Excel Preguntas</button>
+                                </div>
                             </div>
-                            <div class="bg-black/40 p-4 rounded-xl border border-white/5 flex flex-col items-center">
-                                <i class="fa-solid fa-book-open text-2xl text-yellow-500 mb-2"></i>
-                                <span class="text-[10px] mb-3 uppercase font-bold">30 Citas (Libro)</span>
-                                <button onclick="triggerFloatExcel('book')" class="btn-gold px-4 py-2 rounded text-[10px] w-full">Subir Excel</button>
-                                <div id="status-book" class="mt-2 text-[9px] text-green-500 font-bold hidden">CARGADO <i class="fa-solid fa-check"></i></div>
-                            </div>
-                            <div class="bg-black/40 p-4 rounded-xl border border-white/5 flex flex-col items-center">
-                                <i class="fa-solid fa-heart text-2xl text-yellow-500 mb-2"></i>
-                                <span class="text-[10px] mb-3 uppercase font-bold">30 Frases (Corazón)</span>
-                                <button onclick="triggerFloatExcel('heart')" class="btn-gold px-4 py-2 rounded text-[10px] w-full">Subir Excel</button>
-                                <div id="status-heart" class="mt-2 text-[9px] text-green-500 font-bold hidden">CARGADO <i class="fa-solid fa-check"></i></div>
+                            <div class="space-y-4">
+                                <p class="text-xs text-zinc-400">Cargar contenido flotante:</p>
+                                <div class="flex gap-2">
+                                    <button onclick="triggerExcel('question_float')" class="btn-gold px-3 py-2 text-[8px]">Excel ?</button>
+                                    <button onclick="triggerExcel('book_float')" class="btn-gold px-3 py-2 text-[8px]">Excel Libro</button>
+                                    <button onclick="triggerExcel('heart_float')" class="btn-gold px-3 py-2 text-[8px]">Excel Corazón</button>
+                                </div>
                             </div>
                         </div>
-                        <input type="file" id="float-excel-input" accept=".xlsx" class="hidden">
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div class="card-glass p-6 rounded-3xl h-fit">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                                 <div class="bg-black/40 p-4 rounded-xl">
-                                    <label class="text-[10px] text-zinc-500 uppercase block mb-1">Vidas Globales</label>
-                                    <select id="adm-diff" onchange="updateGlobalConfigs()" class="w-full bg-black border border-zinc-700 p-2 rounded text-white text-xs">
-                                        <option value="6">6 Vidas</option>
-                                        <option value="3" selected>3 Vidas</option>
-                                        <option value="1">1 Vida</option>
-                                    </select>
+                                    <label class="text-[10px] text-zinc-500 uppercase block mb-1">Código de Sala (4 dígitos)</label>
+                                    <div class="flex gap-2">
+                                        <input type="text" id="adm-room-code" maxlength="4" class="w-full bg-black border border-zinc-700 p-2 rounded text-white text-xs text-center font-bold">
+                                        <button onclick="updateRoomCode()" class="bg-zinc-800 text-[8px] px-2 rounded uppercase font-bold">Guardar</button>
+                                    </div>
                                 </div>
                                 <div class="bg-black/40 p-4 rounded-xl">
-                                    <label class="text-[10px] text-zinc-500 uppercase block mb-1">Tiempo por Pregunta</label>
-                                    <select id="adm-timer-limit" onchange="updateGlobalConfigs()" class="w-full bg-black border border-zinc-700 p-2 rounded text-white text-xs">
-                                        <option value="15">15 Segundos</option>
-                                        <option value="30" selected>30 Segundos</option>
-                                        <option value="50">50 Segundos</option>
+                                    <label class="text-[10px] text-zinc-500 uppercase block mb-1">Estatus Sala</label>
+                                    <select id="adm-room-status" onchange="updateRoomConfig()" class="w-full bg-black border border-zinc-700 p-2 rounded text-white text-xs">
+                                        <option value="libre">LIBRE</option>
+                                        <option value="ocupado">OCUPADO EN BATALLA</option>
                                     </select>
                                 </div>
                             </div>
@@ -279,33 +273,31 @@
                             </div>
                         </div>
                         <div class="card-glass p-6 rounded-3xl h-fit">
-                            <h3 class="text-yellow-500 font-royal mb-4 text-center uppercase text-sm">Monitor de Guerreros</h3>
-                            <div class="mb-4">
-                                <select id="adm-room-selector" onchange="refreshAdminMonitor()" class="w-full bg-black border border-yellow-600/50 p-2 rounded text-yellow-500 text-xs text-center font-bold">
-                                    <option value="all">TODAS LAS SALAS</option>
-                                    <option value="1">SALA 1</option><option value="2">SALA 2</option><option value="3">SALA 3</option>
-                                    <option value="4">SALA 4</option><option value="5">SALA 5</option><option value="6">SALA 6</option>
-                                    <option value="7">SALA 7</option><option value="8">SALA 8</option><option value="9">SALA 9</option>
-                                    <option value="10">SALA 10</option><option value="11">SALA 11</option><option value="12">SALA 12</option>
-                                </select>
-                            </div>
+                            <h3 class="text-yellow-500 font-royal mb-4 text-center uppercase text-sm">Monitor de Sala</h3>
                             <div id="adm-monitor" class="space-y-3"></div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <div id="global-results" class="results-overlay hidden">
+                <h2 class="font-royal text-3xl md:text-6xl text-yellow-500 mb-6 mt-6 tracking-widest text-center uppercase">Hall de la Gloria</h2>
+                <div id="results-list" class="w-full max-w-3xl space-y-3 px-2 pb-20"></div>
+                <div class="fixed bottom-10 w-full max-w-xs px-4">
+                    <button onclick="location.reload()" class="btn-gold w-full py-4 rounded-full text-sm">Salir de la Sala</button>
+                </div>
+            </div>
+
         </div>
-        <input type="file" id="adm-excel-input" accept=".xlsx" class="hidden">
-        <footer class="footer-anclado shrink-0">DESARROLLADO POR - ROBERT PARACO 2026</footer>
+        <input type="file" id="master-excel-input" accept=".xlsx" class="hidden">
+        <footer class="footer-anclado shrink-0">SISTEMA MULTI-SALA DESARROLLADO POR - ROBERT PARACO 2026</footer>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, setDoc, onSnapshot, updateDoc, collection, addDoc, query, orderBy, limit, getDoc, deleteDoc, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        const IMAGEN_GANASTE = "https://raw.githubusercontent.com/robertproductions12-developer/BATALLADANIEL/refs/heads/main/sii.png";
-        const IMAGEN_PERDISTE ="https://raw.githubusercontent.com/robertproductions12-developer/BATALLADANIEL/refs/heads/main/sii.png";
-
+        // CONFIGURACIÓN FIREBASE (ORIGINAL)
         const firebaseConfig = {
             apiKey: "AIzaSyCEBobrmLT4Icvjn81GZx1FtkTS9IU2XsI",
             authDomain: "batalladaniel-5ce50.firebaseapp.com",
@@ -317,19 +309,17 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        const IMAGEN_GANASTE = "https://raw.githubusercontent.com/robertproductions12-developer/BATALLADANIEL/refs/heads/main/sii.png";
+        const IMAGEN_PERDISTE ="https://raw.githubusercontent.com/robertproductions12-developer/BATALLADANIEL/refs/heads/main/sii.png";
         const DEFAULT_IMAGES = { "1": "1.jpg", "2": "2.jpg", "3": "3.jpg", "4": "4.jpg", "5": "5.jpg", "6": "6.jpg", "7": "7.jpg", "8": "8.jpg", "9": "9.jpg", "10": "10.jpg", "11": "11.jpg", "12": "12.jpg" };
-        const LEVEL_VIDEOS = { "1": "dani.mp4", "2": "dani.mp4", "3": "dani.mp4", "4": "dani.mp4", "5": "dani.mp4", "6": "dani.mp4", "7": "dani.mp4", "8": "dani.mp4", "9": "dani.mp4", "10": "dani.mp4", "11": "dani.mp4", "12": "dani.mp4" };
-
-        let userState = { name: '', isAdmin: false, lives: 3, score: 0, qIndex: 0, startTime: 0, totalTime: 0, currentRoom: 0 };
-        let gameConfig = { levels: {}, showResults: false, globalLives: 3, timerLimit: 30, showFloatingGlobal: true };
+        
+        let userState = { name: '', isAdmin: false, isSuper: false, roomId: '', lives: 3, score: 0, qIndex: 0 };
+        let gameConfig = { levels: {}, showResults: false, globalLives: 3, timerLimit: 30, showFloatingGlobal: true, roomCode: '', status: 'libre' };
         let activeLevelLobby = 0;
-        let adminLvlTarget = 1;
         let currentLevelQuestions = [];
         let questionInterval = null;
-        let playersCache = [];
-
         let floatingPhrases = { question: [], book: [], heart: [] };
-        let currentFloatTarget = '';
+        let excelAction = '';
 
         const gameMusic = document.getElementById('game-music');
         const lionRoar = document.getElementById('lion-roar');
@@ -337,9 +327,277 @@
         const lobbyVideo = document.getElementById('lobby-level-video');
         const outcomePlayer = document.getElementById('outcome-player');
 
-        lobbyVideo.onplay = () => gameMusic.pause();
-        lobbyVideo.onpause = () => gameMusic.play();
-        lobbyVideo.onended = () => gameMusic.play();
+        // --- LÓGICA DE SALAS ---
+
+        // Generar 20 salas fijas por defecto si no existen
+        async function initGlobalRooms() {
+            for(let i=1; i<=20; i++) {
+                const roomRef = doc(db, "rooms_status", "sala_" + i);
+                const snap = await getDoc(roomRef);
+                if(!snap.exists()) {
+                    await setDoc(roomRef, { id: i, name: "SALA DE BATALLA " + i, status: "libre", admin: "", code: "" });
+                }
+            }
+        }
+        initGlobalRooms();
+
+        // Escuchar lista de salas
+        onSnapshot(collection(db, "rooms_status"), (snap) => {
+            const list = document.getElementById('rooms-list');
+            list.innerHTML = "";
+            snap.docs.sort((a,b)=>a.data().id - b.data().id).forEach(d => {
+                const room = d.data();
+                const isBusy = room.status === 'ocupado';
+                list.innerHTML += `
+                    <div class="card-glass p-6 rounded-3xl border-l-4 ${isBusy ? 'border-red-600' : 'border-green-600'}">
+                        <div class="flex justify-between items-start mb-4">
+                            <h4 class="font-royal text-sm text-yellow-500">${room.name}</h4>
+                            <span class="room-tag ${isBusy ? 'status-busy' : 'status-free'}">${room.status}</span>
+                        </div>
+                        <p class="text-[9px] text-zinc-500 mb-6 uppercase tracking-widest">Admin: ${room.admin || 'Sin asignar'}</p>
+                        <button onclick="attemptJoinRoom('${room.id}')" class="btn-gold w-full py-2 rounded-xl text-[10px] font-bold">
+                            ${isBusy ? 'ENTRAR A LA SALA' : 'TOMAR EL MANDO'}
+                        </button>
+                    </div>`;
+            });
+        });
+
+        window.attemptJoinRoom = async (id) => {
+            const name = document.getElementById('login-name').value.trim();
+            if(!name) return Swal.fire("Error", "Coloca tu nombre primero", "warning");
+
+            const roomRef = doc(db, "rooms_status", "sala_" + id);
+            const snap = await getDoc(roomRef);
+            const roomData = snap.data();
+
+            userState.name = name;
+            userState.roomId = id;
+
+            // CASO 1: LA SALA ESTÁ LIBRE -> EL PRIMERO ES ADMIN
+            if(!roomData.admin) {
+                await updateDoc(roomRef, { admin: name, status: 'ocupado', code: '1234' });
+                userState.isAdmin = true;
+                Swal.fire("Eres el Comandante", "Has tomado el control de la Sala " + id, "success");
+            } 
+            // CASO 2: ES EL ADMIN QUE REGRESA
+            else if(roomData.admin === name) {
+                userState.isAdmin = true;
+            }
+            // CASO 3: ES UN JUGADOR
+            else {
+                const { value: code } = await Swal.fire({
+                    title: 'Código de Sala',
+                    input: 'text',
+                    inputLabel: 'Pide el código al administrador de esta sala',
+                    showCancelButton: true
+                });
+                if(code !== roomData.code) return Swal.fire("Denegado", "Código incorrecto", "error");
+                userState.isAdmin = false;
+            }
+
+            enterRoomSuccess();
+        };
+
+        async function enterRoomSuccess() {
+            document.getElementById('player-room-info').innerText = `Estás en Sala ${userState.roomId} - Guerrero: ${userState.name}`;
+            if(userState.isAdmin) document.getElementById('admin-back-btn').classList.remove('hidden');
+            window.showView('levels');
+            syncRoom();
+        }
+
+        // --- SINCRONIZACIÓN DE SALA ---
+
+        function syncRoom() {
+            // Sincronizar configuración específica de la sala
+            onSnapshot(doc(db, "rooms", "room_" + userState.roomId), (snap) => {
+                const data = snap.data() || { levels: {}, showResults: false, globalLives: 3, timerLimit: 30, showFloatingGlobal: true };
+                gameConfig = data;
+                renderLevelGrid();
+                
+                if(data.showResults && !userState.isAdmin) {
+                    document.getElementById('global-results').classList.remove('hidden');
+                    loadGlobalRanking();
+                } else {
+                    document.getElementById('global-results').classList.add('hidden');
+                }
+
+                if(userState.isAdmin) {
+                    document.getElementById('adm-room-code').value = data.roomCode || '1234';
+                    document.getElementById('adm-room-status').value = data.status || 'libre';
+                    refreshAdminStatus();
+                }
+                
+                const fGroup = document.getElementById('floating-btns-group');
+                (data.showFloatingGlobal !== false) ? fGroup.classList.remove('hidden') : fGroup.classList.add('hidden');
+            });
+
+            // Monitor de jugadores de la sala
+            onSnapshot(collection(db, "rooms", "room_" + userState.roomId, "players"), (snap) => {
+                const players = snap.docs.map(d => d.data());
+                refreshAdminMonitor(players);
+            });
+
+            // Chat de la sala
+            onSnapshot(collection(db, "rooms", "room_" + userState.roomId, "chat"), (snap) => {
+                const box = document.getElementById('chat-messages'); box.innerHTML = "";
+                snap.docs.reverse().forEach(d => {
+                    const m = d.data();
+                    box.innerHTML += `<div class="mb-3 text-[11px] bg-white/5 p-2 rounded-lg border-l-2 border-yellow-600"><b class="text-yellow-600 uppercase">${m.user}:</b> <span class="text-zinc-300 ml-2">${m.text}</span></div>`;
+                });
+                box.scrollTop = box.scrollHeight;
+            });
+
+            // Frases Flotantes (Globales - Solo Super Admin las carga)
+            onSnapshot(doc(db, "config", "floating"), (snap) => {
+                if(snap.exists()) floatingPhrases = snap.data();
+            });
+        }
+
+        // --- LÓGICA DE SUPER ADMIN ---
+
+        window.toggleAdminField = () => document.getElementById('admin-pass-container').classList.toggle('hidden');
+
+        window.handleAuth = async () => {
+            const name = document.getElementById('login-name').value.trim();
+            const pass = document.getElementById('login-pass').value.trim();
+            if (name === 'SuperAdmin' && pass === "Daniel777") {
+                userState.isSuper = true;
+                userState.isAdmin = true;
+                document.getElementById('super-admin-tools').classList.remove('hidden');
+                document.getElementById('admin-panel-title').innerText = "MANDO SUPREMO";
+                // El Super Admin elige una sala para monitorear
+                const { value: sId } = await Swal.fire({ title: 'Sala a supervisar', input: 'text', inputValue: '1' });
+                userState.roomId = sId;
+                enterRoomSuccess();
+                return;
+            }
+            Swal.fire("Acceso Común", "Usa el botón 'Ver Salas' para entrar como jugador o admin de sala.", "info");
+        };
+
+        // --- FUNCIONES ADMIN ---
+
+        window.updateRoomCode = async () => {
+            const code = document.getElementById('adm-room-code').value;
+            await updateDoc(doc(db, "rooms_status", "sala_" + userState.roomId), { code: code });
+            await updateDoc(doc(db, "rooms", "room_" + userState.roomId), { roomCode: code });
+            Swal.fire("Éxito", "Código de sala actualizado", "success");
+        };
+
+        window.updateRoomConfig = async () => {
+            const status = document.getElementById('adm-room-status').value;
+            await updateDoc(doc(db, "rooms_status", "sala_" + userState.roomId), { status: status });
+            await updateDoc(doc(db, "rooms", "room_" + userState.roomId), { status: status });
+        };
+
+        window.triggerExcel = (type) => {
+            if(!userState.isSuper) return Swal.fire("Denegado", "Solo el Super Admin puede cargar Excels", "error");
+            excelAction = type;
+            document.getElementById('master-excel-input').click();
+        };
+
+        document.getElementById('master-excel-input').onchange = (e) => {
+            const r = new FileReader();
+            r.onload = async (ev) => {
+                const book = XLSX.read(new Uint8Array(ev.target.result), {type: 'array'});
+                const data = XLSX.utils.sheet_to_json(book.Sheets[book.SheetNames[0]]);
+                
+                if(excelAction === 'questions') {
+                    const lvl = document.getElementById('super-lvl-select').value;
+                    await setDoc(doc(db, "global_levels", "lvl_" + lvl), { questions: data });
+                } else {
+                    const update = {}; 
+                    const key = excelAction.replace('_float','');
+                    update[key] = data;
+                    await updateDoc(doc(db, "config", "floating"), update);
+                }
+                Swal.fire("Cargado", "Datos maestros actualizados", "success");
+            };
+            r.readAsArrayBuffer(e.target.files[0]);
+        };
+
+        // --- FUNCIONES JUEGO (ADAPTADAS A SALA) ---
+
+        window.sendChatMessage = async () => {
+            const i = document.getElementById('chat-input'); if(!i.value.trim()) return;
+            await addDoc(collection(db, "rooms", "room_" + userState.roomId, "chat"), { 
+                user: userState.isAdmin ? 'ADMIN' : userState.name, 
+                text: i.value, 
+                time: Date.now() 
+            });
+            i.value = "";
+        };
+
+        window.validateAccessCode = () => {
+            // El código de cada nivel sigue siendo dinámico por el admin de sala
+            if(document.getElementById('join-code-input').value.trim() === gameConfig.levels?.[activeLevelLobby]?.code) startQuiz();
+            else Swal.fire("Denegado", "Código de nivel incorrecto", "error");
+        };
+
+        async function startQuiz() {
+            // Las preguntas se jalan de la base GLOBAL (Solo super admin carga, pero todos leen)
+            const snap = await getDoc(doc(db, "global_levels", "lvl_" + activeLevelLobby));
+            if(!snap.exists()) return Swal.fire("Error", "Este nivel no tiene preguntas cargadas por el Super Admin", "error");
+            
+            currentLevelQuestions = snap.data().questions.sort(() => Math.random() - 0.5).slice(0, 20);
+            userState.lives = 3; userState.score = 0; userState.qIndex = 0;
+            window.showView('game'); runQuiz();
+        }
+
+        async function updateStats() {
+            // Guardar progreso en la colección de jugadores de la SALA específica
+            const playerRef = doc(db, "rooms", "room_" + userState.roomId, "players", userState.name);
+            await setDoc(playerRef, { 
+                name: userState.name, score: userState.score, qIndex: userState.qIndex, 
+                lives: userState.lives, dead: userState.lives <= 0, lastUpdate: Date.now(),
+                roomId: userState.roomId
+            }, {merge: true});
+        }
+
+        // --- INTERFAZ DINÁMICA ---
+
+        function refreshAdminStatus() {
+            const container = document.getElementById('adm-levels-controls');
+            container.innerHTML = "";
+            for(let i=1; i<=12; i++) {
+                const active = gameConfig.levels?.[i]?.active;
+                container.innerHTML += `
+                    <div class="p-3 bg-white/5 rounded-xl border border-white/10 flex flex-col gap-2">
+                        <span class="text-[10px] uppercase font-bold">Capítulo ${i}</span>
+                        <button onclick="toggleLvlState(${i})" class="py-2 rounded text-[8px] ${active?'bg-red-900':'bg-green-900'} uppercase font-bold">
+                            ${active?'DESACTIVAR':'ACTIVAR'}
+                        </button>
+                        ${active ? `<div class="text-center text-yellow-500 font-bold text-[9px]">PIN: ${gameConfig.levels[i].code}</div>` : ''}
+                    </div>`;
+            }
+        }
+
+        function refreshAdminMonitor(players) {
+            const m = document.getElementById('adm-monitor'); if(!m) return;
+            m.innerHTML = "";
+            players.sort((a,b)=>b.score - a.score).forEach(p => {
+                m.innerHTML += `<div class="p-3 bg-black/40 rounded-lg flex flex-col gap-1 text-[10px] border border-white/5">
+                    <div class="flex justify-between items-center">
+                        <span class="${p.dead?'text-red-500':'text-yellow-500'} uppercase font-bold text-sm">${p.name}</span>
+                        <span class="text-zinc-500 uppercase">Progreso: ${p.qIndex}/20</span>
+                    </div>
+                    <div class="flex justify-between text-zinc-400">
+                        <span>Pts: <b class="text-white">${p.score}</b></span>
+                        <span>Vidas: <b class="text-red-500">${p.lives}</b></span>
+                    </div>
+                </div>`;
+            });
+        }
+
+        // --- OTROS MÉTODOS REQUERIDOS ---
+        
+        window.toggleLvlState = async (lvl) => {
+            const newLevels = {...(gameConfig.levels || {})};
+            const current = newLevels[lvl] || { active: false, code: '' };
+            current.active = !current.active;
+            current.code = current.active ? Math.floor(1000 + Math.random() * 9000).toString() : '';
+            newLevels[lvl] = current;
+            await updateDoc(doc(db, "rooms", "room_" + userState.roomId), { levels: newLevels });
+        };
 
         window.endIntro = () => {
             document.getElementById('intro-overlay').classList.add('fade-out');
@@ -349,381 +607,108 @@
         };
 
         window.showView = (id) => {
-            if(questionInterval) clearInterval(questionInterval);
-            ['view-login', 'view-levels', 'view-lobby', 'view-game', 'view-admin'].forEach(v => {
-                const el = document.getElementById(v);
-                if(el) el.classList.add('hidden');
-            });
-            const target = document.getElementById('view-' + id);
-            if(target) target.classList.remove('hidden');
+            const views = ['view-login', 'view-rooms', 'view-levels', 'view-lobby', 'view-game', 'view-admin'];
+            views.forEach(v => document.getElementById(v).classList.add('hidden'));
+            document.getElementById('view-' + id).classList.remove('hidden');
         };
 
-        function triggerDamageEffect() {
-            lionRoar.currentTime = 0; lionRoar.play();
-            const body = document.getElementById('game-body');
-            const flash = document.getElementById('flash-overlay');
-            flash.className = "flash-red";
-            body.classList.add('shake-screen'); flash.style.opacity = "1";
-            setTimeout(() => { body.classList.remove('shake-screen'); flash.style.opacity = "0"; }, 500);
-        }
-
-        function triggerSuccessEffect() {
-            successSound.currentTime = 0; successSound.play();
-            const qCard = document.getElementById('q-card');
-            const flash = document.getElementById('flash-overlay');
-            flash.className = "flash-green";
-            qCard.classList.add('correct-animation'); flash.style.opacity = "1";
-            setTimeout(() => { qCard.classList.remove('correct-animation'); flash.style.opacity = "0"; }, 500);
-        }
-
-        window.handleAuth = async () => {
-            const name = document.getElementById('login-name').value.trim();
-            const pass = document.getElementById('login-pass').value.trim();
-            if (!name) return;
-            if (name.toLowerCase() === 'admin' && pass === "Daniel777") {
-                userState.isAdmin = true;
-                document.getElementById('admin-back-btn').classList.remove('hidden');
-                initAdmin(); return;
-            }
-            userState.name = name;
-            await setDoc(doc(db, "players", name), { name, score:0, qIndex:0, lives:3, dead:false, time:0, currentRoom: 0, lastUpdate: Date.now() });
-            window.showView('levels'); syncGlobal();
-        };
-
-        function syncGlobal() {
-            onSnapshot(doc(db, "config", "game"), (snap) => {
-                const data = snap.data() || { levels: {}, showResults: false, globalLives: 3, timerLimit: 30, showFloatingGlobal: true };
-                gameConfig = data;
-                renderLevelGrid();
-                
-                updateFloatingVisibility();
-
-                if(data.showResults && !userState.isAdmin) {
-                    document.getElementById('global-results').classList.remove('hidden');
-                    loadGlobalRanking();
-                } else {
-                    document.getElementById('global-results').classList.add('hidden');
-                }
-                if(userState.isAdmin) {
-                    refreshAdminStatus();
-                    document.getElementById('adm-timer-limit').value = gameConfig.timerLimit || 30;
-                }
-                updateCodeVisibility();
-            });
-
-            onSnapshot(doc(db, "config", "floating"), (snap) => {
-                if(snap.exists()) {
-                    floatingPhrases = snap.data();
-                    if(userState.isAdmin) {
-                        if(floatingPhrases.question?.length) document.getElementById('status-question').classList.remove('hidden');
-                        if(floatingPhrases.book?.length) document.getElementById('status-book').classList.remove('hidden');
-                        if(floatingPhrases.heart?.length) document.getElementById('status-heart').classList.remove('hidden');
-                    }
-                }
-            });
-
-            onSnapshot(collection(db, "chat"), (snap) => {
-                const box = document.getElementById('chat-messages'); box.innerHTML = "";
-                snap.docs.reverse().forEach(d => {
-                    const m = d.data();
-                    box.innerHTML += `<div class="mb-3 text-[11px] bg-white/5 p-2 rounded-lg border-l-2 border-yellow-600"><b class="text-yellow-600 uppercase">${m.user}:</b> <span class="text-zinc-300 ml-2">${m.text}</span></div>`;
-                });
-                box.scrollTop = box.scrollHeight;
-            });
-        }
-
-        window.toggleFloatingGlobal = async (val) => {
-            await updateDoc(doc(db, "config", "game"), { showFloatingGlobal: val });
-            Swal.fire("Control Global", val ? "Botones activados" : "Botones ocultos", "success");
-        };
-
-        function updateFloatingVisibility() {
-            const group = document.getElementById('floating-btns-group');
-            if (gameConfig.showFloatingGlobal !== false) {
-                group.classList.remove('hidden');
-            } else {
-                group.classList.add('hidden');
-            }
-        }
-
-        window.openFloatingCard = (type) => {
-            const phrases = floatingPhrases[type] || [];
-            if(phrases.length === 0) return;
-            const random = phrases[Math.floor(Math.random() * phrases.length)];
-            
-            const iconEl = document.getElementById('f-card-icon');
-            const textEl = document.getElementById('f-card-text');
-            const subEl = document.getElementById('f-card-sub');
-
-            if(type === 'question') iconEl.innerHTML = '<i class="fa-solid fa-question"></i>';
-            if(type === 'book') iconEl.innerHTML = '<i class="fa-solid fa-book-open"></i>';
-            if(type === 'heart') iconEl.innerHTML = '<i class="fa-solid fa-heart"></i>';
-
-            textEl.innerText = random.Frase || random.Texto || "Cargando...";
-            subEl.innerText = random.Referencia || random.Cita || "";
-            
-            document.getElementById('floating-card-overlay').style.display = 'flex';
-        };
-
-        window.closeFloatingCard = () => {
-            document.getElementById('floating-card-overlay').style.display = 'none';
-        };
-
-        window.triggerFloatExcel = (type) => {
-            currentFloatTarget = type;
-            document.getElementById('float-excel-input').click();
-        };
-
-        document.getElementById('float-excel-input').onchange = (e) => {
-            const r = new FileReader();
-            r.onload = async (ev) => {
-                const book = XLSX.read(new Uint8Array(ev.target.result), {type: 'array'});
-                const data = XLSX.utils.sheet_to_json(book.Sheets[book.SheetNames[0]]);
-                const update = {}; update[currentFloatTarget] = data;
-                await updateDoc(doc(db, "config", "floating"), update).catch(async () => {
-                    await setDoc(doc(db, "config", "floating"), update);
-                });
-                Swal.fire("Éxito", "Frases cargadas", "success");
-            };
-            r.readAsArrayBuffer(e.target.files[0]);
-        };
-
-        async function loadGlobalRanking() {
-            const list = document.getElementById('results-list');
-            const snap = await getDocs(collection(db, "players"));
-            const players = snap.docs.map(d => d.data()).sort((a,b) => b.score - a.score);
-            list.innerHTML = players.map((p, i) => `
-                <div class="card-glass p-4 rounded-2xl flex justify-between items-center border-l-4 ${i < 3 ? 'border-yellow-500' : 'border-zinc-700'}">
-                    <div class="flex items-center gap-4">
-                        <span class="text-2xl font-royal text-yellow-500">#${i+1}</span>
-                        <div><p class="font-bold uppercase ${p.dead ? 'text-red-500' : 'text-white'}">${p.name}</p><p class="text-[10px] text-zinc-500 uppercase">Sala: ${p.currentRoom} | Tiempo: ${formatTime(p.time || 0)}</p></div>
-                    </div>
-                    <div class="text-right"><p class="text-2xl font-royal text-yellow-500">${p.score}</p></div>
-                </div>`).join('');
-        }
-
-        function renderLevelGrid() {
-            const grid = document.getElementById('level-grid'); if(!grid) return;
-            grid.innerHTML = "";
-            for(let i=1; i<=12; i++) {
-                const lvlData = gameConfig.levels?.[i.toString()] || {};
-                const isActive = lvlData.active;
-                grid.innerHTML += `<div class="level-card ${isActive ? 'active' : 'locked'}" onclick="enterLobby(${i})"><img src="${DEFAULT_IMAGES[i]}" class="w-full h-full object-cover"></div>`;
-            }
-        }
-
-        window.enterLobby = async (lvl) => { 
+        window.enterLobby = (lvl) => {
             activeLevelLobby = lvl;
-            userState.currentRoom = lvl;
-            if(!userState.isAdmin) await updateDoc(doc(db, "players", userState.name), { currentRoom: lvl });
             document.getElementById('lobby-title').innerText = "CAPÍTULO " + lvl;
-            document.getElementById('lobby-video-src').src = LEVEL_VIDEOS[lvl] || "default.mp4";
-            lobbyVideo.load(); window.showView('lobby'); updateCodeVisibility();
+            const videoSrc = `cap${lvl}.mp4`; // Ajustar nombres de video
+            document.getElementById('lobby-video-src').src = videoSrc;
+            lobbyVideo.load();
+            window.showView('lobby');
+            const prompt = document.getElementById('access-code-prompt');
+            (gameConfig.levels?.[lvl]?.active) ? prompt.classList.remove('hidden') : prompt.classList.add('hidden');
         };
-
-        window.validateAccessCode = () => {
-            if(document.getElementById('join-code-input').value.trim() === gameConfig.levels?.[activeLevelLobby]?.code) startQuiz();
-            else Swal.fire("Denegado", "El código es incorrecto.", "error");
-        };
-
-        async function startQuiz() {
-            const snap = await getDoc(doc(db, "levels", "lvl_" + activeLevelLobby));
-            if(!snap.exists()) return;
-            currentLevelQuestions = snap.data().questions.sort(() => Math.random() - 0.5).slice(0, 20);
-            userState.lives = gameConfig.globalLives || 3; 
-            userState.qIndex = 0; userState.score = 0; userState.startTime = Date.now();
-            window.showView('game'); runQuiz();
-        }
 
         function runQuiz() {
             if(questionInterval) clearInterval(questionInterval);
             if(userState.qIndex >= currentLevelQuestions.length || userState.lives <= 0) { finishBattle(); return; }
+            
             const q = currentLevelQuestions[userState.qIndex];
             document.getElementById('q-index').innerText = `DESAFÍO ${userState.qIndex+1} / 20`;
             document.getElementById('q-text').innerText = q.Pregunta;
-            document.getElementById('game-lives').innerHTML = `<i class="fa-solid fa-heart gold-heart"></i>`.repeat(userState.lives);
+            document.getElementById('game-lives').innerHTML = `<i class="fa-solid fa-heart text-yellow-500 mr-1"></i>`.repeat(userState.lives);
             document.getElementById('game-score').innerText = userState.score;
+
             const grid = document.getElementById('options-grid'); grid.innerHTML = "";
-            [q.Correcta, q.Inc1, q.Inc2, q.Inc3].filter(o => o).sort(() => Math.random() - 0.5).forEach(o => {
+            const opts = [q.Correcta, q.Inc1, q.Inc2, q.Inc3].filter(o => o).sort(() => Math.random() - 0.5);
+            opts.forEach(o => {
                 const b = document.createElement('button');
-                b.className = "btn-option p-4 rounded-2xl text-left text-xs font-bold uppercase";
+                b.className = "btn-option p-4 rounded-2xl text-left text-xs font-bold uppercase border border-white/10";
                 b.innerText = o;
                 b.onclick = () => handleAnswer(o === q.Correcta);
                 grid.appendChild(b);
             });
-            startQuestionTimer();
+            startTimer();
         }
 
-        function startQuestionTimer() {
-            const limit = parseInt(gameConfig.timerLimit) || 30;
-            let remaining = limit;
+        function handleAnswer(correct) {
+            clearInterval(questionInterval);
+            if(correct) {
+                userState.score += 100;
+                successSound.play();
+            } else {
+                userState.lives--;
+                lionRoar.play();
+            }
+            userState.qIndex++;
+            updateStats();
+            setTimeout(runQuiz, 800);
+        }
+
+        function startTimer() {
+            let rem = 30;
             const bar = document.getElementById('timer-bar');
-            const icon = document.getElementById('hourglass-icon');
-            bar.style.backgroundColor = "var(--gold)";
-            icon.className = "fa-solid fa-hourglass-half text-yellow-500 text-2xl animate-hourglass";
             questionInterval = setInterval(() => {
-                remaining -= 0.1;
-                const percent = (remaining / limit) * 100;
-                bar.style.width = percent + "%";
-                if (remaining <= 0) { clearInterval(questionInterval); handleAnswer(false); }
+                rem -= 0.1;
+                bar.style.width = (rem / 30 * 100) + "%";
+                if(rem <= 0) { clearInterval(questionInterval); handleAnswer(false); }
             }, 100);
         }
 
-        function handleAnswer(isCorrect) {
-            if(questionInterval) clearInterval(questionInterval);
-            if(isCorrect) { userState.score += 100; triggerSuccessEffect(); } 
-            else { userState.lives--; triggerDamageEffect(); }
-            userState.qIndex++;
-            updateStats();
-            setTimeout(runQuiz, 600);
+        function renderLevelGrid() {
+            const grid = document.getElementById('level-grid');
+            grid.innerHTML = "";
+            for(let i=1; i<=12; i++) {
+                const active = gameConfig.levels?.[i]?.active;
+                grid.innerHTML += `<div class="level-card ${active ? 'active' : 'locked'}" onclick="enterLobby(${i})"><img src="${DEFAULT_IMAGES[i]}" class="w-full h-full object-cover"></div>`;
+            }
         }
-
-        async function updateStats() {
-            userState.totalTime = Math.floor((Date.now() - userState.startTime)/1000);
-            document.getElementById('game-timer-label').innerText = formatTime(userState.totalTime);
-            await updateDoc(doc(db, "players", userState.name), { 
-                score: userState.score, qIndex: userState.qIndex, lives: userState.lives, 
-                dead: userState.lives <= 0, time: userState.totalTime, lastUpdate: Date.now() 
-            });
-        }
-
-        function formatTime(s) { return `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`; }
 
         function finishBattle() {
-            const win = userState.lives > 0 && userState.qIndex >= 20;
+            const win = userState.lives > 0;
             gameMusic.pause();
             outcomePlayer.src = win ? "gano.mp4" : "perdio.mp4";
             document.getElementById('video-outcome').classList.remove('hidden');
             outcomePlayer.play();
             outcomePlayer.onended = () => {
                 document.getElementById('video-outcome').classList.add('hidden');
-                const screen = document.getElementById('final-image-screen');
-                const img = document.getElementById('final-image-content');
-                img.src = win ? IMAGEN_GANASTE : IMAGEN_PERDISTE;
-                screen.style.display = "flex";
+                document.getElementById('final-image-content').src = win ? IMAGEN_GANASTE : IMAGEN_PERDISTE;
+                document.getElementById('final-image-screen').classList.remove('hidden');
             };
         }
 
         window.closeOutcomeVideo = () => {
-            document.getElementById('final-image-screen').style.display = "none";
-            gameMusic.play(); 
+            document.getElementById('final-image-screen').classList.add('hidden');
             window.showView('levels');
+            gameMusic.play();
         };
 
-        window.updateGlobalConfigs = async () => {
-            await updateDoc(doc(db, "config", "game"), { 
-                globalLives: parseInt(document.getElementById('adm-diff').value),
-                timerLimit: parseInt(document.getElementById('adm-timer-limit').value)
-            });
+        window.openFloatingCard = (type) => {
+            const phrases = floatingPhrases[type] || [];
+            if(phrases.length === 0) return;
+            const r = phrases[Math.floor(Math.random() * phrases.length)];
+            document.getElementById('f-card-icon').innerHTML = `<i class="fa-solid fa-${type === 'question' ? 'question' : type === 'book' ? 'book-open' : 'heart'}"></i>`;
+            document.getElementById('f-card-text').innerText = r.Frase || r.Texto;
+            document.getElementById('f-card-sub').innerText = r.Referencia || r.Cita;
+            document.getElementById('floating-card-overlay').style.display = 'flex';
         };
 
-        window.toggleResults = async (val) => { await updateDoc(doc(db, "config", "game"), { showResults: val }); };
+        window.closeFloatingCard = () => document.getElementById('floating-card-overlay').style.display = 'none';
 
-        window.deleteFullChat = async () => {
-            const snap = await getDocs(collection(db, "chat"));
-            const batch = writeBatch(db);
-            snap.forEach(d => batch.delete(d.ref));
-            await batch.commit();
-        };
-
-        window.toggleLvlState = async (lvl) => {
-            const newLevels = {...(gameConfig.levels || {})};
-            const current = newLevels[lvl] || { active: false, code: '' };
-            current.active = !current.active;
-            current.code = current.active ? Math.floor(1000 + Math.random() * 9000).toString() : '';
-            newLevels[lvl] = current;
-            await updateDoc(doc(db, "config", "game"), { levels: newLevels });
-        };
-
-        function refreshAdminStatus() {
-            const container = document.getElementById('adm-levels-controls'); if(!container) return;
-            container.innerHTML = "";
-            for(let i=1; i<=12; i++) {
-                const active = gameConfig.levels?.[i]?.active;
-                container.innerHTML += `
-                    <div class="p-3 bg-white/5 rounded-xl border border-white/10 flex flex-col gap-2">
-                        <span class="text-[10px] uppercase font-bold">Nivel ${i}</span>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button onclick="adminPickExcel(${i})" class="bg-zinc-800 py-2 rounded text-[8px] uppercase">Excel</button>
-                            <button onclick="toggleLvlState(${i})" class="py-2 rounded text-[8px] ${active?'bg-red-900':'bg-green-900'} uppercase">${active?'OFF':'ON'}</button>
-                        </div>
-                        ${active ? `<div class="text-center text-yellow-500 font-bold text-[9px]">COD: ${gameConfig.levels[i].code}</div>` : ''}
-                    </div>`;
-            }
-        }
-
-        window.adminPickExcel = (lvl) => { adminLvlTarget = lvl; document.getElementById('adm-excel-input').click(); };
-        document.getElementById('adm-excel-input').onchange = (e) => {
-            const r = new FileReader();
-            r.onload = async (ev) => {
-                const book = XLSX.read(new Uint8Array(ev.target.result), {type: 'array'});
-                const raw = XLSX.utils.sheet_to_json(book.Sheets[book.SheetNames[0]]);
-                const data = raw.map(row => {
-                    let n = {};
-                    Object.keys(row).forEach(k => {
-                        let key = k.toLowerCase().trim();
-                        if(key.includes("pregunta")) n.Pregunta = row[k];
-                        else if(key.includes("correcta")) n.Correcta = row[k];
-                        else if(key.includes("inc1")) n.Inc1 = row[k];
-                        else if(key.includes("inc2")) n.Inc2 = row[k];
-                        else if(key.includes("inc3")) n.Inc3 = row[k];
-                    });
-                    return n;
-                });
-                await setDoc(doc(db, "levels", "lvl_" + adminLvlTarget), { questions: data });
-                Swal.fire("Cargado", "Nivel listo", "success");
-            };
-            r.readAsArrayBuffer(e.target.files[0]);
-        };
-
-        onSnapshot(collection(db, "players"), (snap) => {
-            playersCache = snap.docs.map(d => d.data());
-            refreshAdminMonitor();
-        });
-
-        window.refreshAdminMonitor = () => {
-            const m = document.getElementById('adm-monitor'); if(!m) return;
-            const filterRoom = document.getElementById('adm-room-selector').value;
-            m.innerHTML = "";
-            const filtered = playersCache.filter(p => filterRoom === 'all' || p.currentRoom.toString() === filterRoom);
-            filtered.sort((a,b)=>b.score-a.score).forEach(p => {
-                m.innerHTML += `<div class="p-3 bg-black/40 rounded-lg flex flex-col gap-1 text-[10px] border border-white/5">
-                    <div class="flex justify-between items-center">
-                        <span class="${p.dead?'text-red-500':'text-yellow-500'} uppercase font-bold text-sm">${p.name}</span>
-                        <span class="bg-zinc-800 px-2 py-0.5 rounded text-white font-bold">SALA ${p.currentRoom}</span>
-                    </div>
-                    <div class="grid grid-cols-2 text-zinc-400">
-                        <span>Preg: <b class="text-white">${p.qIndex}/20</b></span>
-                        <span>Pts: <b class="text-yellow-500">${p.score}</b></span>
-                        <span>Vidas: <b class="text-red-500">${p.lives}</b></span>
-                        <span>Tiempo: <b class="text-blue-400">${formatTime(p.time || 0)}</b></span>
-                    </div>
-                </div>`;
-            });
-        };
-
-        window.resetGlobalSystem = async () => {
-            if(confirm("¿REINICIAR TODO?")) {
-                const p = await getDocs(collection(db, "players")); p.forEach(async d => await deleteDoc(doc(db, "players", d.id)));
-                await setDoc(doc(db, "config", "game"), { levels: {}, showResults: false, globalLives: 3, timerLimit: 30, showFloatingGlobal: true });
-                location.reload();
-            }
-        };
-
-        window.sendChatMessage = async () => {
-            const i = document.getElementById('chat-input'); if(!i.value.trim()) return;
-            await addDoc(collection(db, "chat"), { user: userState.isAdmin ? 'ADMIN' : userState.name, text: i.value, time: Date.now() });
-            i.value = "";
-        };
-
-        window.toggleAdminField = () => document.getElementById('admin-pass-container').classList.toggle('hidden');
-        function updateCodeVisibility() {
-            if(activeLevelLobby > 0) {
-                const btn = document.getElementById('access-code-prompt');
-                if(btn) btn.classList.toggle('hidden', !gameConfig.levels?.[activeLevelLobby]?.active);
-            }
-        }
-        function initAdmin() { window.showView('admin'); syncGlobal(); }
     </script>
 </body>
 </html>
