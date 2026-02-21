@@ -78,12 +78,6 @@
             position: fixed; inset: 0; z-index: 5000; background: rgba(0,0,0,0.85);
             display: none; align-items: center; justify-content: center; padding: 20px;
         }
-        @keyframes drift-down {
-            0% { transform: translateY(-120vh); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(120vh); opacity: 0; }
-        }
     </style>
 </head>
 <body id="game-body">
@@ -108,8 +102,9 @@
     <div id="flash-overlay"></div>
 
     <audio id="game-music" loop preload="auto"><source src="music.mp3" type="audio/mpeg"></audio>
-    <audio id="lion-roar" preload="auto"><source src="lion.mp3" type="audio/mpeg"></audio>
-    <audio id="success-sound" preload="auto"><source src="correcta.mp3" type="audio/mpeg"></audio>
+    <!-- SONIDOS DESDE GITHUB -->
+    <audio id="lion-roar" preload="auto"><source src="https://raw.githubusercontent.com/robertproductions12-developer/BATALLADANIEL/refs/heads/main/lion.mp3" type="audio/mpeg"></audio>
+    <audio id="success-sound" preload="auto"><source src="https://raw.githubusercontent.com/robertproductions12-developer/BATALLADANIEL/refs/heads/main/correcta.mp3" type="audio/mpeg"></audio>
 
     <div id="video-bg-container">
         <video id="bg-video-loop" loop playsinline muted><source src="intro.mp4" type="video/mp4"></video>
@@ -119,6 +114,7 @@
         <video id="outcome-player" playsinline class="w-full h-full object-cover"></video>
     </div>
 
+    <!-- PANTALLA DE IMAGEN FINAL -->
     <div id="final-image-screen">
         <img id="final-image-content" src="" alt="Resultado">
         <div class="absolute bottom-10 w-full text-center px-4">
@@ -139,10 +135,10 @@
                 <p class="text-[10px] tracking-[0.6em] mb-12 text-zinc-400 uppercase text-center">El Desafío Profético</p>
                 <div class="card-glass p-8 rounded-[2.5rem] w-full max-w-sm">
                     <input type="text" id="login-name" placeholder="Tu Nombre o Usuario Admin" class="w-full bg-black/50 border border-zinc-800 p-4 rounded-xl mb-4 text-center text-lg text-white outline-none">
-                    <input type="text" id="login-admin-key" placeholder="Código de Invitación (Jugadores)" class="w-full bg-black/50 border border-zinc-800 p-4 rounded-xl mb-4 text-center text-white outline-none">
+                    <input type="text" id="login-admin-key" placeholder="ID del Administrador (Invitación)" class="w-full bg-black/50 border border-zinc-800 p-4 rounded-xl mb-4 text-center text-white outline-none">
                     
                     <div id="admin-pass-container" class="hidden">
-                        <input type="password" id="login-pass" placeholder="Clave Administrador" class="w-full bg-black/50 border border-zinc-800 p-4 rounded-xl mb-4 text-center text-white outline-none">
+                        <input type="password" id="login-pass" placeholder="Clave Maestra" class="w-full bg-black/50 border border-zinc-800 p-4 rounded-xl mb-4 text-center text-white outline-none">
                     </div>
 
                     <button onclick="handleAuth()" class="btn-gold w-full py-4 rounded-xl text-lg font-bold">Comenzar</button>
@@ -218,7 +214,7 @@
                 </div>
             </div>
 
-            <!-- PANEL ADMINISTRATIVO -->
+            <!-- PANEL ADMINISTRADOR -->
             <div id="view-admin" class="hidden min-h-screen p-4 overflow-y-auto">
                 <div class="max-w-7xl mx-auto pb-20">
                     <div class="flex flex-wrap justify-between items-center gap-6 mb-10">
@@ -227,25 +223,23 @@
                         <button onclick="resetGlobalSystem()" class="bg-red-900/40 text-red-400 px-8 py-3 rounded-xl border border-red-900 font-bold text-[10px] uppercase">Reiniciar Datos Sala</button>
                     </div>
 
-                    <!-- PANEL SUPER ADMINISTRADOR -->
+                    <!-- PANEL EXCLUSIVO SUPER ADMIN -->
                     <div id="super-admin-section" class="hidden mb-12 space-y-8">
                         <div class="card-glass p-6 rounded-3xl border-2 border-red-600/40">
-                            <h3 class="text-red-500 font-royal mb-6 text-center uppercase tracking-widest">Registro de Nuevos Administradores</h3>
+                            <h3 class="text-red-500 font-royal mb-6 text-center uppercase tracking-widest">Gestión Global de Salas</h3>
                             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                <input type="text" id="new-adm-user" placeholder="Nombre de Usuario" class="bg-black border border-zinc-700 p-3 rounded-xl text-white text-xs">
+                                <input type="text" id="new-adm-user" placeholder="Usuario Admin" class="bg-black border border-zinc-700 p-3 rounded-xl text-white text-xs">
                                 <input type="password" id="new-adm-pass" placeholder="Clave de Acceso" class="bg-black border border-zinc-700 p-3 rounded-xl text-white text-xs">
-                                <input type="text" id="new-adm-room" placeholder="ID Sala (Ej: SALA-01)" class="bg-black border border-zinc-700 p-3 rounded-xl text-white text-xs">
-                                <button onclick="createAdminFirebase()" class="btn-gold py-3 rounded-xl font-bold text-xs uppercase">Crear Admin</button>
+                                <input type="text" id="new-adm-room" placeholder="Nombre de Sala" class="bg-black border border-zinc-700 p-3 rounded-xl text-white text-xs">
+                                <button onclick="createAdminFirebase()" class="btn-gold py-3 rounded-xl font-bold text-xs uppercase">Registrar Admin</button>
                             </div>
+                            <div id="super-admin-list" class="mt-8 space-y-2"></div> <!-- Lista con botón borrar -->
                         </div>
 
                         <div class="card-glass p-6 rounded-3xl border-2 border-yellow-500/30">
-                            <h3 class="text-yellow-500 font-royal mb-6 text-center uppercase text-sm">Control Global de Batallas y Preguntas</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div class="bg-black/40 p-4 rounded-xl text-center">
-                                    <p class="text-[10px] mb-3 uppercase font-bold text-zinc-400">Preguntas Globales</p>
-                                    <button onclick="pickExcel(1)" class="btn-gold w-full py-2 rounded-lg text-[9px]">Cargar Excel Nivel</button>
-                                </div>
+                            <h3 class="text-yellow-500 font-royal mb-6 text-center uppercase text-sm">Carga Global de Preguntas</h3>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="excel-load-grid"></div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
                                 <div class="bg-black/40 p-4 rounded-xl text-center">
                                     <p class="text-[10px] mb-3 uppercase font-bold text-zinc-400">Botones Flotantes</p>
                                     <div class="flex gap-2">
@@ -258,34 +252,29 @@
                                         <button onclick="toggleFloatingGlobal(false)" class="bg-red-900/40 text-red-400 flex-1 py-1 rounded text-[8px] border border-red-600">OCULTAR</button>
                                     </div>
                                 </div>
-                                <div class="bg-black/40 p-4 rounded-xl">
-                                    <p class="text-[10px] mb-3 uppercase font-bold text-center text-zinc-400">Lista de Administradores</p>
-                                    <div id="super-admin-list" class="max-h-32 overflow-y-auto space-y-1 text-[9px]"></div>
-                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- PANEL DE CONTROL DE SALA (COMÚN PARA ADMIN Y SUPER) -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div class="card-glass p-6 rounded-3xl h-fit">
                             <h3 class="text-yellow-500 font-royal mb-6 text-center uppercase text-sm">Configuración de Sala</h3>
                             <div class="grid grid-cols-2 gap-4 mb-6">
                                 <div class="bg-black/40 p-4 rounded-xl">
-                                    <label class="text-[10px] text-zinc-500 uppercase block mb-1">Vidas de Guerrero</label>
+                                    <label class="text-[10px] text-zinc-500 uppercase block mb-1">Vidas</label>
                                     <select id="adm-diff" onchange="updateRoomConfig()" class="w-full bg-black border border-zinc-700 p-2 rounded text-white text-xs">
                                         <option value="6">6 Vidas</option><option value="3" selected>3 Vidas</option><option value="1">1 Vida</option>
                                     </select>
                                 </div>
                                 <div class="bg-black/40 p-4 rounded-xl">
-                                    <label class="text-[10px] text-zinc-500 uppercase block mb-1">Tiempo de Respuesta</label>
+                                    <label class="text-[10px] text-zinc-500 uppercase block mb-1">Tiempo</label>
                                     <select id="adm-timer-limit" onchange="updateRoomConfig()" class="w-full bg-black border border-zinc-700 p-2 rounded text-white text-xs">
                                         <option value="15">15 Seg</option><option value="30" selected>30 Seg</option><option value="50">50 Seg</option>
                                     </select>
                                 </div>
                             </div>
                             
-                            <h4 class="text-yellow-600 font-bold text-center text-[10px] mb-4 uppercase tracking-widest">Misiones y Códigos de Acceso</h4>
+                            <h4 class="text-yellow-600 font-bold text-center text-[10px] mb-4 uppercase tracking-widest">Misiones y Códigos</h4>
                             <div id="adm-levels-controls" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
                             
                             <div class="mt-8 grid grid-cols-2 gap-4">
@@ -300,7 +289,7 @@
                                 <h3 class="text-yellow-500 font-royal uppercase text-sm">Monitor de Guerreros</h3>
                                 <div id="super-admin-monitor-filter" class="hidden">
                                     <select id="monitor-room-select" onchange="refreshMonitor()" class="bg-black border border-yellow-600/50 p-1 rounded text-white text-[9px] uppercase">
-                                        <option value="all">Ver Todas las Salas</option>
+                                        <option value="all">Todas las Salas</option>
                                     </select>
                                 </div>
                             </div>
@@ -318,9 +307,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, onSnapshot, updateDoc, collection, addDoc, getDoc, getDocs, deleteDoc, writeBatch, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, onSnapshot, updateDoc, collection, addDoc, getDoc, getDocs, deleteDoc, writeBatch, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // CONFIGURACIÓN FIREBASE (Mantener la tuya)
         const firebaseConfig = {
             apiKey: "AIzaSyCEBobrmLT4Icvjn81GZx1FtkTS9IU2XsI",
             authDomain: "batalladaniel-5ce50.firebaseapp.com",
@@ -331,6 +319,8 @@
         };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+
+        const IMAGEN_FINAL = "https://raw.githubusercontent.com/robertproductions12-developer/BATALLADANIEL/refs/heads/main/sii.png";
 
         const DEFAULT_IMAGES = { "1": "1.jpg", "2": "2.jpg", "3": "3.jpg", "4": "4.jpg", "5": "5.jpg", "6": "6.jpg", "7": "7.jpg", "8": "8.jpg", "9": "9.jpg", "10": "10.jpg", "11": "11.jpg", "12": "12.jpg" };
         const LEVEL_VIDEOS = { "1": "dani.mp4", "2": "dani.mp4", "3": "dani.mp4", "4": "dani.mp4", "5": "dani.mp4", "6": "dani.mp4", "7": "dani.mp4", "8": "dani.mp4", "9": "dani.mp4", "10": "dani.mp4", "11": "dani.mp4", "12": "dani.mp4" };
@@ -364,7 +354,6 @@
             document.getElementById('view-' + id).classList.remove('hidden');
         };
 
-        // MANEJO DE AUTENTICACIÓN ADAPTADO
         window.handleAuth = async () => {
             const name = document.getElementById('login-name').value.trim();
             const adminKey = document.getElementById('login-admin-key').value.trim();
@@ -372,13 +361,11 @@
 
             if (!name) return;
 
-            // CASO 1: SUPER ADMINISTRADOR
             if (name.toLowerCase() === 'admin' && pass === "Daniel777") {
                 userState.isAdmin = true; userState.isSuper = true; userState.adminID = 'SUPER-ADMIN';
                 initAdminPanel(); return;
             }
 
-            // CASO 2: ADMINISTRADOR DE SALA
             if (pass) {
                 const admSnap = await getDoc(doc(db, "admins", name));
                 if (admSnap.exists() && admSnap.data().pass === pass) {
@@ -388,21 +375,19 @@
                 }
             }
 
-            // CASO 3: JUGADOR NORMAL
-            if (!adminKey) { Swal.fire("Atención", "Ingresa el código de tu administrador", "warning"); return; }
+            if (!adminKey) { Swal.fire("ID Requerido", "Ingresa el ID del administrador para entrar", "warning"); return; }
             
             const admRef = await getDoc(doc(db, "admins", adminKey));
-            if (!admRef.exists()) { Swal.fire("Error", "El código de administrador no existe", "error"); return; }
+            if (!admRef.exists()) { Swal.fire("Error", "ID no válido", "error"); return; }
 
             userState.name = name; userState.adminID = adminKey; userState.roomID = admRef.data().roomID;
             await setDoc(doc(db, "players", name), { name, score:0, qIndex:0, lives:3, dead:false, time:0, adminID: adminKey, roomID: userState.roomID, lastUpdate: Date.now() });
             
-            document.getElementById('player-room-info').innerText = "INVITADO POR: " + adminKey + " | SALA: " + userState.roomID;
+            document.getElementById('player-room-info').innerText = "ID: " + adminKey;
             window.showView('levels'); syncDatabase();
         };
 
         function syncDatabase() {
-            // Config de Sala (Diferente para cada Sala)
             onSnapshot(doc(db, "rooms", "sala_" + userState.roomID), (snap) => {
                 roomConfig = snap.data() || { levels: {}, showResults: false, globalLives: 3, timerLimit: 30 };
                 renderLevelGrid();
@@ -414,48 +399,75 @@
                 if(userState.isAdmin) refreshAdminUI();
             });
 
-            // Config Global (Botones Flotantes)
             onSnapshot(doc(db, "config", "game"), (snap) => {
                 const data = snap.data();
                 document.getElementById('floating-btns-group').classList.toggle('hidden', !data?.showFloatingGlobal);
             });
             onSnapshot(doc(db, "config", "floating"), (snap) => { if(snap.exists()) floatingPhrases = snap.data(); });
 
-            // Monitorización Global o de Sala
-            const playersQuery = userState.isSuper ? collection(db, "players") : query(collection(db, "players"), where("adminID", "==", userState.adminID));
+            const chatQ = query(collection(db, "chat"), where("roomID", "==", userState.roomID));
+            onSnapshot(chatQ, (snap) => {
+                const box = document.getElementById('chat-messages'); box.innerHTML = "";
+                snap.docs.reverse().forEach(d => {
+                    const m = d.data();
+                    box.innerHTML += `<div class="mb-2 text-[10px] bg-white/5 p-2 rounded-lg border-l-2 border-yellow-600"><b class="text-yellow-600">${m.user}:</b> <span class="text-zinc-300 ml-1">${m.text}</span></div>`;
+                });
+                box.scrollTop = box.scrollHeight;
+            });
+
+            const playersQuery = userState.isSuper ? collection(db, "players") : query(collection(db, "players"), where("roomID", "==", userState.roomID));
             onSnapshot(playersQuery, (snap) => {
                 playersCache = snap.docs.map(d => d.data());
                 refreshMonitor();
             });
         }
 
-        // --- FUNCIONES SUPER ADMINISTRADOR ---
+        // --- EFECTOS FLASH ---
+        function triggerFlash(type) {
+            const overlay = document.getElementById('flash-overlay');
+            overlay.className = type === 'success' ? 'flash-green' : 'flash-red';
+            overlay.style.opacity = '1';
+            setTimeout(() => overlay.style.opacity = '0', 200);
+        }
 
+        // --- SUPER ADMIN ---
         function initAdminPanel() {
             document.getElementById('admin-back-btn').classList.remove('hidden');
             document.getElementById('admin-id-label').innerText = userState.adminID;
-            
             if(userState.isSuper) {
                 document.getElementById('super-admin-section').classList.remove('hidden');
                 document.getElementById('super-admin-monitor-filter').classList.remove('hidden');
+                const grid = document.getElementById('excel-load-grid'); grid.innerHTML = "";
+                for(let i=1; i<=12; i++) {
+                    grid.innerHTML += `<button onclick="pickExcel(${i})" class="bg-zinc-800 text-white p-2 rounded text-[8px]">SUBIR NIVEL ${i}</button>`;
+                }
                 syncSuperAdminLists();
             }
             window.showView('admin'); syncDatabase();
         }
 
         async function syncSuperAdminLists() {
-            // Ver todos los admins creados
             onSnapshot(collection(db, "admins"), (snap) => {
                 const list = document.getElementById('super-admin-list');
                 const select = document.getElementById('monitor-room-select');
                 list.innerHTML = ""; select.innerHTML = '<option value="all">Todas las Salas</option>';
-                
                 snap.forEach(d => {
                     const a = d.data();
-                    list.innerHTML += `<div class="p-2 bg-white/5 rounded flex justify-between"><span>${d.id}</span><span class="text-yellow-600 font-bold">${a.roomID}</span></div>`;
-                    select.innerHTML += `<option value="${d.id}">${d.id} (${a.roomID})</option>`;
+                    list.innerHTML += `<div class="p-2 bg-white/5 rounded flex justify-between items-center text-[10px]">
+                        <span><b>${d.id}</b> - Sala: ${a.roomID}</span>
+                        <button onclick="deleteAdminRoom('${d.id}', '${a.roomID}')" class="text-red-500 hover:text-red-300"><i class="fa-solid fa-trash"></i></button>
+                    </div>`;
+                    select.innerHTML += `<option value="${a.roomID}">${a.roomID}</option>`;
                 });
             });
+        }
+
+        window.deleteAdminRoom = async (adminId, roomId) => {
+            if(confirm(`¿ELIMINAR SALA ${roomId} Y ADMIN ${adminId}?`)) {
+                await deleteDoc(doc(db, "admins", adminId));
+                await deleteDoc(doc(db, "rooms", "sala_" + roomId));
+                Swal.fire("Borrado", "Sala eliminada", "success");
+            }
         }
 
         window.createAdminFirebase = async () => {
@@ -463,37 +475,37 @@
             const p = document.getElementById('new-adm-pass').value.trim();
             const r = document.getElementById('new-adm-room').value.trim();
             if(!u || !p || !r) return;
-            
             await setDoc(doc(db, "admins", u), { pass: p, roomID: r });
-            // Inicializar la sala si no existe
             await setDoc(doc(db, "rooms", "sala_" + r), { levels: {}, showResults: false, globalLives: 3, timerLimit: 30, roomID: r }, {merge: true});
-            
-            Swal.fire("Éxito", "Administrador registrado correctamente", "success");
-            document.getElementById('new-adm-user').value = "";
-            document.getElementById('new-adm-pass').value = "";
-            document.getElementById('new-adm-room').value = "";
+            Swal.fire("Éxito", "Sala Creada", "success");
         };
 
         window.refreshMonitor = () => {
             const cont = document.getElementById('adm-monitor'); cont.innerHTML = "";
             const filter = document.getElementById('monitor-room-select')?.value || 'all';
-            
-            const filtered = playersCache.filter(p => filter === 'all' || p.adminID === filter);
+            const filtered = playersCache.filter(p => filter === 'all' || p.roomID === filter);
             filtered.sort((a,b) => b.score - a.score).forEach(p => {
                 cont.innerHTML += `<div class="p-3 bg-black/40 rounded-xl border border-white/5 text-[10px] flex justify-between items-center">
-                    <div>
-                        <b class="${p.dead?'text-red-500':'text-yellow-500'} text-sm uppercase">${p.name}</b><br>
-                        <span class="text-zinc-500">MANDO: ${p.adminID} | SALA: ${p.roomID}</span>
-                    </div>
-                    <div class="text-right">
-                        <span class="text-white font-bold">PTS: ${p.score}</span><br>
-                        <span class="text-blue-400">MISIÓN: ${p.qIndex}/20</span>
-                    </div>
+                    <div><b class="${p.dead?'text-red-500':'text-yellow-500'} text-sm uppercase">${p.name}</b><br>
+                    <span class="text-zinc-500">SALA: ${p.roomID} | TIEMPO: ${formatTime(p.time)}</span></div>
+                    <div class="text-right"><span class="text-white font-bold">PTS: ${p.score}</span><br>
+                    <span class="text-blue-400">PREG: ${p.qIndex}/20</span></div>
                 </div>`;
             });
         };
 
-        // --- FUNCIONES ADMINISTRACIÓN DE SALA ---
+        async function loadRanking() {
+            const list = document.getElementById('results-list'); list.innerHTML = "";
+            const filtered = playersCache.filter(p => p.roomID === userState.roomID).sort((a,b) => b.score - a.score);
+            list.innerHTML = filtered.map((p, i) => `
+                <div class="card-glass p-4 rounded-2xl flex justify-between items-center">
+                    <span class="text-xl font-royal text-yellow-500">#${i+1}</span>
+                    <div class="flex-1 px-4"><p class="font-bold uppercase">${p.name}</p><p class="text-[9px] text-zinc-500">TIEMPO: ${formatTime(p.time)}</p></div>
+                    <p class="text-xl font-royal text-yellow-500">${p.score}</p>
+                </div>`).join('');
+        }
+
+        function formatTime(s) { return `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`; }
 
         function refreshAdminUI() {
             const cont = document.getElementById('adm-levels-controls'); cont.innerHTML = "";
@@ -501,10 +513,8 @@
                 const l = roomConfig.levels?.[i] || { active: false, code: '' };
                 cont.innerHTML += `
                     <div class="p-3 bg-white/5 rounded-2xl border border-white/10 flex flex-col gap-2">
-                        <div class="flex justify-between items-center">
-                            <span class="text-[10px] font-bold uppercase">Nivel ${i}</span>
-                            <button onclick="toggleLvl(${i})" class="px-3 py-1 rounded-lg text-[8px] font-black ${l.active?'bg-red-600/20 text-red-500 border border-red-600':'bg-green-600/20 text-green-500 border border-green-600'}">${l.active?'DESACTIVAR':'ACTIVAR'}</button>
-                        </div>
+                        <div class="flex justify-between items-center"><span class="text-[10px] font-bold uppercase">Nivel ${i}</span>
+                        <button onclick="toggleLvl(${i})" class="px-3 py-1 rounded-lg text-[8px] font-black ${l.active?'bg-red-600/20 text-red-500 border border-red-600':'bg-green-600/20 text-green-500 border border-green-600'}">${l.active?'DESACTIVAR':'ACTIVAR'}</button></div>
                         ${l.active ? `<div class="text-center bg-black/60 py-1 rounded-lg text-yellow-500 font-black text-[11px] tracking-widest border border-yellow-500/20">COD: ${l.code}</div>` : ''}
                     </div>`;
             }
@@ -531,18 +541,16 @@
         window.toggleRanking = async (v) => { await updateDoc(doc(db, "rooms", "sala_" + userState.roomID), { showResults: v }); };
 
         window.resetGlobalSystem = async () => {
-            if(confirm("¿Estás seguro de reiniciar los puntajes de TODOS los jugadores de esta sala?")) {
+            if(confirm("¿Reiniciar jugadores de esta sala?")) {
                 const batch = writeBatch(db);
                 const snap = await getDocs(query(collection(db, "players"), where("roomID", "==", userState.roomID)));
                 snap.forEach(d => batch.delete(d.ref));
                 await batch.commit();
                 await updateDoc(doc(db, "rooms", "sala_" + userState.roomID), { levels: {}, showResults: false });
-                Swal.fire("Reiniciado", "La sala ha sido limpiada", "success");
             }
         };
 
-        // --- LÓGICA DE JUEGO MANTENIDA ---
-
+        // --- JUEGO ---
         function renderLevelGrid() {
             const grid = document.getElementById('level-grid'); grid.innerHTML = "";
             for(let i=1; i<=12; i++) {
@@ -562,12 +570,12 @@
             const input = document.getElementById('join-code-input').value.trim();
             const correct = roomConfig.levels?.[activeLevelLobby]?.code;
             if (activeLevelLobby > 0 && input === correct) startQuiz();
-            else Swal.fire("Denegado", "El código de batalla es incorrecto o no ha sido activado", "error");
+            else Swal.fire("Denegado", "Código Erróneo", "error");
         };
 
         async function startQuiz() {
             const snap = await getDoc(doc(db, "levels", "lvl_" + activeLevelLobby));
-            if(!snap.exists()) { Swal.fire("Error", "Este nivel aún no tiene preguntas cargadas globalmente", "info"); return; }
+            if(!snap.exists()) { Swal.fire("Error", "No hay preguntas cargadas", "info"); return; }
             currentLevelQuestions = snap.data().questions.sort(() => Math.random() - 0.5).slice(0, 20);
             userState.lives = roomConfig.globalLives || 3; 
             userState.qIndex = 0; userState.score = 0; userState.startTime = Date.now();
@@ -588,8 +596,15 @@
                 b.className = "btn-option p-4 rounded-2xl text-left text-xs font-bold uppercase";
                 b.innerText = o;
                 b.onclick = () => {
-                    if(o === q.Correcta) { userState.score += 100; successSound.play(); } 
-                    else { userState.lives--; lionRoar.play(); }
+                    if(o === q.Correcta) { 
+                        userState.score += 100; 
+                        successSound.currentTime = 0; successSound.play();
+                        triggerFlash('success');
+                    } else { 
+                        userState.lives--; 
+                        lionRoar.currentTime = 0; lionRoar.play();
+                        triggerFlash('error');
+                    }
                     userState.qIndex++; updateStats(); setTimeout(runQuiz, 600);
                 };
                 grid.appendChild(b);
@@ -602,7 +617,12 @@
             const bar = document.getElementById('timer-bar');
             questionInterval = setInterval(() => {
                 rem -= 0.1; bar.style.width = (rem/(roomConfig.timerLimit||30))*100 + "%";
-                if(rem <= 0) { clearInterval(questionInterval); userState.lives--; updateStats(); runQuiz(); }
+                if(rem <= 0) { 
+                    clearInterval(questionInterval); 
+                    userState.lives--; 
+                    lionRoar.play(); triggerFlash('error');
+                    updateStats(); runQuiz(); 
+                }
             }, 100);
         }
 
@@ -611,21 +631,20 @@
             await updateDoc(doc(db, "players", userState.name), { score: userState.score, qIndex: userState.qIndex, lives: userState.lives, dead: userState.lives <= 0, time: time, lastUpdate: Date.now() });
         }
 
-        // EXCEL PARA SUPER ADMIN
         let targetLvl = 1;
-        window.pickExcel = (l) => { if(!userState.isSuper) return; targetLvl = l; document.getElementById('adm-excel-input').click(); };
+        window.pickExcel = (l) => { targetLvl = l; document.getElementById('adm-excel-input').click(); };
         document.getElementById('adm-excel-input').onchange = (e) => {
             const reader = new FileReader();
             reader.onload = async (ev) => {
                 const book = XLSX.read(new Uint8Array(ev.target.result), {type: 'array'});
                 const data = XLSX.utils.sheet_to_json(book.Sheets[book.SheetNames[0]]);
                 await setDoc(doc(db, "levels", "lvl_" + targetLvl), { questions: data });
-                Swal.fire("Cargado", "Preguntas de Nivel actualizadas globalmente", "success");
+                Swal.fire("Éxito", "Nivel Actualizado", "success");
             };
             reader.readAsArrayBuffer(e.target.files[0]);
         };
 
-        window.triggerFloatExcel = (t) => { if(!userState.isSuper) return; window.floatT = t; document.getElementById('float-excel-input').click(); };
+        window.triggerFloatExcel = (t) => { window.floatT = t; document.getElementById('float-excel-input').click(); };
         document.getElementById('float-excel-input').onchange = (e) => {
             const reader = new FileReader();
             reader.onload = async (ev) => {
@@ -633,7 +652,7 @@
                 const data = XLSX.utils.sheet_to_json(book.Sheets[book.SheetNames[0]]);
                 const update = {}; update[window.floatT] = data;
                 await updateDoc(doc(db, "config", "floating"), update);
-                Swal.fire("Éxito", "Contenido flotante actualizado", "success");
+                Swal.fire("Éxito", "Flotantes cargados", "success");
             };
             reader.readAsArrayBuffer(e.target.files[0]);
         };
@@ -641,13 +660,24 @@
         window.toggleFloatingGlobal = async (v) => { await updateDoc(doc(db, "config", "game"), { showFloatingGlobal: v }); };
         window.sendChatMessage = async () => {
             const i = document.getElementById('chat-input'); if(!i.value.trim()) return;
-            await addDoc(collection(db, "chat"), { user: userState.isAdmin ? 'ADMIN' : userState.name, text: i.value, roomID: userState.roomID, time: Date.now() });
+            await addDoc(collection(db, "chat"), { user: userState.isAdmin ? 'LÍDER' : userState.name, text: i.value, roomID: userState.roomID, time: Date.now() });
             i.value = "";
         };
 
         window.toggleAdminField = () => document.getElementById('admin-pass-container').classList.toggle('hidden');
         window.closeOutcomeVideo = () => { document.getElementById('final-image-screen').style.display = "none"; window.showView('levels'); };
-        window.finishBattle = () => { gameMusic.pause(); outcomePlayer.src = userState.lives > 0 ? "gano.mp4" : "perdio.mp4"; document.getElementById('video-outcome').classList.remove('hidden'); outcomePlayer.play(); outcomePlayer.onended = () => { document.getElementById('video-outcome').classList.add('hidden'); document.getElementById('final-image-screen').style.display = 'flex'; }; };
+        
+        window.finishBattle = () => { 
+            gameMusic.pause(); 
+            outcomePlayer.src = userState.lives > 0 ? "gano.mp4" : "perdio.mp4"; 
+            document.getElementById('video-outcome').classList.remove('hidden'); 
+            outcomePlayer.play(); 
+            outcomePlayer.onended = () => { 
+                document.getElementById('video-outcome').classList.add('hidden'); 
+                document.getElementById('final-image-content').src = IMAGEN_FINAL;
+                document.getElementById('final-image-screen').style.display = 'flex'; 
+            }; 
+        };
 
         window.openFloatingCard = (t) => {
             const p = floatingPhrases[t]; if(!p || p.length === 0) return;
