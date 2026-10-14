@@ -28,6 +28,30 @@
             color: #1a1a1a; font-weight: 800; transition: all 0.3s;
             box-shadow: 0 10px 20px rgba(0,0,0,0.4); text-transform: uppercase;
         }
+        .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 14px 25px rgba(212,175,55,0.5); }
+
+        /* BOTÓN ARMADURA */
+        .btn-armadura {
+            background: rgba(0,0,0,0.6);
+            border: 2px solid var(--gold);
+            color: var(--gold);
+            font-weight: 800;
+            letter-spacing: 3px;
+            backdrop-filter: blur(8px);
+            transition: all 0.3s;
+            box-shadow: 0 0 20px rgba(212,175,55,0.3), inset 0 0 15px rgba(212,175,55,0.08);
+        }
+        .btn-armadura:hover {
+            background: linear-gradient(135deg, #bf953f 0%, #fcf6ba 45%, #b38728 100%);
+            color: #1a1a1a;
+            transform: translateY(-2px);
+            box-shadow: 0 14px 30px rgba(255,220,120,0.7);
+        }
+        @keyframes pulseArmadura {
+            0%, 100% { box-shadow: 0 0 20px rgba(212,175,55,0.3), inset 0 0 15px rgba(212,175,55,0.08); }
+            50% { box-shadow: 0 0 35px rgba(212,175,55,0.7), inset 0 0 20px rgba(212,175,55,0.15); }
+        }
+        .btn-armadura { animation: pulseArmadura 2.4s ease-in-out infinite; }
         
         .card-glass { background: rgba(10, 10, 10, 0.9); backdrop-filter: blur(20px); border: 1px solid rgba(212, 175, 55, 0.15); }
         
@@ -161,7 +185,13 @@
 
     <div id="intro-overlay">
         <video id="intro-video" playsinline autoplay muted loop><source src="intro_player.mp4" type="video/mp4"></video>
-        <button onclick="endIntro()" class="absolute bottom-20 btn-gold px-12 py-5 rounded-full text-lg z-[1001]">Entrar a la Batalla</button>
+        <!-- DOS BOTONES: ENTRAR A LA BATALLA + ARMADURA -->
+        <div class="absolute bottom-14 flex flex-col sm:flex-row gap-4 z-[1001] px-4">
+            <button onclick="endIntro()" class="btn-gold px-10 py-5 rounded-full text-base">Entrar a la Batalla</button>
+            <button onclick="openArmadura()" class="btn-armadura px-10 py-5 rounded-full text-base">
+                <i class="fa-solid fa-shield-halved mr-2"></i> Armadura
+            </button>
+        </div>
     </div>
 
     <div id="main-content" class="relative z-10 opacity-0 transition-opacity duration-1000 h-screen flex flex-col">
@@ -369,6 +399,11 @@
         // VIDEO DE INTRO PARA JUGADORES (sube tu video a GitHub y pega la URL raw aquí)
         const PLAYER_INTRO_VIDEO = "intro_player.mp4";
 
+        // ==================== ARMADURA: ENLACE CONFIGURABLE ====================
+        // Cambia esta URL por el enlace al juego de preparación que quieras.
+        const ARMADURA_URL = "https://github.com/robertproductions12-developer/BATALLADANIEL";
+        // =======================================================================
+
         let userState = { name: '', isAdmin: false, isSuper: false, adminID: '', roomID: '', lives: 3, score: 0, qIndex: 0, startTime: 0 };
         let roomConfig = { levels: {}, showResults: false, globalLives: 3, timerLimit: 30 };
         let floatingPhrases = { question: [], book: [], heart: [] };
@@ -385,6 +420,23 @@
         const outcomePlayer = document.getElementById('outcome-player');
         const playerIntroOverlay = document.getElementById('player-intro-overlay');
         const playerIntroVideo = document.getElementById('player-intro-video');
+
+        // ==================== ARMADURA: ABRIR ENLACE ====================
+        window.openArmadura = () => {
+            if(ARMADURA_URL && ARMADURA_URL !== '#' && !ARMADURA_URL.includes('TU_USUARIO')) {
+                window.open(ARMADURA_URL, '_blank');
+            } else {
+                Swal.fire({
+                    title: 'Enlace no configurado',
+                    text: 'Configura la URL del juego de preparación en la constante ARMADURA_URL.',
+                    icon: 'info',
+                    background: '#0a0a0a',
+                    color: '#d4af37',
+                    confirmButtonColor: '#d4af37'
+                });
+            }
+        };
+        // ================================================================
 
         window.endIntro = () => {
             document.getElementById('intro-overlay').classList.add('fade-out');
