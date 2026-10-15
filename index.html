@@ -144,6 +144,21 @@
         }
         @keyframes pulse-wait { 0%,100% { opacity: .4; } 50% { opacity: 1; } }
         .pulse-wait { animation: pulse-wait 1.6s ease-in-out infinite; }
+
+        /* Cuenta regresiva de 5 segundos antes del quiz */
+        #countdown-overlay {
+            position: fixed; inset: 0; z-index: 3800; background: rgba(0,0,0,0.97);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+        }
+        #countdown-number {
+            font-family: 'Cinzel', serif; color: var(--gold); line-height: 1;
+            font-size: min(60vw, 22rem); text-shadow: 0 0 60px rgba(212,175,55,0.6);
+        }
+        @keyframes count-pop { 0% { transform: scale(1.6); opacity: 0; } 30% { opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+        .count-pop { animation: count-pop 0.9s ease-out; }
+
+        /* Las alertas siempre por encima de cualquier pantalla */
+        .swal2-container { z-index: 20000 !important; }
     </style>
 </head>
 <body id="game-body">
@@ -171,6 +186,12 @@
         <h2 class="font-royal text-3xl text-yellow-500 uppercase mb-3">Esperando al Líder</h2>
         <p class="text-zinc-400 text-sm max-w-xs mb-8">Tu solicitud de ingreso fue enviada. El administrador de la sala debe aceptarte para que puedas entrar.</p>
         <button onclick="cancelWaiting()" class="text-[10px] text-zinc-500 underline uppercase tracking-widest">Cancelar y salir</button>
+    </div>
+
+    <!-- CUENTA REGRESIVA ANTES DEL QUIZ -->
+    <div id="countdown-overlay" class="hidden">
+        <p class="font-royal text-yellow-600 text-sm md:text-xl tracking-[0.5em] uppercase mb-4">La batalla comienza en</p>
+        <div id="countdown-number">5</div>
     </div>
 
     <!-- INTRO DEL JUGADOR (VIDEO) -->
@@ -246,9 +267,8 @@
                         <h2 id="lobby-title" class="font-royal text-xl text-yellow-500 uppercase">LOBBY</h2>
                         <button onclick="showView('levels')" class="text-[10px] text-yellow-600 underline uppercase font-bold px-2 py-1">Regresar</button>
                     </div>
-                    <div id="access-code-prompt" class="flex flex-col sm:flex-row gap-2 w-full">
-                        <input type="text" id="join-code-input" placeholder="CÓDIGO DE BATALLA" class="flex-1 bg-black border border-yellow-600/50 p-3 rounded-xl text-center text-yellow-500 font-bold outline-none text-base">
-                        <button onclick="validateAccessCode()" class="btn-gold py-3 px-4 rounded-xl text-[10px] whitespace-nowrap">ENTRAR A BATALLA</button>
+                    <div id="access-code-prompt" class="flex w-full">
+                        <button onclick="enterBattle()" class="btn-gold w-full py-4 px-4 rounded-xl text-sm whitespace-nowrap"><i class="fa-solid fa-shield-halved mr-2"></i> ENTRAR A BATALLA</button>
                     </div>
                     <button id="admin-back-btn" onclick="showView('admin')" class="hidden w-full bg-zinc-800 py-3 rounded-xl text-[10px] uppercase font-bold text-zinc-300 tracking-widest border border-zinc-700">Panel de Mando</button>
                 </div>
@@ -352,7 +372,10 @@
                     <div class="card-glass p-6 rounded-3xl mb-8 border-2 border-green-600/30">
                         <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
                             <h3 class="text-green-400 font-royal uppercase text-sm">Solicitudes de Ingreso <span id="pending-count" class="ml-2 bg-green-600/20 border border-green-600 text-green-400 px-2 py-0.5 rounded-full text-[10px]">0</span></h3>
-                            <button onclick="acceptAllPlayers()" class="bg-green-600/80 text-black px-6 py-3 rounded-xl font-bold uppercase text-[10px]"><i class="fa-solid fa-check-double mr-1"></i> Aceptar a Todos</button>
+                            <div class="flex flex-wrap gap-2">
+                                <button id="auto-accept-btn" onclick="toggleAutoAccept()" class="px-4 py-3 rounded-xl text-[10px] font-black border uppercase bg-red-700/30 text-red-400 border-red-600">Admisión automática: OFF</button>
+                                <button onclick="acceptAllPlayers()" class="bg-green-600/80 text-black px-6 py-3 rounded-xl font-bold uppercase text-[10px]"><i class="fa-solid fa-check-double mr-1"></i> Aceptar a Todos</button>
+                            </div>
                         </div>
                         <div id="adm-pending" class="space-y-2 max-h-[300px] overflow-y-auto"></div>
                     </div>
@@ -526,20 +549,25 @@
         // --- SALA DE ESPERA: EL LÍDER DEBE ACEPTAR AL JUGADOR ---
         function waitForApproval(name) {
             document.getElementById('waiting-overlay').classList.remove('hidden');
-            let entered = false;
+            let entered = false, left = false;
+            // Este listener se mantiene activo: avisa si el líder acepta, rechaza o SACA al jugador de la sala
             waitingUnsub = onSnapshot(doc(db, "players", name), (snap) => {
-                if (entered) return;
+                if (left) return;
                 if (!snap.exists()) {
-                    // El líder rechazó la solicitud o reinició la sala
-                    entered = true;
-                    if (waitingUnsub) waitingUnsub();
-                    Swal.fire({ title: 'Ingreso no aceptado', text: 'El líder no aceptó tu solicitud.', icon: 'info', background: '#0a0a0a', color: '#d4af37', confirmButtonColor: '#d4af37' })
-                        .then(() => location.reload());
+                    left = true;
+                    if (questionInterval) clearInterval(questionInterval);
+                    if (liveTimerInterval) clearInterval(liveTimerInterval);
+                    document.getElementById('waiting-overlay').classList.add('hidden');
+                    const sacado = entered;
+                    Swal.fire({
+                        title: sacado ? 'Fuiste sacado de la sala' : 'Ingreso no aceptado',
+                        text: sacado ? 'El líder te sacó de la sala.' : 'El líder no aceptó tu solicitud.',
+                        icon: 'info', background: '#0a0a0a', color: '#d4af37', confirmButtonColor: '#d4af37'
+                    }).then(() => location.reload());
                     return;
                 }
-                if (snap.data().approved === true) {
+                if (!entered && snap.data().approved === true) {
                     entered = true;
-                    if (waitingUnsub) waitingUnsub();
                     document.getElementById('waiting-overlay').classList.add('hidden');
                     showPlayerIntro(() => {
                         window.showView('levels');
@@ -576,7 +604,13 @@
             const admRef = await getDoc(doc(db, "admins", adminKey));
             if (!admRef.exists()) { Swal.fire("Error", "ID no válido", "error"); return; }
             userState.name = name; userState.adminID = adminKey; userState.roomID = admRef.data().roomID;
-            await setDoc(doc(db, "players", name), { name, score:0, qIndex:0, lives:3, dead:false, time:0, level:0, levelData:{}, approved:false, adminID: adminKey, roomID: userState.roomID, lastUpdate: Date.now() });
+            // Si el líder activó la admisión automática, entra sin necesidad de ser aceptado
+            let autoOk = false;
+            try {
+                const roomSnap = await getDoc(doc(db, "rooms", "sala_" + userState.roomID));
+                autoOk = roomSnap.exists() && roomSnap.data().autoAccept === true;
+            } catch(e) {}
+            await setDoc(doc(db, "players", name), { name, score:0, qIndex:0, lives:3, dead:false, time:0, level:0, levelData:{}, approved:autoOk, adminID: adminKey, roomID: userState.roomID, lastUpdate: Date.now() });
             document.getElementById('player-room-info').innerText = "ID: " + adminKey;
             // El jugador espera a que el líder lo acepte; luego se muestra la intro y los niveles
             waitForApproval(name);
@@ -761,12 +795,41 @@
             await deleteDoc(doc(db, "players", decodeURIComponent(enc)));
         };
 
-        window.acceptAllPlayers = async () => {
+        async function acceptPending() {
             const pend = getPendingPlayers();
-            if(pend.length === 0) { Swal.fire("Sin solicitudes", "No hay jugadores esperando.", "info"); return; }
+            if(pend.length === 0) return 0;
             const batch = writeBatch(db);
             pend.forEach(p => batch.update(doc(db, "players", p.name), { approved: true }));
             await batch.commit();
+            return pend.length;
+        }
+
+        window.acceptAllPlayers = async () => {
+            const n = await acceptPending();
+            if(n === 0) Swal.fire("Sin solicitudes", "No hay jugadores esperando.", "info");
+        };
+
+        // Admisión automática: los que entren con el ID pasan directo. Se puede activar/desactivar en cualquier momento.
+        window.toggleAutoAccept = async () => {
+            const on = !roomConfig.autoAccept;
+            await updateDoc(doc(db, "rooms", "sala_" + userState.roomID), { autoAccept: on });
+            if(on) await acceptPending(); // al activarla, también entran los que ya estaban esperando
+        };
+
+        // Sacar a un jugador de la sala
+        window.kickPlayer = async (enc) => {
+            const name = decodeURIComponent(enc);
+            const result = await Swal.fire({
+                title: `¿Sacar a ${name}?`,
+                text: "El jugador será expulsado de la sala.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, sacar',
+                cancelButtonText: 'Cancelar'
+            });
+            if(result.isConfirmed) await deleteDoc(doc(db, "players", name));
         };
 
         // --- MONITOR DE GUERREROS (TODOS LOS ADMINS) ---
@@ -810,6 +873,7 @@
                         </div>
                         <div class="text-right">
                             <div class="monitor-score">${p.score} pts</div>
+                            <button onclick="kickPlayer('${encodeURIComponent(p.name)}')" class="mt-1 bg-red-900/30 text-red-400 border border-red-900/60 px-2 py-1 rounded-lg text-[9px] font-black uppercase"><i class="fa-solid fa-user-xmark mr-1"></i>Sacar</button>
                         </div>
                     </div>`;
             });
@@ -873,11 +937,18 @@
                     <div class="p-3 bg-white/5 rounded-2xl border border-white/10 flex flex-col gap-2">
                         <div class="flex justify-between items-center"><span class="text-[10px] font-bold uppercase">Nivel ${i}</span>
                         <button onclick="toggleLvl(${i})" class="px-3 py-1 rounded-lg text-[8px] font-black ${l.active?'bg-red-600/20 text-red-500 border border-red-600':'bg-green-600/20 text-green-500 border border-green-600'}">${l.active?'DESACTIVAR':'ACTIVAR'}</button></div>
-                        ${l.active ? `<div class="text-center bg-black/60 py-1 rounded-lg text-yellow-500 font-black text-[11px] tracking-widest border border-yellow-500/20">COD: ${l.code}</div>` : ''}
+                        ${l.active ? `<div class="text-center bg-black/60 py-1 rounded-lg text-green-400 font-black text-[10px] tracking-widest border border-green-500/20">NIVEL ABIERTO</div>` : ''}
                     </div>`;
             }
             document.getElementById('adm-diff').value = roomConfig.globalLives;
             document.getElementById('adm-timer-limit').value = roomConfig.timerLimit;
+            // Indicador de admisión automática
+            const ab = document.getElementById('auto-accept-btn');
+            if(ab) {
+                const autoOn = !!roomConfig.autoAccept;
+                ab.innerText = autoOn ? 'Admisión automática: ON' : 'Admisión automática: OFF';
+                ab.className = 'px-4 py-3 rounded-xl text-[10px] font-black border uppercase ' + (autoOn ? 'bg-green-600/30 text-green-400 border-green-600' : 'bg-red-700/30 text-red-400 border-red-600');
+            }
             // Indicador ACTIVO / OFF del Hall de la Gloria
             const rb = document.getElementById('ranking-toggle-btn');
             if(rb) {
@@ -891,7 +962,7 @@
             const lvls = {...(roomConfig.levels || {})};
             const current = lvls[lvl] || { active: false, code: '' };
             current.active = !current.active;
-            current.code = current.active ? Math.floor(1000 + Math.random() * 9000).toString() : '';
+            current.code = '';
             lvls[lvl] = current;
             await updateDoc(doc(db, "rooms", "sala_" + userState.roomID), { levels: lvls });
         };
@@ -931,17 +1002,47 @@
             lobbyVideo.load(); window.showView('lobby');
         };
 
-        window.validateAccessCode = async () => {
-            const input = document.getElementById('join-code-input').value.trim();
-            const correct = roomConfig.levels?.[activeLevelLobby]?.code;
-            if (activeLevelLobby > 0 && input === correct) startQuiz();
-            else Swal.fire("Denegado", "Código Erróneo", "error");
-        };
+        // --- CUENTA REGRESIVA DE 5 SEGUNDOS ---
+        let countingDown = false;
+        function runCountdown(callback) {
+            const ov = document.getElementById('countdown-overlay');
+            const num = document.getElementById('countdown-number');
+            let n = 5;
+            const show = () => {
+                num.innerText = n;
+                num.classList.remove('count-pop'); void num.offsetWidth; num.classList.add('count-pop');
+            };
+            ov.classList.remove('hidden');
+            show();
+            const iv = setInterval(() => {
+                n--;
+                if(n <= 0) { clearInterval(iv); ov.classList.add('hidden'); callback(); }
+                else show();
+            }, 1000);
+        }
 
-        async function startQuiz() {
+        // Ya no hay código: si el nivel está activo, el jugador solo presiona el botón
+        window.enterBattle = async () => {
+            if(countingDown) return;
+            if(!(activeLevelLobby > 0) || !roomConfig.levels?.[activeLevelLobby]?.active) {
+                Swal.fire("Nivel cerrado", "Espera a que el líder active este nivel.", "info"); return;
+            }
             const snap = await getDoc(doc(db, "levels", "lvl_" + activeLevelLobby));
             if(!snap.exists()) { Swal.fire("Error", "No hay preguntas cargadas", "info"); return; }
-            currentLevelQuestions = snap.data().questions.sort(() => Math.random() - 0.5).slice(0, 20);
+            const questions = snap.data().questions;
+            countingDown = true;
+            runCountdown(() => {
+                countingDown = false;
+                if(!roomConfig.levels?.[activeLevelLobby]?.active) {
+                    Swal.fire("Nivel cerrado", "El líder cerró este nivel.", "info"); return;
+                }
+                startQuiz(questions);
+            });
+        };
+
+        // El tiempo de cada jugador empieza a contar cuando termina la cuenta regresiva (individual)
+        async function startQuiz(questions) {
+            currentLevelQuestions = [...questions].sort(() => Math.random() - 0.5).slice(0, 20);
             userState.lives = roomConfig.globalLives || 3; 
             userState.qIndex = 0; userState.score = 0; userState.startTime = Date.now();
             // Registrar de inmediato en qué nivel está el jugador (para el monitor y las posiciones)
