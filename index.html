@@ -136,6 +136,14 @@
             display: none; align-items: center; justify-content: center;
         }
         #player-intro-overlay video { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Sala de espera (aprobación del líder) */
+        #waiting-overlay {
+            position: fixed; inset: 0; z-index: 3500; background: rgba(0,0,0,0.96);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center;
+        }
+        @keyframes pulse-wait { 0%,100% { opacity: .4; } 50% { opacity: 1; } }
+        .pulse-wait { animation: pulse-wait 1.6s ease-in-out infinite; }
     </style>
 </head>
 <body id="game-body">
@@ -155,6 +163,14 @@
             <p id="f-card-sub" class="text-sm italic text-yellow-600 font-bold mb-8 uppercase tracking-widest"></p>
             <button onclick="closeFloatingCard()" class="btn-gold w-full py-3 rounded-xl shadow-xl">Cerrar</button>
         </div>
+    </div>
+
+    <!-- SALA DE ESPERA: ESPERANDO APROBACIÓN DEL LÍDER -->
+    <div id="waiting-overlay" class="hidden">
+        <i class="fa-solid fa-hourglass-half text-yellow-500 text-6xl mb-6 pulse-wait"></i>
+        <h2 class="font-royal text-3xl text-yellow-500 uppercase mb-3">Esperando al Líder</h2>
+        <p class="text-zinc-400 text-sm max-w-xs mb-8">Tu solicitud de ingreso fue enviada. El administrador de la sala debe aceptarte para que puedas entrar.</p>
+        <button onclick="cancelWaiting()" class="text-[10px] text-zinc-500 underline uppercase tracking-widest">Cancelar y salir</button>
     </div>
 
     <!-- INTRO DEL JUGADOR (VIDEO) -->
@@ -179,7 +195,7 @@
     <div id="final-image-screen">
         <img id="final-image-content" src="" alt="Resultado">
         <div class="absolute bottom-10 w-full text-center px-4">
-            <button onclick="closeOutcomeVideo()" class="btn-gold w-full max-w-xs py-4 rounded-full shadow-2xl">Volver a la batalla</button>
+            <button id="final-image-btn" onclick="closeOutcomeVideo()" class="btn-gold w-full max-w-xs py-4 rounded-full shadow-2xl">Volver a la batalla</button>
         </div>
     </div>
 
@@ -332,6 +348,15 @@
                         </div>
                     </div>
 
+                    <!-- SOLICITUDES DE INGRESO (NUEVO) -->
+                    <div class="card-glass p-6 rounded-3xl mb-8 border-2 border-green-600/30">
+                        <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
+                            <h3 class="text-green-400 font-royal uppercase text-sm">Solicitudes de Ingreso <span id="pending-count" class="ml-2 bg-green-600/20 border border-green-600 text-green-400 px-2 py-0.5 rounded-full text-[10px]">0</span></h3>
+                            <button onclick="acceptAllPlayers()" class="bg-green-600/80 text-black px-6 py-3 rounded-xl font-bold uppercase text-[10px]"><i class="fa-solid fa-check-double mr-1"></i> Aceptar a Todos</button>
+                        </div>
+                        <div id="adm-pending" class="space-y-2 max-h-[300px] overflow-y-auto"></div>
+                    </div>
+
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div class="card-glass p-6 rounded-3xl h-fit">
                             <h3 class="text-yellow-500 font-royal mb-6 text-center uppercase text-sm">Configuración de Sala</h3>
@@ -351,7 +376,13 @@
                             </div>
                             <h4 class="text-yellow-600 font-bold text-center text-[10px] mb-4 uppercase tracking-widest">Misiones y Códigos</h4>
                             <div id="adm-levels-controls" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
-                            <div class="mt-8 grid grid-cols-2 gap-4">
+
+                            <!-- ESTADO DEL HALL DE LA GLORIA: ACTIVO / OFF -->
+                            <div class="mt-8 flex items-center justify-between bg-black/40 p-3 rounded-xl border border-white/10">
+                                <span class="text-[10px] uppercase font-bold text-zinc-400 tracking-widest">Hall de la Gloria</span>
+                                <button id="ranking-toggle-btn" onclick="toggleRankingSwitch()" class="px-5 py-2 rounded-lg text-[10px] font-black border bg-red-700/30 text-red-400 border-red-600">OFF</button>
+                            </div>
+                            <div class="mt-4 grid grid-cols-2 gap-4">
                                 <button onclick="toggleRanking(true)" class="bg-green-600/80 text-black py-4 rounded-xl font-bold uppercase text-[10px]">Publicar Ranking</button>
                                 <button onclick="toggleRanking(false)" class="bg-red-700/80 text-white py-4 rounded-xl font-bold uppercase text-[10px]">Quitar Ranking</button>
                             </div>
@@ -360,13 +391,26 @@
                             <div class="flex justify-between items-center mb-6">
                                 <h3 class="text-yellow-500 font-royal uppercase text-sm">Monitor de Guerreros</h3>
                                 <div id="super-admin-monitor-filter" class="hidden">
-                                    <select id="monitor-room-select" onchange="refreshMonitor()" class="bg-black border border-yellow-600/50 p-1 rounded text-white text-[9px] uppercase">
+                                    <select id="monitor-room-select" onchange="refreshMonitor(); refreshPending(); refreshPositions();" class="bg-black border border-yellow-600/50 p-1 rounded text-white text-[9px] uppercase">
                                         <option value="all">Todas las Salas</option>
                                     </select>
                                 </div>
                             </div>
                             <div id="adm-monitor" class="space-y-2 max-h-[600px] overflow-y-auto"></div>
                         </div>
+                    </div>
+
+                    <!-- POSICIONES POR NIVEL (NUEVO) -->
+                    <div class="card-glass p-6 rounded-3xl mt-8 border-2 border-yellow-500/30">
+                        <div class="flex flex-wrap justify-between items-center gap-3 mb-6">
+                            <h3 class="text-yellow-500 font-royal uppercase text-sm"><i class="fa-solid fa-trophy mr-2"></i>Posiciones por Nivel</h3>
+                            <select id="pos-level-select" onchange="refreshPositions()" class="bg-black border border-yellow-600/50 p-2 rounded text-white text-[10px] uppercase font-bold">
+                                <option value="1">Nivel 1</option><option value="2">Nivel 2</option><option value="3">Nivel 3</option><option value="4">Nivel 4</option>
+                                <option value="5">Nivel 5</option><option value="6">Nivel 6</option><option value="7">Nivel 7</option><option value="8">Nivel 8</option>
+                                <option value="9">Nivel 9</option><option value="10">Nivel 10</option><option value="11">Nivel 11</option><option value="12">Nivel 12</option>
+                            </select>
+                        </div>
+                        <div id="adm-positions" class="space-y-2 max-h-[500px] overflow-y-auto"></div>
                     </div>
                 </div>
             </div>
@@ -412,6 +456,7 @@
         let questionInterval = null;
         let playersCache = [];
         let liveTimerInterval = null;
+        let waitingUnsub = null;
 
         const gameMusic = document.getElementById('game-music');
         const lionRoar = document.getElementById('lion-roar');
@@ -478,6 +523,38 @@
             }, 8000);
         }
 
+        // --- SALA DE ESPERA: EL LÍDER DEBE ACEPTAR AL JUGADOR ---
+        function waitForApproval(name) {
+            document.getElementById('waiting-overlay').classList.remove('hidden');
+            let entered = false;
+            waitingUnsub = onSnapshot(doc(db, "players", name), (snap) => {
+                if (entered) return;
+                if (!snap.exists()) {
+                    // El líder rechazó la solicitud o reinició la sala
+                    entered = true;
+                    if (waitingUnsub) waitingUnsub();
+                    Swal.fire({ title: 'Ingreso no aceptado', text: 'El líder no aceptó tu solicitud.', icon: 'info', background: '#0a0a0a', color: '#d4af37', confirmButtonColor: '#d4af37' })
+                        .then(() => location.reload());
+                    return;
+                }
+                if (snap.data().approved === true) {
+                    entered = true;
+                    if (waitingUnsub) waitingUnsub();
+                    document.getElementById('waiting-overlay').classList.add('hidden');
+                    showPlayerIntro(() => {
+                        window.showView('levels');
+                        syncDatabase();
+                    });
+                }
+            });
+        }
+
+        window.cancelWaiting = async () => {
+            if (waitingUnsub) waitingUnsub();
+            try { await deleteDoc(doc(db, "players", userState.name)); } catch(e) {}
+            location.reload();
+        };
+
         window.handleAuth = async () => {
             const name = document.getElementById('login-name').value.trim();
             const adminKey = document.getElementById('login-admin-key').value.trim();
@@ -499,13 +576,10 @@
             const admRef = await getDoc(doc(db, "admins", adminKey));
             if (!admRef.exists()) { Swal.fire("Error", "ID no válido", "error"); return; }
             userState.name = name; userState.adminID = adminKey; userState.roomID = admRef.data().roomID;
-            await setDoc(doc(db, "players", name), { name, score:0, qIndex:0, lives:3, dead:false, time:0, adminID: adminKey, roomID: userState.roomID, lastUpdate: Date.now() });
+            await setDoc(doc(db, "players", name), { name, score:0, qIndex:0, lives:3, dead:false, time:0, level:0, levelData:{}, approved:false, adminID: adminKey, roomID: userState.roomID, lastUpdate: Date.now() });
             document.getElementById('player-room-info').innerText = "ID: " + adminKey;
-            // Mostrar intro del jugador antes de entrar a niveles
-            showPlayerIntro(() => {
-                window.showView('levels'); 
-                syncDatabase();
-            });
+            // El jugador espera a que el líder lo acepte; luego se muestra la intro y los niveles
+            waitForApproval(name);
         };
 
         function syncDatabase() {
@@ -536,6 +610,8 @@
             onSnapshot(playersQuery, (snap) => {
                 playersCache = snap.docs.map(d => d.data());
                 refreshMonitor();
+                refreshPending();
+                refreshPositions();
             });
         }
 
@@ -588,6 +664,7 @@
             onSnapshot(collection(db, "admins"), (snap) => {
                 const list = document.getElementById('super-admin-list');
                 const select = document.getElementById('monitor-room-select');
+                const prevFilter = select.value;
                 list.innerHTML = ""; select.innerHTML = '<option value="all">Todas las Salas</option>';
                 snap.forEach(d => {
                     const a = d.data();
@@ -597,6 +674,7 @@
                     </div>`;
                     select.innerHTML += `<option value="${a.roomID}">${a.roomID}</option>`;
                 });
+                if ([...select.options].some(o => o.value === prevFilter)) select.value = prevFilter;
             });
         }
 
@@ -645,16 +723,63 @@
             Swal.fire("Éxito", "Sala Creada", "success");
         };
 
+        // --- SOLICITUDES DE INGRESO (ADMIN) ---
+        function getPendingPlayers() {
+            const filter = document.getElementById('monitor-room-select')?.value || 'all';
+            let pend = playersCache.filter(p => p.approved === false);
+            if(userState.isSuper && filter !== 'all') pend = pend.filter(p => p.roomID === filter);
+            return pend;
+        }
+
+        function refreshPending() {
+            const cont = document.getElementById('adm-pending');
+            if(!cont) return;
+            const pend = getPendingPlayers();
+            document.getElementById('pending-count').innerText = pend.length;
+            if(pend.length === 0) {
+                cont.innerHTML = `<p class="text-center text-zinc-600 text-[10px] uppercase tracking-widest py-3">Sin solicitudes pendientes</p>`;
+                return;
+            }
+            cont.innerHTML = pend.map(p => `
+                <div class="monitor-card">
+                    <div>
+                        <div class="monitor-name monitor-alive">${p.name}</div>
+                        <div class="monitor-stat">Sala: ${p.roomID || '-'}</div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="acceptPlayer('${encodeURIComponent(p.name)}')" class="bg-green-600/30 text-green-400 border border-green-600 px-3 py-2 rounded-lg text-[10px] font-black uppercase"><i class="fa-solid fa-check"></i> Aceptar</button>
+                        <button onclick="rejectPlayer('${encodeURIComponent(p.name)}')" class="bg-red-600/20 text-red-400 border border-red-600 px-3 py-2 rounded-lg text-[10px] font-black uppercase"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                </div>`).join('');
+        }
+
+        window.acceptPlayer = async (enc) => {
+            await updateDoc(doc(db, "players", decodeURIComponent(enc)), { approved: true });
+        };
+
+        window.rejectPlayer = async (enc) => {
+            await deleteDoc(doc(db, "players", decodeURIComponent(enc)));
+        };
+
+        window.acceptAllPlayers = async () => {
+            const pend = getPendingPlayers();
+            if(pend.length === 0) { Swal.fire("Sin solicitudes", "No hay jugadores esperando.", "info"); return; }
+            const batch = writeBatch(db);
+            pend.forEach(p => batch.update(doc(db, "players", p.name), { approved: true }));
+            await batch.commit();
+        };
+
         // --- MONITOR DE GUERREROS (TODOS LOS ADMINS) ---
         window.refreshMonitor = () => {
             const cont = document.getElementById('adm-monitor'); 
             if(!cont) return;
             cont.innerHTML = "";
             const filter = document.getElementById('monitor-room-select')?.value || 'all';
+            // Solo jugadores aceptados
+            let filtered = playersCache.filter(p => p.approved !== false);
             // Filtrar por sala si es super admin, si no, ya vienen filtrados
-            let filtered = playersCache;
             if(userState.isSuper && filter !== 'all') {
-                filtered = playersCache.filter(p => p.roomID === filter);
+                filtered = filtered.filter(p => p.roomID === filter);
             }
             // Ordenar: mayor puntaje primero, luego menor tiempo
             filtered.sort((a, b) => {
@@ -669,6 +794,7 @@
                 const vidas = p.lives ?? 0;
                 const pregActual = (p.qIndex ?? 0) + 1;
                 const timeStr = formatTime(p.time || 0);
+                const nivelStr = p.level ? `Nivel ${p.level}` : 'En el lobby';
                 cont.innerHTML += `
                     <div class="monitor-card">
                         <div>
@@ -679,7 +805,7 @@
                                 ❤️ ${vidas} vidas · Pregunta ${pregActual}/20
                             </div>
                             <div class="monitor-stat" style="color:#d4af37;">
-                                ⏱ ${timeStr}
+                                📖 ${nivelStr} · ⏱ ${timeStr}
                             </div>
                         </div>
                         <div class="text-right">
@@ -689,9 +815,43 @@
             });
         };
 
+        // --- POSICIONES POR NIVEL (ADMIN) ---
+        window.refreshPositions = () => {
+            const cont = document.getElementById('adm-positions');
+            if(!cont) return;
+            const lvl = document.getElementById('pos-level-select').value;
+            const filter = document.getElementById('monitor-room-select')?.value || 'all';
+            let list = playersCache.filter(p => p.approved !== false && p.levelData && p.levelData[lvl]);
+            if(userState.isSuper && filter !== 'all') list = list.filter(p => p.roomID === filter);
+            list = list.map(p => ({ name: p.name, roomID: p.roomID, ...p.levelData[lvl] }));
+            list.sort((a, b) => {
+                if (b.score !== a.score) return b.score - a.score;
+                return (a.time || 0) - (b.time || 0);
+            });
+            if(list.length === 0) {
+                cont.innerHTML = `<p class="text-center text-zinc-600 text-[10px] uppercase tracking-widest py-4">Nadie ha jugado el nivel ${lvl}</p>`;
+                return;
+            }
+            cont.innerHTML = list.map((p, i) => {
+                let estado = '⚔️ EN CURSO', color = 'text-yellow-500';
+                if(p.dead) { estado = '☠ ELIMINADO'; color = 'text-red-500'; }
+                else if((p.qIndex ?? 0) >= 20) { estado = '🏆 TERMINÓ'; color = 'text-green-400'; }
+                return `
+                <div class="monitor-card">
+                    <span class="font-royal text-xl text-yellow-500 w-10">#${i+1}</span>
+                    <div class="flex-1 px-2">
+                        <div class="monitor-name monitor-alive">${p.name}</div>
+                        <div class="monitor-stat">❤️ ${p.lives ?? 0} vidas · Pregunta ${Math.min((p.qIndex ?? 0), 20)}/20 · ⏱ ${formatTime(p.time || 0)}</div>
+                        <div class="monitor-stat ${color}" style="font-weight:700;">${estado}</div>
+                    </div>
+                    <div class="monitor-score">${p.score} pts</div>
+                </div>`;
+            }).join('');
+        };
+
         async function loadRanking() {
             const list = document.getElementById('results-list'); list.innerHTML = "";
-            const filtered = playersCache.filter(p => p.roomID === userState.roomID).sort((a,b) => {
+            const filtered = playersCache.filter(p => p.roomID === userState.roomID && p.approved !== false).sort((a,b) => {
                 if (b.score !== a.score) return b.score - a.score;
                 return (a.time || 0) - (b.time || 0);
             });
@@ -718,6 +878,13 @@
             }
             document.getElementById('adm-diff').value = roomConfig.globalLives;
             document.getElementById('adm-timer-limit').value = roomConfig.timerLimit;
+            // Indicador ACTIVO / OFF del Hall de la Gloria
+            const rb = document.getElementById('ranking-toggle-btn');
+            if(rb) {
+                const on = !!roomConfig.showResults;
+                rb.innerText = on ? 'ACTIVO' : 'OFF';
+                rb.className = 'px-5 py-2 rounded-lg text-[10px] font-black border ' + (on ? 'bg-green-600/30 text-green-400 border-green-600' : 'bg-red-700/30 text-red-400 border-red-600');
+            }
         }
 
         window.toggleLvl = async (lvl) => {
@@ -737,6 +904,7 @@
         };
 
         window.toggleRanking = async (v) => { await updateDoc(doc(db, "rooms", "sala_" + userState.roomID), { showResults: v }); };
+        window.toggleRankingSwitch = () => window.toggleRanking(!roomConfig.showResults);
 
         window.resetGlobalSystem = async () => {
             if(confirm("¿Reiniciar jugadores de esta sala?")) {
@@ -776,6 +944,8 @@
             currentLevelQuestions = snap.data().questions.sort(() => Math.random() - 0.5).slice(0, 20);
             userState.lives = roomConfig.globalLives || 3; 
             userState.qIndex = 0; userState.score = 0; userState.startTime = Date.now();
+            // Registrar de inmediato en qué nivel está el jugador (para el monitor y las posiciones)
+            updateStats();
             window.showView('game'); runQuiz();
             // Iniciar temporizador en vivo para actualizar el tiempo en pantalla
             liveTimerInterval = setInterval(() => {
@@ -832,7 +1002,11 @@
 
         async function updateStats() {
             const time = Math.floor((Date.now() - userState.startTime)/1000);
-            await updateDoc(doc(db, "players", userState.name), { score: userState.score, qIndex: userState.qIndex, lives: userState.lives, dead: userState.lives <= 0, time: time, lastUpdate: Date.now() });
+            const dead = userState.lives <= 0;
+            const payload = { score: userState.score, qIndex: userState.qIndex, lives: userState.lives, dead: dead, time: time, level: activeLevelLobby, lastUpdate: Date.now() };
+            // Datos propios de este nivel (para ver posiciones por nivel en el panel admin)
+            payload["levelData." + activeLevelLobby] = { score: userState.score, qIndex: userState.qIndex, lives: userState.lives, dead: dead, time: time };
+            await updateDoc(doc(db, "players", userState.name), payload);
         }
 
         let targetLvl = 1;
@@ -869,12 +1043,22 @@
         };
 
         window.toggleAdminField = () => document.getElementById('admin-pass-container').classList.toggle('hidden');
-        window.closeOutcomeVideo = () => { document.getElementById('final-image-screen').style.display = "none"; window.showView('levels'); };
+
+        // Si el jugador PERDIÓ el nivel, abandona la sala y vuelve al inicio.
+        // Si GANÓ, se queda en la sala y regresa a las misiones.
+        window.closeOutcomeVideo = () => {
+            document.getElementById('final-image-screen').style.display = "none";
+            if (userState.lives <= 0) { location.reload(); return; }
+            gameMusic.play().catch(()=>{});
+            window.showView('levels');
+        };
         
         window.finishBattle = () => { 
             if(liveTimerInterval) clearInterval(liveTimerInterval);
             gameMusic.pause(); 
-            outcomePlayer.src = userState.lives > 0 ? "gano.mp4" : "perdio.mp4"; 
+            const gano = userState.lives > 0;
+            document.getElementById('final-image-btn').innerText = gano ? 'Volver a la batalla' : 'Salir de la sala';
+            outcomePlayer.src = gano ? "gano.mp4" : "perdio.mp4"; 
             document.getElementById('video-outcome').classList.remove('hidden'); 
             outcomePlayer.play(); 
             outcomePlayer.onended = () => { 
