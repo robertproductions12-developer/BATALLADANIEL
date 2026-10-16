@@ -159,6 +159,35 @@
 
         /* Las alertas siempre por encima de cualquier pantalla */
         .swal2-container { z-index: 20000 !important; }
+
+        /* ===== TECLADO PERSONALIZADO ===== */
+        #game-kb {
+            position: fixed; left: 0; right: 0; bottom: 0; z-index: 15000; display: none;
+            padding: 8px 5px calc(8px + env(safe-area-inset-bottom));
+            background: linear-gradient(180deg, rgba(16,16,16,.98), #050505);
+            border-top: 2px solid var(--gold);
+            box-shadow: 0 -10px 30px rgba(212,175,55,.25);
+            backdrop-filter: blur(12px);
+            user-select: none; -webkit-user-select: none; touch-action: manipulation;
+        }
+        .kb-row { display: flex; gap: 5px; margin-bottom: 6px; justify-content: center; }
+        .kb-key {
+            flex: 1; min-width: 0; height: 44px; border-radius: 10px;
+            font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 16px;
+            color: var(--gold); background: rgba(255,255,255,.05);
+            border: 1px solid rgba(212,175,55,.25); padding: 0;
+        }
+        .kb-key.pressed, .kb-key.on {
+            background: linear-gradient(135deg, #bf953f 0%, #fcf6ba 45%, #b38728 100%);
+            color: #1a1a1a;
+        }
+        .kb-wide { flex: 1.5; }
+        .kb-space { flex: 4; }
+        .kb-enter {
+            flex: 2; background: linear-gradient(135deg, #bf953f 0%, #fcf6ba 45%, #b38728 100%);
+            color: #1a1a1a; font-weight: 800; font-size: 13px; letter-spacing: 1px;
+        }
+        .kb-active { border-color: var(--gold) !important; box-shadow: 0 0 0 2px rgba(212,175,55,.35); }
     </style>
 </head>
 <body id="game-body">
@@ -443,6 +472,9 @@
         <input type="file" id="float-excel-input" accept=".xlsx" class="hidden">
         <footer class="footer-anclado shrink-0">DESARROLLADO POR - ROBERT PARACO 2026</footer>
     </div>
+
+    <!-- TECLADO PERSONALIZADO -->
+    <div id="game-kb"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -1178,6 +1210,146 @@
             document.getElementById('floating-card-overlay').style.display = 'flex';
         };
         window.closeFloatingCard = () => document.getElementById('floating-card-overlay').style.display = 'none';
+    </script>
+
+    <script>
+    (function () {
+        // Solo en dispositivos táctiles (celulares / tablets)
+        const IS_TOUCH = window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
+        if (!IS_TOUCH) return;
+
+        const kb = document.getElementById('game-kb');
+        const main = document.getElementById('main-content');
+        const inputs = document.querySelectorAll('input[type="text"], input[type="password"]');
+        let active = null, shift = false, mode = 'abc', repeatT = null, repeatI = null;
+
+        const LAYOUTS = {
+            abc: [
+                'q w e r t y u i o p'.split(' '),
+                'a s d f g h j k l ñ'.split(' '),
+                ['SHIFT', ...'z x c v b n m'.split(' '), 'BACK'],
+                ['NUM', '.', ',', 'SPACE', '@', 'ENTER']
+            ],
+            num: [
+                '1 2 3 4 5 6 7 8 9 0'.split(' '),
+                '@ # $ % & * - _ + ='.split(' '),
+                'á é í ó ú ü ¿ ¡ ? !'.split(' '),
+                ['ABC', '.', ',', 'SPACE', 'BACK', 'ENTER']
+            ]
+        };
+
+        function label(k) {
+            if (k === 'SHIFT') return '⇧';
+            if (k === 'BACK') return '⌫';
+            if (k === 'NUM') return '123';
+            if (k === 'ABC') return 'ABC';
+            if (k === 'SPACE') return 'ESPACIO';
+            if (k === 'ENTER') return 'ENTER';
+            return (mode === 'abc' && shift) ? k.toUpperCase() : k;
+        }
+
+        function render() {
+            kb.innerHTML = '';
+            LAYOUTS[mode].forEach(row => {
+                const r = document.createElement('div'); r.className = 'kb-row';
+                row.forEach(k => {
+                    const b = document.createElement('button');
+                    b.type = 'button'; b.dataset.k = k;
+                    b.className = 'kb-key' +
+                        (['SHIFT', 'BACK', 'NUM', 'ABC'].includes(k) ? ' kb-wide' : '') +
+                        (k === 'SPACE' ? ' kb-space' : '') +
+                        (k === 'ENTER' ? ' kb-enter' : '') +
+                        (k === 'SHIFT' && shift ? ' on' : '');
+                    b.textContent = label(k);
+                    r.appendChild(b);
+                });
+                kb.appendChild(r);
+            });
+        }
+
+        function showKb() {
+            render();
+            kb.style.display = 'block';
+            main.style.paddingBottom = kb.offsetHeight + 'px';
+            if (active) setTimeout(() => active.scrollIntoView({ block: 'center', behavior: 'smooth' }), 80);
+        }
+
+        function hideKb() {
+            kb.style.display = 'none';
+            main.style.paddingBottom = '0px';
+            if (active) active.classList.remove('kb-active');
+            active = null;
+        }
+
+        function setActive(inp) {
+            if (active && active !== inp) active.classList.remove('kb-active');
+            active = inp; inp.classList.add('kb-active'); showKb();
+        }
+
+        function typeChar(ch) {
+            if (!active) return;
+            active.value += ch;
+            active.dispatchEvent(new Event('input', { bubbles: true }));
+            if (shift && mode === 'abc') { shift = false; render(); }
+        }
+
+        function backspace() {
+            if (!active) return;
+            active.value = active.value.slice(0, -1);
+            active.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+
+        function pressKey(k) {
+            if (k === 'SHIFT') { shift = !shift; render(); }
+            else if (k === 'NUM') { mode = 'num'; render(); }
+            else if (k === 'ABC') { mode = 'abc'; render(); }
+            else if (k === 'BACK') backspace();
+            else if (k === 'SPACE') typeChar(' ');
+            else if (k === 'ENTER') {
+                const id = active ? active.id : '';
+                if (id === 'chat-input') { window.sendChatMessage && window.sendChatMessage(); }
+                else if (['login-name', 'login-admin-key', 'login-pass'].includes(id)) { hideKb(); window.handleAuth && window.handleAuth(); }
+                else hideKb();
+            }
+            else typeChar((mode === 'abc' && shift) ? k.toUpperCase() : k);
+        }
+
+        function stopRepeat() { clearTimeout(repeatT); clearInterval(repeatI); }
+
+        // Teclas (pointerdown + preventDefault para no perder el foco del campo)
+        kb.addEventListener('pointerdown', (e) => {
+            const b = e.target.closest('.kb-key'); if (!b) return;
+            e.preventDefault();
+            b.classList.add('pressed');
+            const k = b.dataset.k;
+            pressKey(k);
+            if (k === 'BACK') {
+                repeatT = setTimeout(() => { repeatI = setInterval(backspace, 60); }, 400);
+            }
+        });
+        ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev =>
+            kb.addEventListener(ev, (e) => {
+                stopRepeat();
+                kb.querySelectorAll('.pressed').forEach(x => x.classList.remove('pressed'));
+            })
+        );
+
+        // Campos: bloquean el teclado nativo y abren el del juego
+        inputs.forEach(inp => {
+            inp.setAttribute('inputmode', 'none');
+            inp.setAttribute('readonly', 'readonly');
+            inp.setAttribute('autocomplete', 'off');
+            inp.addEventListener('pointerdown', () => setActive(inp));
+            inp.addEventListener('focus', () => setActive(inp));
+        });
+
+        // Tocar fuera del teclado y de los campos lo cierra
+        document.addEventListener('pointerdown', (e) => {
+            if (kb.style.display === 'none') return;
+            if (e.target.closest('#game-kb') || e.target.tagName === 'INPUT') return;
+            hideKb();
+        });
+    })();
     </script>
 </body>
 </html>
